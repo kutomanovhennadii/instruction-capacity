@@ -1,0 +1,27 @@
+# Build config of the vocabulary V.
+# Two filters: monosyllabic singular nouns of the CMU Pronouncing Dictionary -> words that
+# are a single token for every tokenizer of the set -> intersection.
+# Run: python scripts/build_vocab.py --config config/vocab.yaml
+#
+# A changed tokenizer set gives a new vocabulary version: set a new vocab_id, keep v1.
+
+vocab_id: "v1_intersection"
+source: "cmudict"
+
+max_syllables: 1
+ascii_lower_only: true
+
+tokenizer_specs:
+  - provider: tiktoken
+    name: gpt-4o
+  - provider: tiktoken
+    name: gpt-3.5-turbo
+  - provider: tiktoken
+    name: gpt-4o-mini
+  - provider: hf
+    name: Qwen/Qwen2.5-0.5B  # the tokenizer of the larger Qwen2.5 models; free, not gated
+  # Llama can be added with a Hugging Face access token (the model is gated):
+  # - provider: hf
+  #   name: meta-llama/Llama-3.1-8B
+  # Claude is not included: Anthropic publishes no local tokenizer (see the README of
+  # iec.model_client).

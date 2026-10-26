@@ -1,0 +1,59 @@
+[project]
+name = "iec"
+version = "0.1.0"
+description = "Instruction capacity of language models: one measurement point and the passport of a measurement."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+  "tiktoken>=0.7,<1.0",
+  "httpx>=0.27,<1.0",
+  "python-dotenv>=1.0,<2.0",
+  "pydantic>=2.0,<3.0",
+  "pyyaml>=6.0,<7.0",
+  "nltk>=3.8,<4.0",
+  "transformers>=4.45,<5.0",
+  "numpy>=1.26,<3.0",
+  "scipy>=1.11,<2.0",
+  "matplotlib>=3.8,<4.0",
+]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{ include = "iec", from = "src" }]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+# Mirrored test layout has equal basenames in different folders; importlib mode imports
+# each file by path. Live provider tests are paid calls: they run only on "-m network".
+addopts = "--import-mode=importlib -m \"not network\""
+markers = [
+  "network: the test needs the network (a paid provider call or a model hub download); excluded by default, run with -m network",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
+explicit_package_bases = true
+warn_unused_configs = true
+pretty = true
+
+# NLTK ships no type information; it is used only inside iec.vocab.word_source.
+[[tool.mypy.overrides]]
+module = ["nltk.*"]
+ignore_missing_imports = true
+
+# SciPy ships no type information; it is used only inside iec.passport (second-stage least
+# squares and the root search of the continuous IEC).
+[[tool.mypy.overrides]]
+module = ["scipy.*"]
+ignore_missing_imports = true

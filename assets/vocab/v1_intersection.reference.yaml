@@ -1,0 +1,67 @@
+# Reference of the vocabulary version: evidence of the data on which the published results
+# were obtained.
+#
+# The file is filled in by a person once, when the vocabulary version is fixed, and is not
+# changed afterwards: a changed vocabulary is a NEW version (a new vocab_id and a new
+# reference file), not an edit of this file.
+#
+# Check: python scripts/verify_vocab.py
+# How the vocabulary is built and why each filter: README of iec.vocab.
+
+vocab_id: v1_intersection
+built_at: "2026-08-02"
+
+# Hash of the sorted word list (sha256 of the canonical JSON serialization).
+# Catches both a damaged file and a substituted vocabulary version.
+hash: "sha256:5a91097540bec6584f7ffc94bffb4e5a6a2a9087f28828fa44d7214ccfa75906"
+size: 2220
+
+source: cmudict_monosyllabic_singular_nouns
+
+# Tokenizers whose single-token sets were intersected.
+# gpt-4o and gpt-4o-mini share the o200k_base encoding, so there are in fact three distinct
+# tokenizers here, not four.
+tokenizer_names:
+  - tiktoken/gpt-4o
+  - tiktoken/gpt-3.5-turbo
+  - tiktoken/gpt-4o-mini
+  - hf/Qwen/Qwen2.5-0.5B
+
+# Build parameters stored in the artifact.
+build_params:
+  max_syllables: 1
+  ascii_lower_only: true
+
+# Thresholds fixed in the code, not in the config: the vocabulary is reproducible with
+# them, but the check command cannot see their change - it shows up as a hash mismatch.
+code_constants:
+  min_word_length: 3
+  probe_prefix: " "
+
+# Filter funnel - control numbers to compare with on a rebuild.
+funnel:
+  cmudict_entries: 123455
+  after_ascii_lower: 115533
+  after_min_length: 115318
+  after_monosyllabic: 14884
+  after_noun: 5750
+  after_singular: 3581
+  intersection: 2220
+
+# Single-token words out of the 3581 candidates, per tokenizer.
+per_tokenizer:
+  tiktoken/gpt-4o: 2536
+  tiktoken/gpt-3.5-turbo: 2250
+  tiktoken/gpt-4o-mini: 2536
+  hf/Qwen/Qwen2.5-0.5B: 2252
+
+# Versions of the data and libraries that determine the result.
+provenance:
+  cmudict: cmudict.0.7a
+  wordnet: "3.0"
+  omw: omw-1.4
+  python: 3.11.2
+  nltk: 3.10.0
+  tiktoken: 0.13.0
+  transformers: 4.57.6
+  tokenizers: 0.22.2

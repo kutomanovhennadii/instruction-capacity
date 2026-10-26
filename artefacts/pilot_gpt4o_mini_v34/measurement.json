@@ -1,0 +1,25 @@
+{
+  "model": {
+    "model_id": "gpt-4o-mini-2024-07-18",
+    "provider": "openai",
+    "gen_params": {
+      "temperature": 0.0,
+      "max_tokens": 16384,
+      "top_p": 1.0,
+      "seed": 20260907
+    },
+    "tokenizer_name": "gpt-4o-mini",
+    "context_window_tokens": 128000,
+    "response_ceiling_tokens": 16384
+  },
+  "protocol_version": "0.1",
+  "vocab_id": "v1_intersection",
+  "vocab_hash": "sha256:5a91097540bec6584f7ffc94bffb4e5a6a2a9087f28828fa44d7214ccfa75906",
+  "tariff": {
+    "input_usd_per_million": 0.15,
+    "output_usd_per_million": 0.6
+  },
+  "files": {
+    "points.jsonl.gz": "76c78ae09975812fc4d07c0c552f5e1aae968dd7c122746d00c8a97834fd1290"
+  }
+}

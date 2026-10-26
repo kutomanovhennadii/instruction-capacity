@@ -1,0 +1,7 @@
+# The test runner, pinned to the version the test suite was run with:
+#     pip install -r requirements-test.txt
+#     python -m pytest
+iniconfig==2.3.1
+pluggy==1.6.0
+Pygments==2.21.0
+pytest==9.1.1

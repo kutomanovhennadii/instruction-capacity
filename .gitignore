@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Environments and secrets
+.venv/
+venv/
+.env
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Outputs of the quick start
+my_passport/
+my_points.jsonl
+my_vocab/
+dry_run.jsonl
