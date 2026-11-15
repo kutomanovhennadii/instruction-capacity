@@ -1,34 +1,43 @@
-"""Execution of one measurement point: task, ceiling check, model call, validation."""
+"""Execution of one measurement point: task, ceiling check, model call, record."""
 
 from __future__ import annotations
 
 import time
 
-from iec.answer_validator import RunValidator, build_reference
+from iec.answer_validator import build_reference
 from iec.contracts import (
     ModelConfig,
     PointConditions,
     PointOutcome,
     PointRecord,
     PointStatus,
+    Prompt,
     RawOutput,
+    RuleTable,
+    SourceText,
     Vocab,
+    has_no_words,
 )
 from iec.infrastructure.exceptions import ProviderError
 from iec.infrastructure.logging import LogContext, get_logger
-from iec.infrastructure.telemetry import TelemetryContext, telemetry_step
+from iec.infrastructure.telemetry import (
+    POINT_EXECUTION,
+    TelemetryHub,
+    point_context,
+    telemetry_step,
+)
 from iec.model_client import ModelClient, Tokenizer
 from iec.prompt_generator import PromptBuilder, RuleGenerator, TextGenerator
 
 _MODULE_NAME = "point_executor"
 
-#: Error code of an adapter timeout. Silence of the model is data, not a failure: the point
-#: is recorded as answered with an empty text, and the validator reads it as a collapse
-#: from the first word.
+#: Error code of a model that stayed silent until the time limit twice: the reliable layer retries
+#: a timeout once with the limit doubled, and the point gets no answer, ``api_error``.
 PROVIDER_TIMEOUT_CODE = "PROVIDER_TIMEOUT"
-
-#: Finish reason marking the empty answer of a silent point.
-_SILENCE_FINISH_REASON = "timeout"
+#: Error code of a model that answered twice without a word: the point gets ``api_error``.
+EMPTY_ANSWER_CODE = "EMPTY_ANSWER"
+#: Calls of the model when it answers without a word: the first and one retry.
+EMPTY_ANSWER_CALLS = 2
 
 #: Answer reserve above the reference that the ceiling check requires before the call.
 #: The reference is measured without the wrapper a model sometimes adds (a greeting, a code
@@ -71,27 +80,20 @@ def ceiling_verdict(
     return None
 
 
-def _telemetry_context(self: PointExecutor, conditions: PointConditions) -> TelemetryContext:
-    """Extract the point identity for the telemetry event of point execution."""
-    return TelemetryContext(
-        model_id=self.model_id,
-        m=conditions.m,
-        seed_rules=conditions.seed_rules,
-        seed_text=conditions.seed_text,
-        seed_order=conditions.seed_order,
-    )
-
-
 class PointExecutor:
     """Executor of one point - a thin chain of ready operations.
 
-    The task is built by the generators, the reference by the reference builder, the trial
-    outcomes by the validator; the executor passes contracts from step to step and branches
-    on the status. A bad answer of the model is data: an empty or garbage answer gets status
-    ``ok`` and honest zeros in the trials. A provider failure is not data: the point gets
-    ``api_error`` and no trials. An exception of the bench itself is not caught here - the
-    caller decides what to do with it.
+    The task is built by the generators, the reference by the reference builder; the executor
+    passes contracts from step to step and branches on the status. A bad answer of the model is
+    data: an empty or garbage answer gets status ``ok``, and the alignment reads it from the
+    record. A provider failure is not data: the point gets ``api_error`` and no answer. An
+    exception of the bench itself is not caught here - the caller decides what to do with it.
+
+    ``telemetry`` is the hub that records every execution in the block ``point_execution`` with
+    the point key - the model and the conditions; the generators of the task share it.
     """
+
+    telemetry: TelemetryHub
 
     def __init__(
         self,
@@ -99,6 +101,8 @@ class PointExecutor:
         tokenizer: Tokenizer,
         vocab: Vocab,
         config: ModelConfig,
+        *,
+        telemetry: TelemetryHub | None = None,
     ) -> None:
         """Assemble the executor once per model.
 
@@ -107,14 +111,21 @@ class PointExecutor:
             tokenizer: Tokenizer of the same model; it measures both limits.
             vocab: Vocabulary of the measurement.
             config: Model configuration: generation parameters and declared limits.
+            telemetry: Hub that records every execution in the block ``point_execution`` and
+                every generation of the task in the block ``task_generation``; without it the
+                executor gets a hub of its own that writes the log lines only.
+
+        Raises:
+            VocabError: ``RULES_EMPTY_VOCAB`` - the vocabulary is empty (from the rule
+                generator).
         """
         self._client = client
         self._tokenizer = tokenizer
         self._config = config
-        self._rule_generator = RuleGenerator(vocab)
-        self._text_generator = TextGenerator(vocab, tokenizer)
+        self.telemetry = telemetry if telemetry is not None else TelemetryHub.log_only()
+        self._rule_generator = RuleGenerator(vocab, telemetry=self.telemetry)
+        self._text_generator = TextGenerator(vocab, tokenizer, telemetry=self.telemetry)
         self._prompt_builder = PromptBuilder()
-        self._validator = RunValidator()
         self._logger = get_logger(LogContext(module_name=_MODULE_NAME))
 
     @property
@@ -122,7 +133,12 @@ class PointExecutor:
         """Return the opaque model identifier of the configuration."""
         return self._config.model_id
 
-    @telemetry_step("point_execute", module_name=_MODULE_NAME, context_extractor=_telemetry_context)
+    @telemetry_step(
+        "point_execute",
+        block=POINT_EXECUTION,
+        module_name=_MODULE_NAME,
+        context_extractor=point_context,
+    )
     def execute(self, conditions: PointConditions) -> PointOutcome:
         """Execute one point and return its full outcome.
 
@@ -154,48 +170,84 @@ class PointExecutor:
             self._logger.info(f"point {conditions.identity} is unreachable: {unreachable}")
             status = PointStatus.NA
         else:
-            try:
-                raw_output = self._client.generate(prompt, self._config.gen_params)
-                status = PointStatus.OK
-            except ProviderError as error:
-                error_code = error.error_code
-                if error.error_code == PROVIDER_TIMEOUT_CODE:
-                    self._logger.warning(
-                        f"point {conditions.identity} gave no answer in time: recorded as "
-                        f"a collapse from the first word ({error.error_code})"
-                    )
-                    raw_output = RawOutput(text="", finish_reason=_SILENCE_FINISH_REASON)
-                    status = PointStatus.OK
-                else:
-                    self._logger.error(
-                        f"point {conditions.identity} provider failure: {error.error_code}"
-                    )
-                    status = PointStatus.API_ERROR
+            raw_output, status, error_code = self._call_model(prompt, conditions)
 
-        trial_result = (
-            self._validator.validate(raw_output, reference, source_text, rule_table)
-            if raw_output is not None
-            else None
-        )
-        usage = None if raw_output is None else raw_output.usage
-        record = PointRecord(
-            conditions=conditions,
-            rules=tuple((rule.source, rule.target) for rule in rule_table.rules),
-            source_text=source_text.text,
-            answer=None if raw_output is None else raw_output.text,
-            status=status,
-            prompt_tokens=None if usage is None else usage.prompt_tokens,
-            response_tokens=None if usage is None else usage.response_tokens,
-        )
         return PointOutcome(
-            record=record,
+            record=_point_record(conditions, rule_table, source_text, raw_output, status),
             rule_table=rule_table,
             source_text=source_text,
             prompt=prompt,
             reference=reference,
             prompt_len_tokens=prompt_len_tokens,
             raw_output=raw_output,
-            trial_result=trial_result,
             error_code=error_code,
             duration_s=time.perf_counter() - started,
         )
+
+    def _call_model(
+        self, prompt: Prompt, conditions: PointConditions
+    ) -> tuple[RawOutput | None, PointStatus, str | None]:
+        """Call the model and turn a failure or an empty answer into the outcome of the point.
+
+        A provider failure, the silence until the doubled time limit (``PROVIDER_TIMEOUT``)
+        included, leaves the point without an answer, ``api_error``. An answer without a word
+        is asked once more; a second one gives ``api_error`` with ``EMPTY_ANSWER``.
+
+        Args:
+            prompt: The assembled prompt of the point.
+            conditions: The conditions of the point, for the log lines.
+
+        Returns:
+            The raw output (``None`` without an answer), the status of the point and the error
+            code of the failure (``None`` when the model answered).
+
+        Side effects:
+            One or two calls of the model; a failure and an empty answer are written to the log.
+        """
+        for call in range(1, EMPTY_ANSWER_CALLS + 1):
+            try:
+                output = self._client.generate(prompt, self._config.gen_params)
+            except ProviderError as error:
+                self._logger.error(
+                    f"point {conditions.identity} provider failure: {error.error_code}"
+                )
+                return None, PointStatus.API_ERROR, error.error_code
+            if not has_no_words(output.text):
+                return output, PointStatus.OK, None
+            self._logger.warning(
+                f"point {conditions.identity} answered without a word "
+                f"(call {call} of {EMPTY_ANSWER_CALLS})"
+            )
+        return None, PointStatus.API_ERROR, EMPTY_ANSWER_CODE
+
+
+def _point_record(
+    conditions: PointConditions,
+    rule_table: RuleTable,
+    source_text: SourceText,
+    raw_output: RawOutput | None,
+    status: PointStatus,
+) -> PointRecord:
+    """Assemble the published record of a point from its task and the answer of the model.
+
+    Args:
+        conditions: The conditions of the point.
+        rule_table: The rule list in the order shown to the model.
+        source_text: The source text of the task.
+        raw_output: The raw output of the model; ``None`` when the model was not called or did
+            not answer.
+        status: The status of the point.
+
+    Returns:
+        The record; without an answer the answer and the provider counters are ``None``.
+    """
+    usage = None if raw_output is None else raw_output.usage
+    return PointRecord(
+        conditions=conditions,
+        rules=tuple((rule.source, rule.target) for rule in rule_table.rules),
+        source_text=source_text.text,
+        answer=None if raw_output is None else raw_output.text,
+        status=status,
+        prompt_tokens=None if usage is None else usage.prompt_tokens,
+        response_tokens=None if usage is None else usage.response_tokens,
+    )

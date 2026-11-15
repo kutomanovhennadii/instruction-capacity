@@ -15,11 +15,11 @@ import pytest
 
 from iec.contracts import GenParams, Prompt, RawOutput
 from iec.model_client import model_builder
-from iec.model_client.model_builder import build_openai_provider, OPENAI_API_KEY_ENV
-from iec.model_client.openai_client import OpenAIModelClient
+from iec.model_client.model_builder import OPENAI_API_KEY_ENV, build_openai_provider
+from iec.model_client.provider_adapters.openai_client import OpenAIModelClient
 from iec.model_client.reliability import HttpxTransport
 from iec.model_client.reliability.reliable_client import ReliableModelClient
-from iec.model_client.tiktoken_tokenizer import TiktokenTokenizer
+from iec.model_client.tokenizer_adapters.tiktoken_tokenizer import TiktokenTokenizer
 
 PILOT_MODEL_ID = "gpt-4o-mini-2024-07-18"
 

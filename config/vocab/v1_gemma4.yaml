@@ -1,0 +1,17 @@
+# Vocabulary of the models with the tokenizer of Gemma 4: gemma-4-31b-it, gemma-4-26b-a4b-it and
+# gemini-3.1-flash-lite. Single tokens by the tokenizer files of both Gemma models and by the count
+# of gemini-3.1-flash-lite (countTokens, needs GEMINI_API_KEY).
+# Run: python scripts/build_vocab.py --config config/vocab/v1_gemma4.yaml --assets-dir my_vocab
+
+vocab_id: "v1_gemma4"
+source: "cmudict"
+max_syllables: 1
+ascii_lower_only: true
+
+tokenizer_specs:
+  - provider: hfjson
+    name: google/gemma-4-31B-it
+  - provider: hfjson
+    name: google/gemma-4-26B-A4B-it
+  - provider: gemini_count
+    name: gemini-3.1-flash-lite

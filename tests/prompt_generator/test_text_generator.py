@@ -6,9 +6,15 @@ import pytest
 
 from iec.contracts import PointConditions, Vocab
 from iec.infrastructure.exceptions import ConfigError
+from iec.infrastructure.telemetry import (
+    TASK_GENERATION,
+    MemorySink,
+    ObservationLevels,
+    TelemetryHub,
+)
 from iec.model_client import MockTokenizer
 from iec.prompt_generator import RuleGenerator, TextGenerator
-from iec.prompt_generator.text_generator import WORDS_PER_LINE
+from iec.prompt_generator.text_generator import WORDS_PER_LINE, replacement_positions
 
 # Twenty words: enough for a lexicon with background and for the "vocab too small" check.
 _WORDS = frozenset(
@@ -94,6 +100,13 @@ def test_replacements_are_marked_in_reading_order() -> None:
     )
 
 
+def test_replacement_positions_mark_every_left_word_in_reading_order() -> None:
+    words = ("lake", "dog", "stone", "lake", "tree")
+
+    assert replacement_positions(words, ("lake", "tree")) == (0, 3, 4)
+    assert replacement_positions(words, ()) == ()
+
+
 def test_len_tokens_is_measured_and_predictable_on_mock() -> None:
     params = _make_params()
 
@@ -173,3 +186,19 @@ def test_vocab_too_small_for_lexicon_raises_config_error() -> None:
         TextGenerator(vocab, MockTokenizer()).generate(params, table)
 
     assert excinfo.value.error_code == "TEXT_DISTINCT_INVALID"
+
+
+def test_the_event_of_a_generation_carries_the_point_key() -> None:
+    params = _make_params()
+    vocab = _make_vocab()
+    table = RuleGenerator(vocab).generate(params)
+    sink = MemorySink()
+    generator = TextGenerator(
+        vocab, MockTokenizer(), telemetry=TelemetryHub(ObservationLevels(), [sink])
+    )
+
+    generator.generate(params, table)
+
+    (event,) = sink.events
+    assert (event.block, event.operation) == (TASK_GENERATION, "text_generate")
+    assert (event.context.m, event.context.seed_rules, event.context.seed_text) == (2, 7, 42)

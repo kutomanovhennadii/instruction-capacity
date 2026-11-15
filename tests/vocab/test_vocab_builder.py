@@ -5,27 +5,14 @@ and check exactly the pipeline of single-token status and intersection (no netwo
 """
 
 import logging
-from collections.abc import Iterator
 
 import pytest
 
 from iec.contracts import Vocab
 from iec.infrastructure.exceptions import VocabError
-from iec.infrastructure.logging import PACKAGE_LOGGER_NAME
+from iec.infrastructure.telemetry import VOCAB_BUILD, MemorySink, ObservationLevels, TelemetryHub
 from iec.model_client import MockTokenizer
 from iec.vocab import VocabBuildConfig, VocabBuilder
-
-
-@pytest.fixture(autouse=True)
-def isolated_package_logger() -> Iterator[None]:
-    """Reset the package log handlers so that a new one binds to the capsys stream."""
-    logger = logging.getLogger(PACKAGE_LOGGER_NAME)
-    previous_handlers = logger.handlers[:]
-    logger.handlers.clear()
-    try:
-        yield
-    finally:
-        logger.handlers[:] = previous_handlers
 
 # Words of different length: short - 4 letters, mid - 8 letters, long - 12 letters.
 WORDS = {"lake", "mountains", "flabbergast"}  # 4, 9, 11 characters
@@ -163,9 +150,12 @@ def test_word_single_token_only_with_space_is_kept() -> None:
     assert builder.build().words == frozenset({"sword"})
 
 
-def test_per_tokenizer_sizes_are_logged(capsys: pytest.CaptureFixture[str]) -> None:
+def test_per_tokenizer_sizes_are_logged(
+    isolated_package_logger: logging.Logger, capsys: pytest.CaptureFixture[str]
+) -> None:
     # The package logger does not propagate records (propagate=False), so stderr is read,
-    # as in the mock provider tests, not caplog.
+    # as in the mock provider tests, not caplog. The shared fixture gives the package logger
+    # without handlers, so the handler made by the builder binds to the capsys stream.
     builder = VocabBuilder(
         _config(),
         [MockTokenizer(name="mock/wide", single_token_max_chars=20)],
@@ -177,3 +167,19 @@ def test_per_tokenizer_sizes_are_logged(capsys: pytest.CaptureFixture[str]) -> N
     err = capsys.readouterr().err
     assert "mock/wide" in err and "single-token words" in err
     assert "intersection size" in err
+
+
+def test_the_build_is_recorded_in_the_hub_of_the_builder() -> None:
+    sink = MemorySink()
+    builder = VocabBuilder(
+        _config(),
+        [MockTokenizer(name="mock/wide", single_token_max_chars=20)],
+        word_source=_source(WORDS),
+        telemetry=TelemetryHub(ObservationLevels(), [sink]),
+    )
+
+    builder.build()
+
+    assert [(event.block, event.operation, event.status.value) for event in sink.events] == [
+        (VOCAB_BUILD, "vocab_build", "success")
+    ]

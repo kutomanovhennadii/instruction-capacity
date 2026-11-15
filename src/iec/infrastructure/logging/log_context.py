@@ -1,55 +1,31 @@
-"""Typed context of IEC log records."""
+"""Typed context of IEC log records: the module, the step and the identifiers of a point."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 
+#: One identifier of a log record: its name in the prefix and its value.
+LogField = tuple[str, str | int]
 
-@dataclass(slots=True)
+
+@dataclass(frozen=True, slots=True)
 class LogContext:
-    """Identifiers of one logical operation or measurement point.
+    """Context of one logical operation, rendered as a stable prefix of its log records.
 
-    ``module_name`` is always present. The other fields are optional and appear in the
-    record prefix only when the calling code knows them.
+    ``module_name`` is always present. ``step_name`` names the operation, and ``fields`` are the
+    identifiers of the measurement point in the order the prefix shows them. The telemetry layer
+    builds them from the point context (``TelemetryContext.log_fields``), so the names of the
+    point fields live in one place.
     """
 
     module_name: str
     step_name: str | None = None
-    model_id: str | None = None
-    m: int | None = None
-    len_tokens: int | None = None
-    seed_rules: int | None = None
-    seed_text: int | None = None
-    seed_order: int | None = None
+    fields: tuple[LogField, ...] = ()
 
     def render(self) -> str:
-        """Return the set fields as a stable ``[key=value ...]`` prefix."""
+        """Return the context as a ``[key=value ...]`` prefix: module, step, then the fields."""
         parts = [f"module={self.module_name}"]
         if self.step_name:
             parts.append(f"step={self.step_name}")
-        if self.model_id:
-            parts.append(f"model={self.model_id}")
-        if self.m is not None:
-            parts.append(f"m={self.m}")
-        if self.len_tokens is not None:
-            parts.append(f"len={self.len_tokens}")
-        if self.seed_rules is not None:
-            parts.append(f"seed_rules={self.seed_rules}")
-        if self.seed_text is not None:
-            parts.append(f"seed_text={self.seed_text}")
-        if self.seed_order is not None:
-            parts.append(f"seed_order={self.seed_order}")
+        parts.extend(f"{name}={value}" for name, value in self.fields)
         return "[" + " ".join(parts) + "]"
-
-    def as_dict(self) -> dict[str, str | int | None]:
-        """Return all context fields, unset values included as ``None``."""
-        return {
-            "module_name": self.module_name,
-            "step_name": self.step_name,
-            "model_id": self.model_id,
-            "m": self.m,
-            "len_tokens": self.len_tokens,
-            "seed_rules": self.seed_rules,
-            "seed_text": self.seed_text,
-            "seed_order": self.seed_order,
-        }

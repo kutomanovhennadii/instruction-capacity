@@ -6,6 +6,7 @@ from iec.infrastructure.exceptions import (
     ConfigError,
     ContractViolationError,
     IECError,
+    PassportError,
     ProviderError,
     ValidationError,
     VocabError,
@@ -21,6 +22,7 @@ from iec.infrastructure.exceptions import (
         (ProviderError, "PROVIDER_ERROR"),
         (ValidationError, "VALIDATION_ERROR"),
         (ContractViolationError, "CONTRACT_VIOLATION"),
+        (PassportError, "PASSPORT_ERROR"),
     ],
 )
 def test_default_error_code(

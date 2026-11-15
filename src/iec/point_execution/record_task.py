@@ -2,31 +2,21 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Sequence
-
 from iec.contracts import PointRecord, Rule, RuleTable, SourceText
 from iec.model_client.tokenizer import Tokenizer
-from iec.prompt_generator.text_generator import WORDS_PER_LINE
+from iec.prompt_generator.text_generator import WORDS_PER_LINE, replacement_positions
 
 #: Tokenizer name of a source text whose length was not measured on reading.
 UNMEASURED_TOKENIZER = "unmeasured"
-
-
-def replacement_positions(words: Sequence[str], sources: Iterable[str]) -> tuple[int, ...]:
-    """Return the indices of the words that the rules replace, in reading order.
-
-    A position is replaced when its word stands on the left side of a rule. The words to
-    replace and the replacements never intersect, and replacements never occur in the
-    source text, so the markup is unambiguous.
-    """
-    source_set = frozenset(sources)
-    return tuple(index for index, word in enumerate(words) if word in source_set)
 
 
 def task_from_record(
     record: PointRecord, vocab_id: str, tokenizer: Tokenizer | None = None
 ) -> tuple[RuleTable, SourceText]:
     """Rebuild the rule table and the marked source text of a published point.
+
+    The rules keep the order shown to the model, and the replacement markup is restored by the
+    rule of the text generator, ``replacement_positions``.
 
     Args:
         record: Published point record.

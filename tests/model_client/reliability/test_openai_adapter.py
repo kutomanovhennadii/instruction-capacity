@@ -13,7 +13,7 @@ import httpx
 import pytest
 
 from iec.contracts import GenParams, Prompt
-from iec.model_client.openai_client import OpenAIProviderAdapter
+from iec.model_client.provider_adapters.openai_client import OpenAIProviderAdapter
 from iec.model_client.reliability.failures import ProviderFailure, ProviderFailureKind
 from iec.model_client.reliability.http_transport import HttpxTransport
 from iec.model_client.reliability.reliable_client import CallContext

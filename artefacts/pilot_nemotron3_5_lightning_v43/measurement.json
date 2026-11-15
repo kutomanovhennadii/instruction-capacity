@@ -1,0 +1,22 @@
+{
+  "model": {
+    "model_id": "nvidia/nemotron-3.5-lightning:free",
+    "provider": "openrouter",
+    "gen_params": {
+      "temperature": 0.0,
+      "max_tokens": 65536,
+      "top_p": 1.0,
+      "seed": 20260907
+    },
+    "tokenizer_name": "nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
+    "context_window_tokens": 1000000,
+    "response_ceiling_tokens": 65536
+  },
+  "protocol_version": "0.2",
+  "vocab_id": "v1_nemotron",
+  "vocab_hash": "sha256:f9c79f1c8cb8e26bde6b620f2f94829a6f9c5b349753f79d690a0db13c74c069",
+  "tariff": null,
+  "files": {
+    "points.jsonl.gz": "30d86f927a4caffeff2c2f20b43f0f1a7c22dca97e28c47d706ed6e14371a904"
+  }
+}

@@ -6,14 +6,14 @@ import random
 
 from iec.contracts import PointConditions, Rule, RuleTable, Vocab
 from iec.infrastructure.exceptions import ConfigError, VocabError
-from iec.infrastructure.telemetry import TelemetryContext, telemetry_step
+from iec.infrastructure.telemetry import (
+    TASK_GENERATION,
+    TelemetryHub,
+    point_context,
+    telemetry_step,
+)
 
 _MODULE_NAME = "rule_generator"
-
-
-def _telemetry_context(self: RuleGenerator, params: PointConditions) -> TelemetryContext:
-    """Extract the point identity for the telemetry event of rule generation."""
-    return TelemetryContext(m=params.m, seed_rules=params.seed_rules, seed_order=params.seed_order)
 
 
 class RuleGenerator:
@@ -31,13 +31,20 @@ class RuleGenerator:
     order of the same pairs separates the cost of a rule position from the difficulty of
     a particular word pair. The same ``(seed_rules, seed_order)`` gives the same list to
     the letter.
+
+    ``telemetry`` is the hub that records every generation in the block ``task_generation``
+    with the point key of the conditions.
     """
 
-    def __init__(self, vocab: Vocab) -> None:
+    telemetry: TelemetryHub
+
+    def __init__(self, vocab: Vocab, *, telemetry: TelemetryHub | None = None) -> None:
         """Check the vocabulary and prepare the generator.
 
         Args:
             vocab: Vocabulary from which the words of both groups are drawn.
+            telemetry: Hub that records every generation in the block ``task_generation``;
+                without it the generator gets a hub of its own that writes the log line only.
 
         Raises:
             VocabError: the vocabulary is empty - there is nothing to draw from.
@@ -49,8 +56,14 @@ class RuleGenerator:
             )
         self._vocab = vocab
         self._sorted_words = sorted(vocab.words)
+        self.telemetry = telemetry if telemetry is not None else TelemetryHub.log_only()
 
-    @telemetry_step("rules_generate", module_name=_MODULE_NAME, context_extractor=_telemetry_context)
+    @telemetry_step(
+        "rules_generate",
+        block=TASK_GENERATION,
+        module_name=_MODULE_NAME,
+        context_extractor=point_context,
+    )
     def generate(self, params: PointConditions) -> RuleTable:
         """Build a list of ``params.m`` rules from ``params.seed_rules``.
 

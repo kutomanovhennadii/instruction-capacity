@@ -1,0 +1,26 @@
+{
+  "format_version": 1,
+  "model": {
+    "model_id": "gemini-3.1-flash-lite",
+    "provider": "gemini",
+    "gen_params": {
+      "temperature": 0.0,
+      "max_tokens": 65536,
+      "top_p": 1.0,
+      "seed": 20260907
+    },
+    "tokenizer_name": "google/gemma-4-31B-it",
+    "context_window_tokens": 1048576,
+    "response_ceiling_tokens": 65536
+  },
+  "protocol_version": "0.2",
+  "vocab_id": "v1_gemma4",
+  "vocab_hash": "sha256:9366b26b60a071492225b4f2ad6bd1c295d275f7404966f9c4126a864cd92fbd",
+  "tariff": null,
+  "files": {
+    "points-001.jsonl.gz": "99041795bc1de28e90fb3d695b4a0955218369d9a96e24ff53a3589368ddf877",
+    "points-002.jsonl.gz": "463509169767216cbce7f204572d9651b74bc6a8827ec4f00e63e9e292f0391c",
+    "points-003.jsonl.gz": "a288ac6989e8fbea48f0a10401cd58c9de3e571f78e74bd0cfc5b16bdeb2c38d",
+    "points-004.jsonl.gz": "d141f3f5fd66fe16bfa797f3e816a699f4f12fc401a6775f38275e72bc3ce6ea"
+  }
+}

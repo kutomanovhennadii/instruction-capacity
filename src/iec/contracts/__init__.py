@@ -1,38 +1,29 @@
-"""Passive data contracts of the public measurement core."""
+"""Passive data contracts of the public measurement core.
 
-from iec.contracts.gen_params import GenParams
-from iec.contracts.measurement_description import MeasurementDescription
-from iec.contracts.model_config import ModelConfig
-from iec.contracts.point_conditions import PointConditions
-from iec.contracts.point_outcome import PointOutcome
-from iec.contracts.point_record import PROTOCOL_VERSION, PointRecord, PointStatus
-from iec.contracts.prompt import Prompt
-from iec.contracts.raw_output import RawOutput
-from iec.contracts.reference import Reference
-from iec.contracts.rule_table import Rule, RuleTable
-from iec.contracts.source_text import SourceText
-from iec.contracts.tariff import Tariff
-from iec.contracts.token_usage import TokenUsage
-from iec.contracts.trial_result import (
-    OUTCOME_CORRECT,
-    OUTCOME_MISSING,
-    OUTCOME_OTHER_WORD,
-    OUTCOME_UNREPLACED,
-    OUTCOME_WRONG_RULE_TARGET,
-    OUTCOMES,
-    RuleStat,
-    TrialRecord,
-    TrialResult,
+The contracts live in three folders by their role - ``task/``, ``language_model/`` and
+``measurement/`` - and every contract is imported from this package itself:
+``from iec.contracts import RuleTable``. The module ``format_version`` holds the one rule of
+reading the format version of a stored contract.
+"""
+
+from iec.contracts.language_model import GenParams, ModelConfig, RawOutput, Tariff, TokenUsage
+from iec.contracts.measurement import (
+    MEASUREMENT_DESCRIPTION_FORMAT_VERSION,
+    POINT_RECORD_FORMAT_VERSION,
+    PROTOCOL_VERSION,
+    MeasurementDescription,
+    PointConditions,
+    PointOutcome,
+    PointRecord,
+    PointStatus,
+    has_no_words,
+    is_empty_answer,
 )
-from iec.contracts.vocab import Vocab
+from iec.contracts.task import Prompt, Reference, Rule, RuleTable, SourceText, Vocab
 
 __all__ = [
-    "OUTCOMES",
-    "OUTCOME_CORRECT",
-    "OUTCOME_MISSING",
-    "OUTCOME_OTHER_WORD",
-    "OUTCOME_UNREPLACED",
-    "OUTCOME_WRONG_RULE_TARGET",
+    "MEASUREMENT_DESCRIPTION_FORMAT_VERSION",
+    "POINT_RECORD_FORMAT_VERSION",
     "PROTOCOL_VERSION",
     "GenParams",
     "MeasurementDescription",
@@ -45,12 +36,11 @@ __all__ = [
     "RawOutput",
     "Reference",
     "Rule",
-    "RuleStat",
     "RuleTable",
     "SourceText",
     "Tariff",
     "TokenUsage",
-    "TrialRecord",
-    "TrialResult",
     "Vocab",
+    "has_no_words",
+    "is_empty_answer",
 ]

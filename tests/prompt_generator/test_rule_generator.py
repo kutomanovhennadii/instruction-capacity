@@ -4,8 +4,13 @@ import pytest
 
 from iec.contracts import PointConditions, Vocab
 from iec.infrastructure.exceptions import ConfigError, VocabError
+from iec.infrastructure.telemetry import (
+    TASK_GENERATION,
+    MemorySink,
+    ObservationLevels,
+    TelemetryHub,
+)
 from iec.prompt_generator import RuleGenerator
-from iec.prompt_generator.rule_generator import _telemetry_context
 
 # Twenty words -> at most ten pairs; enough both for success and for "vocab too small".
 _WORDS = frozenset(
@@ -162,9 +167,14 @@ def test_negative_order_seed_raises_config_error() -> None:
 def test_telemetry_context_carries_the_permutation_axis() -> None:
     """The point key in the event is incomplete without the order: permuted points merge."""
     params = _make_params(m=5, seed_rules=99, q=4)
+    sink = MemorySink()
+    generator = RuleGenerator(_make_vocab(), telemetry=TelemetryHub(ObservationLevels(), [sink]))
 
-    context = _telemetry_context(RuleGenerator(_make_vocab()), params)
+    generator.generate(params)
 
+    (event,) = sink.events
+    context = event.context
+    assert event.block == TASK_GENERATION
     assert (context.m, context.seed_rules, context.seed_order) == (5, 99, 99 * _STRIDE + 4)
 
 

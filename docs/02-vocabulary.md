@@ -85,9 +85,47 @@ is a warning, not an error).
 
 `scripts/build_vocab.py` rebuilds the file from the corpora. In the recorded environment (Python
 3.11, nltk 3.10.0, tiktoken 0.13.0, transformers 4.57.6) it reproduces the published file byte for
-byte. A new tokenizer in the set makes a **new version** of the vocabulary (`v2_…`); the published
-measurements stay on `v1_intersection`, and the build command refuses to overwrite a saved
-version with a different hash.
+byte. A new tokenizer set makes a **new vocabulary** with a name of its own; the number in a name
+counts the versions of that vocabulary. The published measurements stay on `v1_intersection`,
+and the build command refuses to overwrite a saved version with a different hash.
+
+## Vocabularies of other families of models
+
+The same pipeline builds a vocabulary for a family of models with a common tokenizer: the same
+source, the same filters and the same probe, with another tokenizer set, so each is a vocabulary of
+its own, in its first version. The models of OpenAI stay on `v1_intersection`. No published measurement uses these
+vocabularies yet. Measurements on different vocabularies share the source and the rules of
+selection, not the words.
+
+| Vocabulary | Tokenizers | Words |
+|---|---|---:|
+| `v1_nemotron` | the files of three Nemotron models (`hfjson`) | 2 135 |
+| `v1_gemma4` | the files of two Gemma 4 models (`hfjson`) and the count of `gemini-3.1-flash-lite` (`gemini_count`) | 2 776 |
+| `v1_gemini35fl` | the count of `gemini-3.5-flash-lite` (`gemini_count`) | 2 776 |
+
+`v1_gemma4` and `v1_gemini35fl` hold the same words and have the same hash. The words and the
+reference of a vocabulary are in `assets/vocab/`, its build config is in `config/vocab/`.
+
+**`hfjson`** reads the file `tokenizer.json` of a Hugging Face repository directly with the library
+`tokenizers`. It is the same token vocabulary and the same merge rules as through `transformers`,
+which does not load the tokenizer of Gemma 4 without the package `protobuf`.
+
+**`gemini_count`** serves a model whose tokenizer is not published. The model counts the tokens
+itself through the method `countTokens` of the Gemini API, and a probe is a single token when the
+count of the text `word` with the probe minus the count of `word` equals one. The method is checked
+on `gemini-3.1-flash-lite`, which has the tokenizer of Gemma 4: the count of the model and the file
+give the same 2 776 words.
+
+Anyone can check a vocabulary by rebuilding it into another folder:
+
+```bash
+python scripts/build_vocab.py --config config/vocab/v1_nemotron.yaml --assets-dir my_vocab
+```
+
+The hash the command prints must equal the hash in `assets/vocab/v1_nemotron.reference.yaml`.
+`v1_nemotron` needs only the tokenizer files; a repository closed by a license needs access from
+your account. A vocabulary with `gemini_count` also needs `GEMINI_API_KEY`: the count is free, and
+the check works while the provider serves the model.
 
 ## Limitations
 

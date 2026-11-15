@@ -1,0 +1,32 @@
+# Reference of the vocabulary version, written by scripts/build_vocab.py right
+# after the build. A changed vocabulary is a new version with a new vocab_id.
+# Check: python scripts/verify_vocab.py --vocab-id <vocab_id>
+
+vocab_id: v1_nemotron
+built_at: '2026-10-27'
+hash: sha256:f9c79f1c8cb8e26bde6b620f2f94829a6f9c5b349753f79d690a0db13c74c069
+size: 2135
+source: cmudict_monosyllabic_singular_nouns
+tokenizer_names:
+- hfjson/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16
+- hfjson/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16
+- hfjson/nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16
+build_params:
+  max_syllables: 1
+  ascii_lower_only: true
+code_constants:
+  min_word_length: 3
+  probe_prefix: ' '
+funnel:
+  candidates: 3581
+  intersection: 2135
+per_tokenizer:
+  hfjson/nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16: 2135
+  hfjson/nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16: 2135
+  hfjson/nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16: 2135
+provenance:
+  python: 3.11.2
+  nltk: 3.10.0
+  tiktoken: 0.13.0
+  transformers: 4.57.6
+  tokenizers: 0.22.2

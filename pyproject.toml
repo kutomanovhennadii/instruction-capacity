@@ -1,6 +1,6 @@
 [project]
 name = "iec"
-version = "0.1.0"
+version = "0.2.0"
 description = "Instruction capacity of language models: one measurement point and the passport of a measurement."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,10 +13,15 @@ dependencies = [
   "pyyaml>=6.0,<7.0",
   "nltk>=3.8,<4.0",
   "transformers>=4.45,<5.0",
+  "tokenizers>=0.20,<1.0",
   "numpy>=1.26,<3.0",
   "scipy>=1.11,<2.0",
   "matplotlib>=3.8,<4.0",
 ]
+
+[project.optional-dependencies]
+# The OpenTelemetry sink of telemetry: pip install "iec[opentelemetry]".
+opentelemetry = ["opentelemetry-api>=1.20,<2.0"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -25,14 +30,20 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 packages = [{ include = "iec", from = "src" }]
 
+[tool.poetry.group.test.dependencies]
+pytest = ">=8,<10"
+statsmodels = ">=0.14,<1.0"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 # Mirrored test layout has equal basenames in different folders; importlib mode imports
 # each file by path. Live provider tests are paid calls: they run only on "-m network".
-addopts = "--import-mode=importlib -m \"not network\""
+# Timing tests depend on the machine: they run only on "-m speed".
+addopts = "--import-mode=importlib -m \"not network and not speed\""
 markers = [
   "network: the test needs the network (a paid provider call or a model hub download); excluded by default, run with -m network",
+  "speed: a timing test of a long operation against its reference time in tests/speed/reference_times.json; excluded by default, run with -m speed",
 ]
 
 [tool.ruff]
@@ -50,6 +61,12 @@ pretty = true
 # NLTK ships no type information; it is used only inside iec.vocab.word_source.
 [[tool.mypy.overrides]]
 module = ["nltk.*"]
+ignore_missing_imports = true
+
+# tokenizers ships its type stubs without py.typed; it is used only inside
+# iec.model_client.tokenizer_adapters.hub_tokenizer.
+[[tool.mypy.overrides]]
+module = ["tokenizers", "tokenizers.*"]
 ignore_missing_imports = true
 
 # SciPy ships no type information; it is used only inside iec.passport (second-stage least

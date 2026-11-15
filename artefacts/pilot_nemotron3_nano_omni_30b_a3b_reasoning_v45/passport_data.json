@@ -1,0 +1,6591 @@
+{
+  "F": {
+    "alpha": {
+      "half": 0.4999372736362401,
+      "value": 3.2010996678799395
+    },
+    "bins": {
+      "M": [
+        {
+          "center": 1.0,
+          "effective": 96.80185659135196,
+          "failures": 450.0,
+          "in_law": false,
+          "law": 0.007403862643759953,
+          "name": "m_bin_1",
+          "own_half": 0.38443008108512106,
+          "raw": 0.0,
+          "requests": 165,
+          "restored": -0.007403862643759953,
+          "restored_half": 0.3927346309715903,
+          "status": "reference",
+          "trials": 1168843.0
+        },
+        {
+          "center": 2.0,
+          "effective": 95.16413392944493,
+          "failures": 719.0,
+          "in_law": true,
+          "law": -0.26380152475664687,
+          "name": "m_bin_2",
+          "own_half": 0.3161005839814144,
+          "raw": 0.10241584758357049,
+          "requests": 133,
+          "restored": 0.09501198493981053,
+          "restored_half": 0.2271410612370388,
+          "status": "law",
+          "trials": 1193690.0
+        },
+        {
+          "center": 3.5157054990609455,
+          "effective": 118.18940112150959,
+          "failures": 498.0,
+          "in_law": true,
+          "law": -0.48451232690995244,
+          "name": "m_bin_3",
+          "own_half": 0.30615303557643986,
+          "raw": -0.43132046964271364,
+          "requests": 208,
+          "restored": -0.4387243322864736,
+          "restored_half": 0.23945822311983075,
+          "status": "law",
+          "trials": 1458675.0
+        },
+        {
+          "center": 7.036374520266668,
+          "effective": 101.51493806273946,
+          "failures": 427.0,
+          "in_law": true,
+          "law": -0.755993814745147,
+          "name": "m_bin_4",
+          "own_half": 0.28655202259313467,
+          "raw": -0.6679166845674082,
+          "requests": 154,
+          "restored": -0.6753205472111681,
+          "restored_half": 0.32716457740204336,
+          "status": "law",
+          "trials": 608138.0
+        },
+        {
+          "center": 12.949101054266308,
+          "effective": 127.85737282010145,
+          "failures": 521.0,
+          "in_law": true,
+          "law": -0.9946403900748754,
+          "name": "m_bin_5",
+          "own_half": 0.19333120754324845,
+          "raw": -1.2758670567918495,
+          "requests": 196,
+          "restored": -1.2832709194356096,
+          "restored_half": 0.3085510102343112,
+          "status": "law",
+          "trials": 1011795.0
+        },
+        {
+          "center": 26.197354236947895,
+          "effective": 130.69659598571798,
+          "failures": 426.0,
+          "in_law": true,
+          "law": -1.2703394253460867,
+          "name": "m_bin_6",
+          "own_half": 0.20390708895776255,
+          "raw": -1.3108952241054725,
+          "requests": 191,
+          "restored": -1.3182990867492326,
+          "restored_half": 0.3637134245741768,
+          "status": "law",
+          "trials": 820819.0
+        },
+        {
+          "center": 49.86570042057027,
+          "effective": 158.14066090190397,
+          "failures": 522.0,
+          "in_law": true,
+          "law": -1.5221879888194896,
+          "name": "m_bin_7",
+          "own_half": 0.18383099051755858,
+          "raw": -1.7761346159006834,
+          "requests": 225,
+          "restored": -1.7835384785444435,
+          "restored_half": 0.39393076689824574,
+          "status": "law",
+          "trials": 866612.0
+        },
+        {
+          "center": 89.25627268201681,
+          "effective": 98.19784869925047,
+          "failures": 400.0,
+          "in_law": true,
+          "law": -1.7499749522286407,
+          "name": "m_bin_8",
+          "own_half": 0.24739768974086793,
+          "raw": -1.8496400147913512,
+          "requests": 160,
+          "restored": -1.8570438774351112,
+          "restored_half": 0.45309291781142397,
+          "status": "law",
+          "trials": 328853.0
+        },
+        {
+          "center": 202.29962646275092,
+          "effective": 73.69698680080502,
+          "failures": 120.0,
+          "in_law": true,
+          "law": -2.0701242849094146,
+          "name": "m_bin_9",
+          "own_half": 0.3382275215138516,
+          "raw": -1.2656856427872982,
+          "requests": 77,
+          "restored": -1.2730895054310583,
+          "restored_half": 0.550899916885066,
+          "status": "law",
+          "trials": 231711.0
+        }
+      ],
+      "P": [
+        {
+          "center": 0.0006063551489006683,
+          "effective": 20.490909090909092,
+          "failures": 36.0,
+          "in_law": true,
+          "law": -0.2419936043673973,
+          "name": "p_bin_1",
+          "own_half": 0.5618885868919969,
+          "raw": -0.3486642436343408,
+          "requests": 31,
+          "restored": -0.6269378816484519,
+          "restored_half": 0.6487030284786114,
+          "status": "law",
+          "trials": 498703.0
+        },
+        {
+          "center": 0.0013835102480923788,
+          "effective": 36.28223278708591,
+          "failures": 94.0,
+          "in_law": true,
+          "law": -0.13147343241202852,
+          "name": "p_bin_2",
+          "own_half": 0.40221859306197916,
+          "raw": -0.33530159354646444,
+          "requests": 63,
+          "restored": -0.6135752315605756,
+          "restored_half": 0.4771635078313395,
+          "status": "law",
+          "trials": 904872.0
+        },
+        {
+          "center": 0.0026082872570577305,
+          "effective": 41.20352971413886,
+          "failures": 88.0,
+          "in_law": true,
+          "law": -0.04764671229855593,
+          "name": "p_bin_3",
+          "own_half": 0.3892494648233939,
+          "raw": -0.21717834396369612,
+          "requests": 52,
+          "restored": -0.49545198197780727,
+          "restored_half": 0.45669569575167535,
+          "status": "law",
+          "trials": 573352.0
+        },
+        {
+          "center": 0.00511922533437727,
+          "effective": 49.65413205223567,
+          "failures": 94.0,
+          "in_law": true,
+          "law": 0.039333730074528915,
+          "name": "p_bin_4",
+          "own_half": 0.4398662913932094,
+          "raw": 0.5466296595619474,
+          "requests": 62,
+          "restored": 0.2683560215478363,
+          "restored_half": 0.44341816799430495,
+          "status": "law",
+          "trials": 765322.0
+        },
+        {
+          "center": 0.0101500541251515,
+          "effective": 71.64531398546262,
+          "failures": 194.0,
+          "in_law": true,
+          "law": 0.12317655222861842,
+          "name": "p_bin_5",
+          "own_half": 0.3690499437727155,
+          "raw": 0.31647081540510763,
+          "requests": 101,
+          "restored": 0.038197177390996484,
+          "restored_half": 0.4106372722701473,
+          "status": "law",
+          "trials": 918347.0
+        },
+        {
+          "center": 0.02069228487461745,
+          "effective": 73.00359147932187,
+          "failures": 256.0,
+          "in_law": true,
+          "law": 0.20091257164056056,
+          "name": "p_bin_6",
+          "own_half": 0.2714788995238781,
+          "raw": 0.48489549997594966,
+          "requests": 134,
+          "restored": 0.20662186196183852,
+          "restored_half": 0.30159237894739643,
+          "status": "law",
+          "trials": 1481604.0
+        },
+        {
+          "center": 0.03662979705782844,
+          "effective": 92.74673407007963,
+          "failures": 295.0,
+          "in_law": true,
+          "law": 0.24982407200791115,
+          "name": "p_bin_7",
+          "own_half": 0.19072064713809195,
+          "raw": 0.14884665594395166,
+          "requests": 138,
+          "restored": -0.12942698207015949,
+          "restored_half": 0.18655762072684237,
+          "status": "law",
+          "trials": 588267.0
+        },
+        {
+          "center": 0.07719388012232296,
+          "effective": 119.88872621831636,
+          "failures": 807.0,
+          "in_law": true,
+          "law": 0.2782470673895344,
+          "name": "p_bin_8",
+          "own_half": 0.22342597472850098,
+          "raw": 0.32202439445379577,
+          "requests": 199,
+          "restored": 0.043750756439684624,
+          "restored_half": 0.2100748917862879,
+          "status": "law",
+          "trials": 816316.0
+        },
+        {
+          "center": 0.1645836547935464,
+          "effective": 175.87800706645828,
+          "failures": 962.0,
+          "in_law": true,
+          "law": 0.22431462455065665,
+          "name": "p_bin_9",
+          "own_half": 0.20856576769261864,
+          "raw": 0.1537963181451281,
+          "requests": 281,
+          "restored": -0.12447731986898306,
+          "restored_half": 0.1291655149745003,
+          "status": "law",
+          "trials": 678657.0
+        },
+        {
+          "center": 0.2922142803445264,
+          "effective": 147.18583229392925,
+          "failures": 581.0,
+          "in_law": false,
+          "law": 0.07341965071002277,
+          "name": "p_bin_10",
+          "own_half": 0.2520543128815211,
+          "raw": 0.0,
+          "requests": 231,
+          "restored": -0.27827363801411115,
+          "restored_half": 0.2588541511509586,
+          "status": "reference",
+          "trials": 323644.0
+        },
+        {
+          "center": 0.553079957358043,
+          "effective": 175.28373988219718,
+          "failures": 676.0,
+          "in_law": true,
+          "law": -0.30762266318878995,
+          "name": "p_bin_11",
+          "own_half": 0.3059582647165584,
+          "raw": -0.265919899696351,
+          "requests": 217,
+          "restored": -0.5441935377104621,
+          "restored_half": 0.31546878839420994,
+          "status": "law",
+          "trials": 140052.0
+        }
+      ],
+      "V": [
+        {
+          "center": 20.000000000000018,
+          "effective": 2.0,
+          "failures": 2.0,
+          "in_law": true,
+          "law": 5.179038777386864,
+          "name": "v_bin_1",
+          "own_half": 2.3850770490431623,
+          "raw": 9.32492912766425,
+          "requests": 2,
+          "restored": 4.145890350277387,
+          "restored_half": 2.4255436267777215,
+          "status": "law",
+          "trials": 130.0
+        },
+        {
+          "center": 40.00000000000008,
+          "effective": 3.3684210526315788,
+          "failures": 6.0,
+          "in_law": true,
+          "law": 5.783840926314031,
+          "name": "v_bin_2",
+          "own_half": 2.3671687524010734,
+          "raw": 8.412860745159795,
+          "requests": 4,
+          "restored": 3.2338219677729327,
+          "restored_half": 2.4390407651620887,
+          "status": "law",
+          "trials": 840.0
+        },
+        {
+          "center": 78.5377894663105,
+          "effective": 4.962791877019938,
+          "failures": 14.0,
+          "in_law": true,
+          "law": 6.372547471003635,
+          "name": "v_bin_3",
+          "own_half": 1.7926944027228136,
+          "raw": 8.942546061053768,
+          "requests": 9,
+          "restored": 3.7635072836669057,
+          "restored_half": 1.7941081718348582,
+          "status": "law",
+          "trials": 3381.0
+        },
+        {
+          "center": 147.69621196833486,
+          "effective": 20.638321129656862,
+          "failures": 106.0,
+          "in_law": true,
+          "law": 6.92362742052096,
+          "name": "v_bin_4",
+          "own_half": 1.0604894961072353,
+          "raw": 8.210282489500537,
+          "requests": 27,
+          "restored": 3.0312437121136746,
+          "restored_half": 1.0486064080935507,
+          "status": "law",
+          "trials": 11193.0
+        },
+        {
+          "center": 295.60427020491517,
+          "effective": 58.86466961010212,
+          "failures": 183.0,
+          "in_law": true,
+          "law": 7.529055107373443,
+          "name": "v_bin_5",
+          "own_half": 0.48030292546208697,
+          "raw": 7.980907596022922,
+          "requests": 85,
+          "restored": 2.801868818636059,
+          "restored_half": 0.4959641079493102,
+          "status": "law",
+          "trials": 51721.0
+        },
+        {
+          "center": 575.6362404466772,
+          "effective": 101.02662075386368,
+          "failures": 583.0,
+          "in_law": true,
+          "law": 8.110566514626553,
+          "name": "v_bin_6",
+          "own_half": 0.3179098215165481,
+          "raw": 7.944486252351391,
+          "requests": 159,
+          "restored": 2.765447474964528,
+          "restored_half": 0.4769536760406311,
+          "status": "law",
+          "trials": 138372.0
+        },
+        {
+          "center": 1151.2338061367122,
+          "effective": 121.08550053907325,
+          "failures": 577.0,
+          "in_law": true,
+          "law": 8.715339351609527,
+          "name": "v_bin_7",
+          "own_half": 0.2872457788063642,
+          "raw": 8.482754851847934,
+          "requests": 176,
+          "restored": 3.3037160744610716,
+          "restored_half": 0.5045423261612427,
+          "status": "law",
+          "trials": 254955.0
+        },
+        {
+          "center": 2243.2649959091564,
+          "effective": 162.25631249281824,
+          "failures": 767.0,
+          "in_law": true,
+          "law": 9.297412547507914,
+          "name": "v_bin_8",
+          "own_half": 0.1785436659671048,
+          "raw": 9.152501160481808,
+          "requests": 258,
+          "restored": 3.9734623830949456,
+          "restored_half": 0.5822034847942897,
+          "status": "law",
+          "trials": 569992.0
+        },
+        {
+          "center": 4441.647677910181,
+          "effective": 170.99341006695826,
+          "failures": 1007.0,
+          "in_law": true,
+          "law": 9.893441983196716,
+          "name": "v_bin_9",
+          "own_half": 0.16118864338309366,
+          "raw": 9.879509173219137,
+          "requests": 317,
+          "restored": 4.700470395832275,
+          "restored_half": 0.6455096940563506,
+          "status": "law",
+          "trials": 1243323.0
+        },
+        {
+          "center": 9027.420724462956,
+          "effective": 176.31296516368724,
+          "failures": 519.0,
+          "in_law": true,
+          "law": 10.512286964631329,
+          "name": "v_bin_10",
+          "own_half": 0.1966374961809668,
+          "raw": 10.703847555134653,
+          "requests": 286,
+          "restored": 5.52480877774779,
+          "restored_half": 0.7318368271573734,
+          "status": "law",
+          "trials": 2641461.0
+        },
+        {
+          "center": 17297.905896151664,
+          "effective": 104.43103757592445,
+          "failures": 319.0,
+          "in_law": true,
+          "law": 11.0797193824901,
+          "name": "v_bin_11",
+          "own_half": 0.2610434686693724,
+          "raw": 11.133763696234153,
+          "requests": 186,
+          "restored": 5.95472491884729,
+          "restored_half": 0.8040589996008431,
+          "status": "law",
+          "trials": 2773768.0
+        }
+      ],
+      "q": [
+        {
+          "center": 0.05,
+          "effective": 716.674335829984,
+          "failures": 2213.0,
+          "in_law": true,
+          "law": -2.2636166101647945,
+          "name": "ql_bin_1",
+          "own_half": 0.22776264239161365,
+          "raw": -2.5253501449300506,
+          "requests": 1220,
+          "restored": -0.26173353476525607,
+          "restored_half": 0.24119860649265484,
+          "status": "law",
+          "trials": 1208299.0
+        },
+        {
+          "center": 0.15,
+          "effective": 194.61117982107524,
+          "failures": 471.0,
+          "in_law": true,
+          "law": -0.6688797402918105,
+          "name": "ql_bin_2",
+          "own_half": 0.24748216197691267,
+          "raw": -1.0437848042069102,
+          "requests": 313,
+          "restored": 1.2198318059578843,
+          "restored_half": 0.3430017699122757,
+          "status": "law",
+          "trials": 1061733.0
+        },
+        {
+          "center": 0.25,
+          "effective": 113.78735107268285,
+          "failures": 270.0,
+          "in_law": true,
+          "law": -0.34993236631721364,
+          "name": "ql_bin_3",
+          "own_half": 0.1482914209051563,
+          "raw": -0.5187535040562349,
+          "requests": 168,
+          "restored": 1.7448631061085598,
+          "restored_half": 0.26545734754022376,
+          "status": "law",
+          "trials": 944842.0
+        },
+        {
+          "center": 0.35,
+          "effective": 67.96831246528808,
+          "failures": 211.0,
+          "in_law": true,
+          "law": -0.21324063461381498,
+          "name": "ql_bin_4",
+          "own_half": 0.1991946648790925,
+          "raw": -0.34752046620856925,
+          "requests": 106,
+          "restored": 1.9160961439562252,
+          "restored_half": 0.27826577235305217,
+          "status": "law",
+          "trials": 865843.0
+        },
+        {
+          "center": 0.45,
+          "effective": 60.982416696982895,
+          "failures": 170.0,
+          "in_law": true,
+          "law": -0.13730078366748238,
+          "name": "ql_bin_5",
+          "own_half": 0.23401135720329067,
+          "raw": -0.16317370043596507,
+          "requests": 82,
+          "restored": 2.1004429097288293,
+          "restored_half": 0.2857090145957248,
+          "status": "law",
+          "trials": 801637.0
+        },
+        {
+          "center": 0.55,
+          "effective": 56.762638498780085,
+          "failures": 156.0,
+          "in_law": true,
+          "law": -0.08897542397436164,
+          "name": "ql_bin_6",
+          "own_half": 0.27836082812747426,
+          "raw": -0.04833411978488361,
+          "requests": 77,
+          "restored": 2.215282490379911,
+          "restored_half": 0.3400026755146372,
+          "status": "law",
+          "trials": 691322.0
+        },
+        {
+          "center": 0.65,
+          "effective": 42.34002072783334,
+          "failures": 134.0,
+          "in_law": true,
+          "law": -0.055519405725278054,
+          "name": "ql_bin_7",
+          "own_half": 0.27129564842581694,
+          "raw": 0.05553250604829452,
+          "requests": 63,
+          "restored": 2.3191491162130893,
+          "restored_half": 0.32373469485148526,
+          "status": "law",
+          "trials": 599961.0
+        },
+        {
+          "center": 0.75,
+          "effective": 40.319592985812676,
+          "failures": 159.0,
+          "in_law": true,
+          "law": -0.030984992342616785,
+          "name": "ql_bin_8",
+          "own_half": 0.24823232893610198,
+          "raw": 0.04183308521602331,
+          "requests": 65,
+          "restored": 2.3054496953808177,
+          "restored_half": 0.2616745758368145,
+          "status": "law",
+          "trials": 549586.0
+        },
+        {
+          "center": 0.85,
+          "effective": 42.84362796498449,
+          "failures": 141.0,
+          "in_law": true,
+          "law": -0.01222338210881696,
+          "name": "ql_bin_9",
+          "own_half": 0.2583062660433865,
+          "raw": 0.11819209320818427,
+          "requests": 54,
+          "restored": 2.381808703372979,
+          "restored_half": 0.28717587127321753,
+          "status": "law",
+          "trials": 500486.0
+        },
+        {
+          "center": 0.95,
+          "effective": 52.39904599516691,
+          "failures": 158.0,
+          "in_law": false,
+          "law": 0.0025884154441828955,
+          "name": "ql_bin_10",
+          "own_half": 0.20215823167296604,
+          "raw": 0.0,
+          "requests": 67,
+          "restored": 2.2636166101647945,
+          "restored_half": 0.24459739041615666,
+          "status": "reference",
+          "trials": 465427.0
+        }
+      ]
+    },
+    "capacities": [
+      {
+        "interval": [
+          308.1112381977276,
+          41451.97629895317
+        ],
+        "key": "instruction_capacity",
+        "level": 0.5,
+        "method": "law",
+        "plus_minus": 8759.00221679703,
+        "status": "extrapolated",
+        "value": 3573.768283368875
+      },
+      {
+        "key": "instruction_capacity",
+        "level": 0.5,
+        "lower_bound": 256,
+        "method": "bins",
+        "reserve_left": 1.3440557904448283,
+        "status": "beyond_support",
+        "value": null
+      },
+      {
+        "key": "fatigue_capacity_words",
+        "level": 0.5,
+        "method": "law",
+        "status": "no_slope",
+        "value": null
+      },
+      {
+        "change": -0.8503722623167148,
+        "change_half": 0.703247520993024,
+        "interval": [
+          1.1584984666491052,
+          4.728555587798726
+        ],
+        "key": "density_odds_factor",
+        "level": null,
+        "method": "law",
+        "status": "conditional",
+        "value": 2.340517976416734
+      }
+    ],
+    "edge_rules": 256,
+    "edge_words": 20480,
+    "fit": {
+      "dropped": [],
+      "failures": 4083,
+      "loglik": -25915.3792805911,
+      "method": "glmm_heterogeneous",
+      "parameters": 38,
+      "points": 3146,
+      "rows": 24874,
+      "sigma2": 2.244447430879396,
+      "sigma2_half": 0.5555542342008128,
+      "spread": {
+        "M": [
+          {
+            "bins": [
+              1
+            ],
+            "center": 1.0,
+            "failing": 165,
+            "half": 1.4010533976966695,
+            "share": 0.1551176096630642,
+            "sigma2": 3.087717233740412
+          },
+          {
+            "bins": [
+              2
+            ],
+            "center": 2.0,
+            "failing": 133,
+            "half": 1.0814994437487377,
+            "share": 0.13922441195168467,
+            "sigma2": 2.56112822774528
+          },
+          {
+            "bins": [
+              3
+            ],
+            "center": 3.4021255611061716,
+            "failing": 208,
+            "half": 0.7368170323579181,
+            "share": 0.15702479338842976,
+            "sigma2": 2.120649629070544
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 6.688248876323886,
+            "failing": 154,
+            "half": 0.4842957861156508,
+            "share": 0.11029879211697394,
+            "sigma2": 1.3509890952599257
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 12.95355937045188,
+            "failing": 196,
+            "half": 0.2493318184135223,
+            "share": 0.11665607120152574,
+            "sigma2": 0.6495262563616502
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 24.967862734601844,
+            "failing": 191,
+            "half": 0.637832676421394,
+            "share": 0.10775588048315321,
+            "sigma2": 0.8329620626159927
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 50.505376222374316,
+            "failing": 225,
+            "half": 0.17827890605282345,
+            "share": 0.09535918626827718,
+            "sigma2": 0.3355731865555564
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 97.3487284889998,
+            "failing": 160,
+            "half": 0.121337022024507,
+            "share": 0.07056579783852511,
+            "sigma2": 0.1828556049529023
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 199.64080475803684,
+            "failing": 77,
+            "half": 0.2745899329803019,
+            "share": 0.04799745708836618,
+            "sigma2": 0.21432700097549806
+          }
+        ],
+        "P": [
+          {
+            "bins": [
+              1,
+              2,
+              3
+            ],
+            "center": 0.0015034878130021617,
+            "failing": 146,
+            "half": 0.12375588671477898,
+            "share": 0.09313413858868404,
+            "sigma2": 0.09835029535084092
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 0.005294700171838283,
+            "failing": 62,
+            "half": 0.347647924179894,
+            "share": 0.04704386522568341,
+            "sigma2": 0.41802550219958046
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 0.0102100335838582,
+            "failing": 101,
+            "half": 0.4280234245901031,
+            "share": 0.07056579783852511,
+            "sigma2": 0.6976441216728265
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 0.0214943460468543,
+            "failing": 134,
+            "half": 0.26235969491135036,
+            "share": 0.08963763509218055,
+            "sigma2": 0.4124699401851459
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 0.039790744188606,
+            "failing": 138,
+            "half": 0.23551547534216669,
+            "share": 0.09186268277177369,
+            "sigma2": 0.4795544445633091
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 0.08018049397544592,
+            "failing": 199,
+            "half": 0.4761128313160334,
+            "share": 0.12364907819453275,
+            "sigma2": 1.2923085508310237
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 0.1611712633496038,
+            "failing": 281,
+            "half": 0.6486971640073748,
+            "share": 0.15130324221233313,
+            "sigma2": 2.2218173549082136
+          },
+          {
+            "bins": [
+              10
+            ],
+            "center": 0.3113655272059451,
+            "failing": 231,
+            "half": 1.0357802741575164,
+            "share": 0.14685314685314685,
+            "sigma2": 2.0485194876169004
+          },
+          {
+            "bins": [
+              11
+            ],
+            "center": 0.6429888342325367,
+            "failing": 217,
+            "half": 1.85505031341169,
+            "share": 0.1859504132231405,
+            "sigma2": 4.06065742953642
+          }
+        ],
+        "V": [
+          {
+            "bins": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "center": 84.96461701973779,
+            "failing": 42,
+            "half": 0.8683972048771808,
+            "share": 0.08614113159567705,
+            "sigma2": 1.3648352963879982
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 280.67660369399067,
+            "failing": 85,
+            "half": 0.47454206346464173,
+            "share": 0.08391608391608392,
+            "sigma2": 0.8636746002856105
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 534.2894302776717,
+            "failing": 159,
+            "half": 0.44275411065935505,
+            "share": 0.11888111888111888,
+            "sigma2": 0.9870398497421099
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 1067.2299988212835,
+            "failing": 176,
+            "half": 0.5063886538475865,
+            "share": 0.11315956770502225,
+            "sigma2": 1.126139469037051
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 2007.0606674215123,
+            "failing": 258,
+            "half": 0.5390219911741995,
+            "share": 0.1484424666242848,
+            "sigma2": 1.0676117880495004
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 3925.04410123618,
+            "failing": 317,
+            "half": 0.5077295777520974,
+            "share": 0.1859504132231405,
+            "sigma2": 1.3709664036465283
+          },
+          {
+            "bins": [
+              10
+            ],
+            "center": 7882.954226772282,
+            "failing": 286,
+            "half": 0.4365158104267786,
+            "share": 0.15638906547997458,
+            "sigma2": 0.9108267710691462
+          },
+          {
+            "bins": [
+              11
+            ],
+            "center": 16720.56198201491,
+            "failing": 186,
+            "half": 0.8308455438488481,
+            "share": 0.10712015257469804,
+            "sigma2": 1.086606220316844
+          }
+        ],
+        "loglik_gain": 318.5954252862066,
+        "merged": [
+          "the group of the density bins [1] is merged with the bins [2]: the fit with the spread by the load stopped on the floor of the spread",
+          "the group of the density bins [1, 2] is merged with the bins [3]: the fit with the spread by the load stopped on the floor of the spread"
+        ],
+        "parameters": 23
+      },
+      "steps": 13,
+      "trials": 7689136
+    },
+    "laws": {
+      "M": {
+        "c_hat": 8.77521075630675,
+        "candidates": [
+          {
+            "chi2": 52.6512645378405,
+            "converged": true,
+            "criterion": 10.0,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 34.28886681028654,
+            "converged": true,
+            "criterion": 7.907469320397018,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 52.651266321053484,
+            "converged": true,
+            "criterion": 10.000000203210273,
+            "form": "slanted_hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 53.13431795888055,
+            "converged": true,
+            "criterion": 10.055047500789982,
+            "form": "binary_exponential",
+            "free": 2
+          }
+        ],
+        "chi2": 52.6512645378405,
+        "established_form": "linear",
+        "formula": "a + b·log₂ m",
+        "free": 2,
+        "half": {
+          "a": 0.3927346309716064,
+          "b": 0.06426437125828086
+        },
+        "held": [],
+        "law_form": "linear",
+        "n_points": 8,
+        "outliers": [],
+        "params": {
+          "a": 0.007403862643759953,
+          "b": -0.27120538740040684
+        }
+      },
+      "P": {
+        "at_one": -1.0283744211913626,
+        "at_top": 0.27827363801411115,
+        "c_hat": 2.1874909425398887,
+        "candidates": [
+          {
+            "chi2": 15.312436597779222,
+            "converged": true,
+            "criterion": 13.0,
+            "form": "log_linear_load",
+            "free": 3
+          },
+          {
+            "chi2": 35.28580912422068,
+            "converged": true,
+            "criterion": 20.130722389757846,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 34.132243682725644,
+            "converged": true,
+            "criterion": 19.603376004425783,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 20.523050044420337,
+            "converged": true,
+            "criterion": 15.382004581281187,
+            "form": "slanted_hyperbolic",
+            "free": 3
+          },
+          {
+            "chi2": 21.108259753826626,
+            "converged": true,
+            "criterion": 15.649530127570674,
+            "form": "binary_exponential",
+            "free": 3
+          }
+        ],
+        "chi2": 15.312436597779222,
+        "established_form": "log_linear_load",
+        "formula": "a + b·log₂(p/2⁻¹⁰) + c·0.0009765625·2^(log₂(p/2⁻¹⁰))",
+        "free": 3,
+        "half": {
+          "a": 0.5095372469442202,
+          "b": 0.0745146521029434,
+          "c": 0.7861178247958726
+        },
+        "held": [],
+        "law_form": "log_linear_load",
+        "n_points": 10,
+        "outliers": [],
+        "p_top": 0.07568603929119584,
+        "params": {
+          "a": -0.1762516782146496,
+          "b": 0.09403694528614337,
+          "c": -1.7924921958381468
+        }
+      },
+      "V": {
+        "at_20": 5.179038777386863,
+        "c_hat": 3.228698037989583,
+        "candidates": [
+          {
+            "chi2": 29.05828234190625,
+            "converged": true,
+            "criterion": 13.0,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 246.94560614794543,
+            "converged": true,
+            "criterion": 80.48457775930986,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "converged": false,
+            "form": "slanted_hyperbolic"
+          },
+          {
+            "converged": false,
+            "form": "binary_exponential"
+          }
+        ],
+        "chi2": 29.05828234190625,
+        "established_form": "linear",
+        "formula": "a + b·log₂(v/20)",
+        "free": 2,
+        "half": {
+          "a": 0.5566944003286991,
+          "b": 0.08019999476390162
+        },
+        "held": [],
+        "law_form": "linear",
+        "n_points": 11,
+        "outliers": [],
+        "params": {
+          "a": 5.179038777386863,
+          "b": 0.604802148927167
+        }
+      },
+      "q": {
+        "at_0": -2.2636166101647945,
+        "at_1": 0.008883429404207832,
+        "c_hat": 50.83637626483937,
+        "candidates": [
+          {
+            "converged": false,
+            "form": "exponential"
+          },
+          {
+            "chi2": 355.8546338538756,
+            "converged": true,
+            "criterion": 11.0,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 7.200847181816162,
+            "converged": true,
+            "criterion": 4.14164753097865,
+            "form": "hyperbolic",
+            "free": 2
+          }
+        ],
+        "chi2": 7.200847181816162,
+        "established_form": "exponential",
+        "formula": "c + A/q",
+        "free": 2,
+        "half": {
+          "A": 0.010622166120391859,
+          "c": 0.2001692316286832
+        },
+        "held": [],
+        "law_form": "hyperbolic",
+        "n_points": 9,
+        "outliers": [],
+        "params": {
+          "A": -0.11960526524047382,
+          "c": 0.12848869464468166
+        }
+      }
+    },
+    "model": "V-(s/v)-PM",
+    "shifts": {
+      "M(1)": {
+        "half": 0.3927346309715903,
+        "value": 0.007403862643759953
+      },
+      "V(20)": {
+        "half": 0.5566944003292525,
+        "value": 5.179038777386863
+      },
+      "delta_P": {
+        "half": 0.2588541511509586,
+        "value": 0.27827363801411115
+      },
+      "q(0)": {
+        "half": 0.24459739041615666,
+        "value": -2.2636166101647945
+      }
+    },
+    "spread_laws": {
+      "M": {
+        "chi2": 3.7546530820788386,
+        "form": "hyperbola",
+        "n_points": 9,
+        "params": {
+          "A": 4.496914289936175,
+          "c": 0.11393014138767324,
+          "x0": 2.374609296717946
+        }
+      },
+      "P": {
+        "chi2": 32.35142846550971,
+        "form": "line",
+        "n_points": 9,
+        "params": {
+          "a": 2.287105715748329,
+          "b": 0.2363067112946884
+        }
+      },
+      "V": {
+        "chi2": 3.2947986559135267,
+        "form": "inverse",
+        "n_points": 8,
+        "params": {
+          "A": 9.764993188768598,
+          "c": 1.0813261754230126
+        }
+      }
+    },
+    "status": "measured",
+    "weights": "V x P x M"
+  },
+  "H": {
+    "alpha": {
+      "half": 0.6111316950970985,
+      "value": 7.84999253451082
+    },
+    "bins": {
+      "M": [
+        {
+          "bin": 1,
+          "center": 1.0,
+          "failures": 10286,
+          "law": -0.0753093812564535,
+          "name": "m_bin_1",
+          "own_half": 0.37923334247794865,
+          "raw": 0.0,
+          "requests": 376,
+          "restored": 0.0753093812564535,
+          "restored_half": 0.3706857851764245,
+          "status": "reference",
+          "trials": 14949
+        },
+        {
+          "bin": 2,
+          "center": 2.0000000000000018,
+          "failures": 20614,
+          "law": -0.06697970203349043,
+          "name": "m_bin_2",
+          "own_half": 0.22085341983207568,
+          "raw": -0.2729821984292646,
+          "requests": 407,
+          "restored": -0.19767281717281107,
+          "restored_half": 0.15139628225796214,
+          "status": "law",
+          "trials": 28131
+        },
+        {
+          "bin": 3,
+          "center": 3.7147634097968134,
+          "failures": 48961,
+          "law": -0.059539046728214196,
+          "name": "m_bin_3",
+          "own_half": 0.16133870851110507,
+          "raw": -0.1921384848113687,
+          "requests": 531,
+          "restored": -0.11682910355491519,
+          "restored_half": 0.13227997577435932,
+          "status": "law",
+          "trials": 62670
+        },
+        {
+          "bin": 4,
+          "center": 7.140565292771176,
+          "failures": 77999,
+          "law": -0.05168609202228038,
+          "name": "m_bin_4",
+          "own_half": 0.11356029660684054,
+          "raw": 0.0055289092477052515,
+          "requests": 396,
+          "restored": 0.08083829050415876,
+          "restored_half": 0.14313129735687438,
+          "status": "law",
+          "trials": 94259
+        },
+        {
+          "bin": 5,
+          "center": 13.615430402210093,
+          "failures": 119482,
+          "law": -0.04393005788445095,
+          "name": "m_bin_5",
+          "own_half": 0.07711843416726497,
+          "raw": 0.27514432218191875,
+          "requests": 439,
+          "restored": 0.35045370343837223,
+          "restored_half": 0.1513711008406618,
+          "status": "law",
+          "trials": 140082
+        },
+        {
+          "bin": 6,
+          "center": 25.882324166036014,
+          "failures": 87199,
+          "law": -0.03621073936505554,
+          "name": "m_bin_6",
+          "own_half": 0.06260710886148965,
+          "raw": 0.365078895918143,
+          "requests": 430,
+          "restored": 0.4403882771745965,
+          "restored_half": 0.16955190731118988,
+          "status": "law",
+          "trials": 106968
+        },
+        {
+          "bin": 7,
+          "center": 49.56073119478844,
+          "failures": 102989,
+          "law": -0.028403911616286102,
+          "name": "m_bin_7",
+          "own_half": 0.07664557315313189,
+          "raw": 0.48487373744733514,
+          "requests": 346,
+          "restored": 0.5601831187037887,
+          "restored_half": 0.19052053708781203,
+          "status": "law",
+          "trials": 118042
+        },
+        {
+          "bin": 8,
+          "center": 97.33582863999762,
+          "failures": 108009,
+          "law": -0.020292690922856176,
+          "name": "m_bin_8",
+          "own_half": 0.09680065294101993,
+          "raw": 0.25482089371123007,
+          "requests": 304,
+          "restored": 0.33013027496768355,
+          "restored_half": 0.21004259368431039,
+          "status": "law",
+          "trials": 120009
+        },
+        {
+          "bin": 9,
+          "center": 206.90101384072923,
+          "failures": 161186,
+          "law": -0.011230850715604007,
+          "name": "m_bin_9",
+          "own_half": 0.15195913165683012,
+          "raw": -0.5879248243151167,
+          "requests": 247,
+          "restored": -0.5126154430586632,
+          "restored_half": 0.2542072825313911,
+          "status": "law",
+          "trials": 166972
+        }
+      ],
+      "P": [
+        {
+          "bin": 1,
+          "center": 0.0006347289890682008,
+          "failures": 295,
+          "law": 2.0860196018340087,
+          "name": "p_bin_1",
+          "own_half": 0.8178710553337815,
+          "raw": 1.9653485384172409,
+          "requests": 58,
+          "restored": -0.09807304495324787,
+          "restored_half": 0.6917764438993104,
+          "status": "law",
+          "trials": 313
+        },
+        {
+          "bin": 2,
+          "center": 0.0015173709002100366,
+          "failures": 1212,
+          "law": 2.038699986462823,
+          "name": "p_bin_2",
+          "own_half": 0.4734983816852121,
+          "raw": 2.0883323956679987,
+          "requests": 130,
+          "restored": 0.02491081229750991,
+          "restored_half": 0.3537191497400865,
+          "status": "law",
+          "trials": 1336
+        },
+        {
+          "bin": 3,
+          "center": 0.002749939364990707,
+          "failures": 1290,
+          "law": 2.0017804369974272,
+          "name": "p_bin_3",
+          "own_half": 0.4923125778527657,
+          "raw": 2.0071741295581456,
+          "requests": 94,
+          "restored": -0.056247453812343196,
+          "restored_half": 0.46150418534057397,
+          "status": "law",
+          "trials": 1482
+        },
+        {
+          "bin": 4,
+          "center": 0.005475662531040707,
+          "failures": 3688,
+          "law": 1.9511220296463008,
+          "name": "p_bin_4",
+          "own_half": 0.3316323622367346,
+          "raw": 1.9331425062048708,
+          "requests": 138,
+          "restored": -0.13027907716561793,
+          "restored_half": 0.3872254636512603,
+          "status": "law",
+          "trials": 4096
+        },
+        {
+          "bin": 5,
+          "center": 0.010868382852832417,
+          "failures": 8843,
+          "law": 1.8858492375575782,
+          "name": "p_bin_5",
+          "own_half": 0.22826890824068632,
+          "raw": 1.8789145643817076,
+          "requests": 203,
+          "restored": -0.1845070189887812,
+          "restored_half": 0.38805930599817284,
+          "status": "law",
+          "trials": 9915
+        },
+        {
+          "bin": 6,
+          "center": 0.022359511224762173,
+          "failures": 32597,
+          "law": 1.7843917048784252,
+          "name": "p_bin_6",
+          "own_half": 0.21428762878248067,
+          "raw": 1.862604013532424,
+          "requests": 258,
+          "restored": -0.20081756983806476,
+          "restored_half": 0.4380890661966383,
+          "status": "law",
+          "trials": 35205
+        },
+        {
+          "bin": 7,
+          "center": 0.038980203369956945,
+          "failures": 19615,
+          "law": 1.6567333274882086,
+          "name": "p_bin_7",
+          "own_half": 0.13497840024934535,
+          "raw": 1.6383938829238958,
+          "requests": 251,
+          "restored": -0.425027700446593,
+          "restored_half": 0.4173050878917394,
+          "status": "law",
+          "trials": 24218
+        },
+        {
+          "bin": 8,
+          "center": 0.08277268168489807,
+          "failures": 60832,
+          "law": 1.327213403120432,
+          "name": "p_bin_8",
+          "own_half": 0.10512058422845758,
+          "raw": 1.3238520995205862,
+          "requests": 366,
+          "restored": -0.7395694838499025,
+          "restored_half": 0.39737212190983234,
+          "status": "law",
+          "trials": 71103
+        },
+        {
+          "bin": 9,
+          "center": 0.17856278610790496,
+          "failures": 119968,
+          "law": 0.7027963390639589,
+          "name": "p_bin_9",
+          "own_half": 0.07897661184657917,
+          "raw": 0.7171337324235616,
+          "requests": 457,
+          "restored": -1.3462878509469272,
+          "restored_half": 0.41004035893469215,
+          "status": "law",
+          "trials": 137145
+        },
+        {
+          "bin": 10,
+          "center": 0.32429840593908354,
+          "failures": 123531,
+          "law": 0.0666012433115124,
+          "name": "p_bin_10",
+          "own_half": 0.07891915619637344,
+          "raw": 0.0,
+          "requests": 434,
+          "restored": -2.0634215833704888,
+          "restored_half": 0.42350336162408064,
+          "status": "reference",
+          "trials": 142894
+        },
+        {
+          "bin": 11,
+          "center": 0.6765144300884651,
+          "failures": 207574,
+          "law": -0.7987733435342999,
+          "name": "p_bin_11",
+          "own_half": 0.07684899006309612,
+          "raw": -0.8184053653950375,
+          "requests": 600,
+          "restored": -2.8818269487655264,
+          "restored_half": 0.43413553601139226,
+          "status": "law",
+          "trials": 241414
+        },
+        {
+          "bin": 12,
+          "center": 1.0,
+          "failures": 157280,
+          "law": -1.2765251286644337,
+          "name": "p_bin_12",
+          "own_half": 0.09647424289356707,
+          "raw": -1.2578474674089124,
+          "requests": 487,
+          "restored": -3.321269050779401,
+          "restored_half": 0.4317706902794613,
+          "status": "law",
+          "trials": 182961
+        }
+      ],
+      "R": [
+        {
+          "bin": 1,
+          "center": 1.0,
+          "failures": 59405,
+          "law": -0.20266720746415795,
+          "name": "r_bin_1",
+          "own_half": 0.14787521873283377,
+          "raw": 0.0,
+          "requests": 2870,
+          "restored": 0.20266720746415795,
+          "restored_half": 0.1791657895989224,
+          "status": "reference",
+          "trials": 78732
+        },
+        {
+          "bin": 2,
+          "center": 1.9999999999999334,
+          "failures": 51244,
+          "law": -0.2645453627570556,
+          "name": "r_bin_2",
+          "own_half": 0.18789034507162344,
+          "raw": -0.19517126562766204,
+          "requests": 2574,
+          "restored": 0.007495941836495906,
+          "restored_half": 0.17739527708099592,
+          "status": "law",
+          "trials": 63832
+        },
+        {
+          "bin": 3,
+          "center": 3.430958921861789,
+          "failures": 76525,
+          "law": -0.3265170136511584,
+          "name": "r_bin_3",
+          "own_half": 0.11706616088178166,
+          "raw": -0.3424835025170127,
+          "requests": 2483,
+          "restored": -0.13981629505285476,
+          "restored_half": 0.09824482998960299,
+          "status": "law",
+          "trials": 92921
+        },
+        {
+          "bin": 4,
+          "center": 6.292032352861167,
+          "failures": 97296,
+          "law": -0.4172021611660292,
+          "name": "r_bin_4",
+          "own_half": 0.08064938944358335,
+          "raw": -0.4203466311636829,
+          "requests": 2036,
+          "restored": -0.21767942369952498,
+          "restored_half": 0.10761313790637883,
+          "status": "law",
+          "trials": 116324
+        },
+        {
+          "bin": 5,
+          "center": 11.954788028487982,
+          "failures": 107838,
+          "law": -0.5497761378124553,
+          "name": "r_bin_5",
+          "own_half": 0.06447609456343657,
+          "raw": -0.5538433002947475,
+          "requests": 1697,
+          "restored": -0.35117609283058954,
+          "restored_half": 0.13274921106985857,
+          "status": "law",
+          "trials": 126964
+        },
+        {
+          "bin": 6,
+          "center": 23.383427764765724,
+          "failures": 95187,
+          "law": -0.7534733334475392,
+          "name": "r_bin_6",
+          "own_half": 0.05211965406449347,
+          "raw": -0.7386497150926038,
+          "requests": 1295,
+          "restored": -0.5359825076284459,
+          "restored_half": 0.14141482839635924,
+          "status": "law",
+          "trials": 109699
+        },
+        {
+          "bin": 7,
+          "center": 45.58663693639121,
+          "failures": 100107,
+          "law": -1.0678660686159749,
+          "name": "r_bin_7",
+          "own_half": 0.06888726267909759,
+          "raw": -1.0706035054566525,
+          "requests": 874,
+          "restored": -0.8679362979924945,
+          "restored_half": 0.1444210128934879,
+          "status": "law",
+          "trials": 109172
+        },
+        {
+          "bin": 8,
+          "center": 90.65976195432367,
+          "failures": 89476,
+          "law": -1.585383107345406,
+          "name": "r_bin_8",
+          "own_half": 0.07859633987809322,
+          "raw": -1.5823184849960013,
+          "requests": 537,
+          "restored": -1.3796512775318432,
+          "restored_half": 0.13220760201247217,
+          "status": "law",
+          "trials": 93882
+        },
+        {
+          "bin": 9,
+          "center": 174.60222688943267,
+          "failures": 59647,
+          "law": -2.3392489506169696,
+          "name": "r_bin_9",
+          "own_half": 0.14114555603119222,
+          "raw": -2.3351344740710966,
+          "requests": 244,
+          "restored": -2.132467266606939,
+          "restored_half": 0.19657896922805784,
+          "status": "law",
+          "trials": 60556
+        }
+      ],
+      "grid": [
+        {
+          "failures": 17,
+          "law": 4.4334734630494115,
+          "name": "vs_1_1",
+          "raw": 4.876924760406978,
+          "raw_half": 0.845570397319992,
+          "requests": 10,
+          "restored": -1.1876227794539655,
+          "restored_half": 0.7727674153802325,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 290,
+          "u": 0.0,
+          "v_bin": 1,
+          "words": [
+            1,
+            20
+          ],
+          "x": 4.24234250533688
+        },
+        {
+          "failures": 52,
+          "law": 3.7557845713761586,
+          "name": "vs_1_2",
+          "raw": 3.436373299537922,
+          "raw_half": 0.717632211993328,
+          "requests": 21,
+          "restored": -2.6281742403230215,
+          "restored_half": 0.6732238950562377,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 267,
+          "u": 0.0,
+          "v_bin": 1,
+          "words": [
+            1,
+            20
+          ],
+          "x": 14.958286329755659
+        },
+        {
+          "failures": 24,
+          "law": 3.7612044907933075,
+          "name": "vs_2_1",
+          "raw": 4.444844280775219,
+          "raw_half": 0.681006192603408,
+          "requests": 16,
+          "restored": -1.6197032590857248,
+          "restored_half": 0.6424243787224327,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 418,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ],
+          "x": 4.493360460121429
+        },
+        {
+          "failures": 68,
+          "law": 3.1013714602005815,
+          "name": "vs_2_2",
+          "raw": 3.1958680794940495,
+          "raw_half": 0.6213598569163129,
+          "requests": 29,
+          "restored": -2.868679460366894,
+          "restored_half": 0.6135063703409774,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 445,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ],
+          "x": 15.17146726376609
+        },
+        {
+          "failures": 261,
+          "law": 2.644269992407217,
+          "name": "vs_2_3",
+          "raw": 2.2611797172134023,
+          "raw_half": 0.47209761604217254,
+          "requests": 50,
+          "restored": -3.8033678226475414,
+          "restored_half": 0.5023303869140893,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 839,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ],
+          "x": 29.777569904778613
+        },
+        {
+          "failures": 30,
+          "law": 3.341753778918918,
+          "name": "vs_3_1",
+          "raw": 4.310045410975941,
+          "raw_half": 0.5678720369300861,
+          "requests": 22,
+          "restored": -1.7545021288850027,
+          "restored_half": 0.5788175088800567,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 532,
+          "u": 1.9431218451747845,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 4.61566588831134
+        },
+        {
+          "failures": 121,
+          "law": 2.695539654154912,
+          "name": "vs_3_2",
+          "raw": 2.654413906796706,
+          "raw_half": 0.45148880932943203,
+          "requests": 51,
+          "restored": -3.4101336330642376,
+          "restored_half": 0.5186926062772992,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 550,
+          "u": 1.938149091098374,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 15.146524865694255
+        },
+        {
+          "failures": 378,
+          "law": 2.2340225879005495,
+          "name": "vs_3_3",
+          "raw": 2.025155224664406,
+          "raw_half": 0.39419362744849346,
+          "requests": 73,
+          "restored": -4.039392315196538,
+          "restored_half": 0.48162710623130284,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 1124,
+          "u": 1.9362629703366765,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 29.915279955477406
+        },
+        {
+          "failures": 931,
+          "law": 1.700408969788393,
+          "name": "vs_3_4",
+          "raw": 1.4685786248831116,
+          "raw_half": 0.3989277352781866,
+          "requests": 75,
+          "restored": -4.595968914977832,
+          "restored_half": 0.49300376470339774,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 1976,
+          "u": 1.9639075883956927,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 58.45282492083084
+        },
+        {
+          "failures": 91,
+          "law": 3.1254988339576246,
+          "name": "vs_4_1",
+          "raw": 3.9353411350205234,
+          "raw_half": 0.5060109674947884,
+          "requests": 49,
+          "restored": -2.1292064048404202,
+          "restored_half": 0.530113379551159,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 923,
+          "u": 2.801224478869388,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 4.55268575699092
+        },
+        {
+          "failures": 218,
+          "law": 2.4707841604644774,
+          "name": "vs_4_2",
+          "raw": 2.6797891811379126,
+          "raw_half": 0.41474174972462596,
+          "requests": 91,
+          "restored": -3.384758358723031,
+          "restored_half": 0.490764728327377,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 914,
+          "u": 2.799538935262298,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 15.196280906911388
+        },
+        {
+          "failures": 682,
+          "law": 2.015008125379729,
+          "name": "vs_4_3",
+          "raw": 1.781975965943441,
+          "raw_half": 0.3889968749961501,
+          "requests": 116,
+          "restored": -4.282571573917503,
+          "restored_half": 0.4798907174253676,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 1750,
+          "u": 2.810138735911639,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 29.765227830169106
+        },
+        {
+          "failures": 1786,
+          "law": 1.4655904807814912,
+          "name": "vs_4_4",
+          "raw": 1.1537551020130417,
+          "raw_half": 0.38141136694449346,
+          "requests": 142,
+          "restored": -4.910792437847902,
+          "restored_half": 0.48173126021028695,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 3486,
+          "u": 2.8091115717091433,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 59.2785835775531
+        },
+        {
+          "failures": 3147,
+          "law": 0.8613597766820034,
+          "name": "vs_4_5",
+          "raw": 0.7613411112534753,
+          "raw_half": 0.37953405973838966,
+          "requests": 143,
+          "restored": -5.303206428607468,
+          "restored_half": 0.4793504085966092,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 5261,
+          "u": 2.8899479872109555,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 113.11684667926951
+        },
+        {
+          "failures": 190,
+          "law": 2.8800108292891173,
+          "name": "vs_5_1",
+          "raw": 3.351825258376792,
+          "raw_half": 0.4837949439449866,
+          "requests": 94,
+          "restored": -2.712722281484152,
+          "restored_half": 0.49445386372509337,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 1289,
+          "u": 3.7487333474248605,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 4.43678830797679
+        },
+        {
+          "failures": 370,
+          "law": 2.210954835955587,
+          "name": "vs_5_2",
+          "raw": 2.20984928120126,
+          "raw_half": 0.4174745172064023,
+          "requests": 126,
+          "restored": -3.854698258659684,
+          "restored_half": 0.4818342153298648,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 1248,
+          "u": 3.756372519595519,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 15.252018909590287
+        },
+        {
+          "failures": 839,
+          "law": 1.7485237685445183,
+          "name": "vs_5_3",
+          "raw": 1.5785567562648002,
+          "raw_half": 0.37816085851972336,
+          "requests": 164,
+          "restored": -4.485990783596144,
+          "restored_half": 0.4754380379107078,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 2210,
+          "u": 3.7599081692575216,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 30.129740275145224
+        },
+        {
+          "failures": 2321,
+          "law": 1.208310713705361,
+          "name": "vs_5_4",
+          "raw": 0.9291512660843425,
+          "raw_half": 0.37215159614455545,
+          "requests": 204,
+          "restored": -5.1353962737766015,
+          "restored_half": 0.4757076177450853,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 4560,
+          "u": 3.764378446508067,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 59.260748548242304
+        },
+        {
+          "failures": 5536,
+          "law": 0.555710832429134,
+          "name": "vs_5_5",
+          "raw": 0.4722703010327587,
+          "raw_half": 0.36790091373366324,
+          "requests": 224,
+          "restored": -5.592277238828185,
+          "restored_half": 0.47672080887699364,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 9143,
+          "u": 3.7615790551420734,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 118.6088128804562
+        },
+        {
+          "failures": 8474,
+          "law": -0.14460107315006265,
+          "name": "vs_5_6",
+          "raw": 0.10281265308508412,
+          "raw_half": 0.3695987750987145,
+          "requests": 245,
+          "restored": -5.96173488677586,
+          "restored_half": 0.4838688221400468,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 12672,
+          "u": 3.871867013532593,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 223.93546312675323
+        },
+        {
+          "failures": 440,
+          "law": 2.7614565706860805,
+          "name": "vs_6_1",
+          "raw": 3.089738709570897,
+          "raw_half": 0.4214296610354965,
+          "requests": 160,
+          "restored": -2.974808830290047,
+          "restored_half": 0.4703265634108794,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 2181,
+          "u": 4.71352249659437,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 4.382140132575931
+        },
+        {
+          "failures": 605,
+          "law": 2.0925515751008774,
+          "name": "vs_6_2",
+          "raw": 2.296420949809651,
+          "raw_half": 0.40117933969944375,
+          "requests": 203,
+          "restored": -3.768126590051293,
+          "restored_half": 0.47484012128615916,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 1980,
+          "u": 4.714985434992554,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 15.10827320518477
+        },
+        {
+          "failures": 1840,
+          "law": 1.628622688622007,
+          "name": "vs_6_3",
+          "raw": 1.4301740533089695,
+          "raw_half": 0.3791827093924214,
+          "requests": 267,
+          "restored": -4.634373486551974,
+          "restored_half": 0.4685657262146026,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 3838,
+          "u": 4.70372094300582,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 29.949217519690507
+        },
+        {
+          "failures": 4670,
+          "law": 1.083536677565545,
+          "name": "vs_6_4",
+          "raw": 0.7692561459709009,
+          "raw_half": 0.370923262865623,
+          "requests": 324,
+          "restored": -5.295291393890043,
+          "restored_half": 0.47326833091800824,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 7608,
+          "u": 4.710587488684013,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 59.29184320750812
+        },
+        {
+          "failures": 10736,
+          "law": 0.4342881512710077,
+          "name": "vs_6_5",
+          "raw": 0.22838844951785206,
+          "raw_half": 0.36831420233901785,
+          "requests": 364,
+          "restored": -5.8361590903430915,
+          "restored_half": 0.4754387364150877,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 15133,
+          "u": 4.70779580251138,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 118.27239196927928
+        },
+        {
+          "failures": 24081,
+          "law": -0.33139507213352104,
+          "name": "vs_6_6",
+          "raw": -0.30263405865003334,
+          "raw_half": 0.367935365615949,
+          "requests": 410,
+          "restored": -6.367181598510977,
+          "restored_half": 0.4770976633195695,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 30542,
+          "u": 4.7093401755748,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 235.95372286047657
+        },
+        {
+          "failures": 33082,
+          "law": -1.1438393580330795,
+          "name": "vs_6_7",
+          "raw": -0.8835131129935628,
+          "raw_half": 0.3746404830665355,
+          "requests": 421,
+          "restored": -6.948060652854506,
+          "restored_half": 0.4836533822962459,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 38826,
+          "u": 4.8400769357079465,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 441.43634534988104
+        },
+        {
+          "failures": 1104,
+          "law": 2.507591225344288,
+          "name": "vs_7_1",
+          "raw": 2.384077371323531,
+          "raw_half": 0.39374148583961854,
+          "requests": 273,
+          "restored": -3.6804701685374126,
+          "restored_half": 0.467711406080548,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 2705,
+          "u": 5.668963154867862,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 4.398210583941037
+        },
+        {
+          "failures": 1179,
+          "law": 1.8379729669305944,
+          "name": "vs_7_2",
+          "raw": 1.9098174707484736,
+          "raw_half": 0.3949202548453438,
+          "requests": 267,
+          "restored": -4.15473006911247,
+          "restored_half": 0.479504012054051,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 2428,
+          "u": 5.651032271481642,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 15.166805692939342
+        },
+        {
+          "failures": 2859,
+          "law": 1.3747997754709376,
+          "name": "vs_7_3",
+          "raw": 1.2568990251401573,
+          "raw_half": 0.3801401036892589,
+          "requests": 327,
+          "restored": -4.807648514720786,
+          "restored_half": 0.47356368103148405,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 4845,
+          "u": 5.666031757057068,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 30.01688364090126
+        },
+        {
+          "failures": 6753,
+          "law": 0.8291921396302779,
+          "name": "vs_7_4",
+          "raw": 0.6151691950028131,
+          "raw_half": 0.3710063022937473,
+          "requests": 377,
+          "restored": -5.449378344858131,
+          "restored_half": 0.4752562245350004,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 9678,
+          "u": 5.670547928698643,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 59.441466006538086
+        },
+        {
+          "failures": 15071,
+          "law": 0.17958285656633244,
+          "name": "vs_7_5",
+          "raw": 0.07233851408545432,
+          "raw_half": 0.3721249270796356,
+          "requests": 414,
+          "restored": -5.992209025775489,
+          "restored_half": 0.47877565999607724,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 19320,
+          "u": 5.672438857749753,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 118.56739216490912
+        },
+        {
+          "failures": 30547,
+          "law": -0.5802161695254604,
+          "name": "vs_7_6",
+          "raw": -0.5161995210283049,
+          "raw_half": 0.3758635705749908,
+          "requests": 449,
+          "restored": -6.580747060889249,
+          "restored_half": 0.4835299169019549,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 35763,
+          "u": 5.6719846886291,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 235.2984660580038
+        },
+        {
+          "failures": 57513,
+          "law": -1.4837165823578777,
+          "name": "vs_7_7",
+          "raw": -1.343161516800838,
+          "raw_half": 0.3755016859653804,
+          "requests": 441,
+          "restored": -7.407709056661782,
+          "restored_half": 0.48390989089359365,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 62856,
+          "u": 5.662088235554054,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 469.8361460926596
+        },
+        {
+          "failures": 63135,
+          "law": -2.444689513706364,
+          "name": "vs_7_8",
+          "raw": -2.1247563055816654,
+          "raw_half": 0.39686538643869246,
+          "requests": 426,
+          "restored": -8.189303845442609,
+          "restored_half": 0.5014368817867154,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 66343,
+          "u": 5.8369992935360875,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 880.826733504872
+        },
+        {
+          "failures": 444,
+          "law": 2.2094262537132066,
+          "name": "vs_8_1",
+          "raw": 1.917040589646455,
+          "raw_half": 0.4155758170009998,
+          "requests": 157,
+          "restored": -4.147506950214488,
+          "restored_half": 0.483060121248734,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 1187,
+          "u": 6.62006551691434,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 4.351161887863369
+        },
+        {
+          "failures": 499,
+          "law": 1.536720453169373,
+          "name": "vs_8_2",
+          "raw": 1.738479168405268,
+          "raw_half": 0.4075745302486081,
+          "requests": 163,
+          "restored": -4.326068371455675,
+          "restored_half": 0.49427820385155413,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 1217,
+          "u": 6.630798041353959,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 15.12056965049765
+        },
+        {
+          "failures": 1199,
+          "law": 1.0742155807894025,
+          "name": "vs_8_3",
+          "raw": 1.1181839816507662,
+          "raw_half": 0.39129251112857966,
+          "requests": 220,
+          "restored": -4.9463635582101775,
+          "restored_half": 0.48954986313717197,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 2311,
+          "u": 6.623153892674047,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 29.911896069370734
+        },
+        {
+          "failures": 2953,
+          "law": 0.5302008707116395,
+          "name": "vs_8_4",
+          "raw": 0.47767096002222104,
+          "raw_half": 0.38819933055909156,
+          "requests": 278,
+          "restored": -5.586876579838723,
+          "restored_half": 0.49065897691576676,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 4716,
+          "u": 6.618254790583913,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 59.15571496124228
+        },
+        {
+          "failures": 6911,
+          "law": -0.12112924016111837,
+          "name": "vs_8_5",
+          "raw": -0.056838839681920314,
+          "raw_half": 0.3820100933030183,
+          "requests": 332,
+          "restored": -6.121386379542864,
+          "restored_half": 0.4922654516071984,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 9566,
+          "u": 6.621945834037249,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 118.28330656962503
+        },
+        {
+          "failures": 14643,
+          "law": -0.8743727651343134,
+          "name": "vs_8_6",
+          "raw": -0.8226893639414051,
+          "raw_half": 0.38154693484007196,
+          "requests": 387,
+          "restored": -6.887236903802349,
+          "restored_half": 0.4905248989268928,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 17985,
+          "u": 6.634331102947243,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 233.54073179398853
+        },
+        {
+          "failures": 24739,
+          "law": -1.7606726044112486,
+          "name": "vs_8_7",
+          "raw": -1.8457681077717014,
+          "raw_half": 0.3934302983620869,
+          "requests": 407,
+          "restored": -7.910315647632645,
+          "restored_half": 0.4975859053985014,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 27620,
+          "u": 6.614692508762936,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 461.21053737516104
+        },
+        {
+          "failures": 42371,
+          "law": -2.8477931468648956,
+          "name": "vs_8_8",
+          "raw": -2.914224268481685,
+          "raw_half": 0.41768668282791765,
+          "requests": 347,
+          "restored": -8.978771808342628,
+          "restored_half": 0.5028382462761164,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 44570,
+          "u": 6.585449403793415,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 935.5407065777439
+        },
+        {
+          "failures": 41767,
+          "law": -3.9601644296318446,
+          "name": "vs_8_9",
+          "raw": -3.7710451975993884,
+          "raw_half": 0.529394005091591,
+          "requests": 328,
+          "restored": -9.835592737460331,
+          "restored_half": 0.5728579892303585,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 42937,
+          "u": 6.800405856695566,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 1735.692965664559
+        },
+        {
+          "failures": 349,
+          "law": 1.859566774488792,
+          "name": "vs_9_1",
+          "raw": 1.4713511163673452,
+          "raw_half": 0.45286652906568897,
+          "requests": 159,
+          "restored": -4.593196423493598,
+          "restored_half": 0.5263594817733515,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 914,
+          "u": 7.604654728625659,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 4.731178280278272
+        },
+        {
+          "failures": 398,
+          "law": 1.2184022964052188,
+          "name": "vs_9_2",
+          "raw": 1.237818387874808,
+          "raw_half": 0.4224845627995973,
+          "requests": 175,
+          "restored": -4.826729151986136,
+          "restored_half": 0.5181682243622682,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 941,
+          "u": 7.584781036403611,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 15.30750410229742
+        },
+        {
+          "failures": 958,
+          "law": 0.7619439805500172,
+          "name": "vs_9_3",
+          "raw": 0.7059634431868509,
+          "raw_half": 0.40280202456948916,
+          "requests": 250,
+          "restored": -5.358584096674093,
+          "restored_half": 0.5148896578377833,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 1874,
+          "u": 7.583166884976456,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 29.978537581582376
+        },
+        {
+          "failures": 2281,
+          "law": 0.22152307574326757,
+          "name": "vs_9_4",
+          "raw": 0.1951463608250923,
+          "raw_half": 0.38995484129765495,
+          "requests": 320,
+          "restored": -5.869401179035851,
+          "restored_half": 0.511454456065575,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 3810,
+          "u": 7.5854829246552,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 59.02180532628202
+        },
+        {
+          "failures": 5448,
+          "law": -0.43389610119817323,
+          "name": "vs_9_5",
+          "raw": -0.33247666019661787,
+          "raw_half": 0.3854876072709044,
+          "requests": 379,
+          "restored": -6.397024200057562,
+          "restored_half": 0.5072453697443132,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 7836,
+          "u": 7.586242465917373,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 118.53061393501885
+        },
+        {
+          "failures": 12050,
+          "law": -1.1953284626158691,
+          "name": "vs_9_6",
+          "raw": -1.2494692903377829,
+          "raw_half": 0.3906538926252581,
+          "requests": 446,
+          "restored": -7.314016830198726,
+          "restored_half": 0.5100177969300871,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 14809,
+          "u": 7.583728629869376,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 235.55640388365373
+        },
+        {
+          "failures": 21172,
+          "law": -2.0686313206816918,
+          "name": "vs_9_7",
+          "raw": -2.122199431008481,
+          "raw_half": 0.39056172342410805,
+          "requests": 491,
+          "restored": -8.186746970869425,
+          "restored_half": 0.5031482794831955,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 23772,
+          "u": 7.603341553052853,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 460.33597312394727
+        },
+        {
+          "failures": 25475,
+          "law": -3.1285913170762827,
+          "name": "vs_9_8",
+          "raw": -3.0653348759152497,
+          "raw_half": 0.41510258949934414,
+          "requests": 399,
+          "restored": -9.129882415776194,
+          "restored_half": 0.5007145086205311,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 27180,
+          "u": 7.572016963891394,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 918.9425930129208
+        },
+        {
+          "failures": 43453,
+          "law": -4.425554976736657,
+          "name": "vs_9_9",
+          "raw": -4.151036639213437,
+          "raw_half": 0.5227292080286763,
+          "requests": 334,
+          "restored": -10.21558417907438,
+          "restored_half": 0.5322814672159101,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 44861,
+          "u": 7.542998428484233,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 1878.7316092892727
+        },
+        {
+          "failures": 35793,
+          "law": -5.721843765046622,
+          "name": "vs_9_10",
+          "raw": -5.270658974070241,
+          "raw_half": 0.6875948306182814,
+          "requests": 327,
+          "restored": -11.335206513931185,
+          "restored_half": 0.6359607493743129,
+          "s_bin": 10,
+          "status": "law",
+          "trials": 36303,
+          "u": 7.793325958835933,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 3459.1081432769124
+        },
+        {
+          "failures": 133,
+          "law": 1.4511143749707265,
+          "name": "vs_10_1",
+          "raw": 0.8278010753810596,
+          "raw_half": 0.5391384965907696,
+          "requests": 75,
+          "restored": -5.236746464479884,
+          "restored_half": 0.5870370873422871,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 342,
+          "u": 8.586672248457756,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 4.99170945705247
+        },
+        {
+          "failures": 151,
+          "law": 0.835594740294578,
+          "name": "vs_10_2",
+          "raw": 0.5717300647079644,
+          "raw_half": 0.5713219813374032,
+          "requests": 82,
+          "restored": -5.492817475152979,
+          "restored_half": 0.6450898479364452,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 334,
+          "u": 8.525601089255593,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 15.30457229817444
+        },
+        {
+          "failures": 313,
+          "law": 0.364610725234193,
+          "name": "vs_10_3",
+          "raw": 0.43646335389148333,
+          "raw_half": 0.5198256128983888,
+          "requests": 112,
+          "restored": -5.628084185969461,
+          "restored_half": 0.6052633614203144,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 659,
+          "u": 8.514462682875214,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 30.570488626502666
+        },
+        {
+          "failures": 640,
+          "law": -0.16860554704565578,
+          "name": "vs_10_4",
+          "raw": 0.04405404610537894,
+          "raw_half": 0.45107801742856996,
+          "requests": 176,
+          "restored": -6.0204934937555645,
+          "restored_half": 0.5473118434273045,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 1228,
+          "u": 8.532310868739955,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 59.515315392833365
+        },
+        {
+          "failures": 1632,
+          "law": -0.8091104201149144,
+          "name": "vs_10_5",
+          "raw": -0.6128879467203046,
+          "raw_half": 0.43980576884331407,
+          "requests": 251,
+          "restored": -6.677435486581248,
+          "restored_half": 0.5374811550182574,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 2629,
+          "u": 8.54112380293787,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 117.63717116653115
+        },
+        {
+          "failures": 3859,
+          "law": -1.5845247763806527,
+          "name": "vs_10_6",
+          "raw": -1.3942195700630786,
+          "raw_half": 0.4269093886316812,
+          "requests": 314,
+          "restored": -7.458767109924022,
+          "restored_half": 0.536051014960158,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 5246,
+          "u": 8.525126378425657,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 236.7873331015783
+        },
+        {
+          "failures": 8459,
+          "law": -2.4720447049874035,
+          "name": "vs_10_7",
+          "raw": -2.18261501518757,
+          "raw_half": 0.4300180197101591,
+          "requests": 377,
+          "restored": -8.247162555048513,
+          "restored_half": 0.5329920482720178,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 10012,
+          "u": 8.536216521415678,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 467.05945333578273
+        },
+        {
+          "failures": 14860,
+          "law": -3.5242050627438846,
+          "name": "vs_10_8",
+          "raw": -3.4801653715138468,
+          "raw_half": 0.4468901577161829,
+          "requests": 376,
+          "restored": -9.544712911374791,
+          "restored_half": 0.5490427856219905,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 15737,
+          "u": 8.605447158900626,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 925.9719707065582
+        },
+        {
+          "failures": 20728,
+          "law": -4.7732649399329645,
+          "name": "vs_10_9",
+          "raw": -5.139139591967402,
+          "raw_half": 0.5034088631243937,
+          "requests": 368,
+          "restored": -11.203687131828346,
+          "restored_half": 0.5345191390215875,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 20998,
+          "u": 8.655783202982047,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 1845.4194256785167
+        },
+        {
+          "failures": 33704,
+          "law": -6.285675744710526,
+          "name": "vs_10_10",
+          "raw": -6.933006897767112,
+          "raw_half": 0.937863080157541,
+          "requests": 331,
+          "restored": -12.997554437628056,
+          "restored_half": 0.7818485372062539,
+          "s_bin": 10,
+          "status": "law",
+          "trials": 33800,
+          "u": 8.652713874213505,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 3741.7158809579396
+        },
+        {
+          "failures": 32822,
+          "law": -7.875353124970424,
+          "name": "vs_10_11",
+          "raw": -7.950911344031379,
+          "raw_half": 1.8152779428990558,
+          "requests": 296,
+          "restored": -14.015458883892322,
+          "restored_half": 1.6283939800293123,
+          "s_bin": 11,
+          "status": "law",
+          "trials": 32870,
+          "u": 8.848178096052628,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 7048.881371536452
+        },
+        {
+          "failures": 18,
+          "law": 1.024118093873796,
+          "name": "vs_11_1",
+          "raw": 0.5857364673309675,
+          "raw_half": 1.2674669677591788,
+          "requests": 16,
+          "restored": -5.478811072529976,
+          "restored_half": 1.274258412228579,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 67,
+          "u": 9.661806217072108,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 4.170869091869299
+        },
+        {
+          "failures": 29,
+          "law": 0.3079735929188465,
+          "name": "vs_11_2",
+          "raw": -0.11216327484947239,
+          "raw_half": 1.0297742400177534,
+          "requests": 22,
+          "restored": -6.176710814710416,
+          "restored_half": 1.0561200868513738,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 78,
+          "u": 9.63728414657295,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 15.708216260390465
+        },
+        {
+          "failures": 71,
+          "law": -0.11306444706425411,
+          "name": "vs_11_3",
+          "raw": -0.4626670060823946,
+          "raw_half": 0.7476114001989866,
+          "requests": 45,
+          "restored": -6.527214545943338,
+          "restored_half": 0.8060154862860114,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 175,
+          "u": 9.72395592634114,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 29.2035585966171
+        },
+        {
+          "failures": 106,
+          "law": -0.6817898084443854,
+          "name": "vs_11_4",
+          "raw": -0.12496309593746772,
+          "raw_half": 0.6088550428066262,
+          "requests": 60,
+          "restored": -6.1895106357984115,
+          "restored_half": 0.6899713195878926,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 313,
+          "u": 9.708701238883803,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 59.64689346649654
+        },
+        {
+          "failures": 265,
+          "law": -1.3498037274744337,
+          "name": "vs_11_5",
+          "raw": -1.1306006320330468,
+          "raw_half": 0.543059202138735,
+          "requests": 138,
+          "restored": -7.19514817189399,
+          "restored_half": 0.6286560385070434,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 618,
+          "u": 9.640958129367126,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 121.07289357852214
+        },
+        {
+          "failures": 742,
+          "law": -2.1035733869605173,
+          "name": "vs_11_6",
+          "raw": -1.6386373369731044,
+          "raw_half": 0.5374209653889276,
+          "requests": 193,
+          "restored": -7.703184876834048,
+          "restored_half": 0.6326414139559566,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 1282,
+          "u": 9.680204683747451,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 238.3211254387954
+        },
+        {
+          "failures": 1798,
+          "law": -2.9898144316945214,
+          "name": "vs_11_7",
+          "raw": -2.6438250346312198,
+          "raw_half": 0.4989893955995812,
+          "requests": 250,
+          "restored": -8.708372574492163,
+          "restored_half": 0.5812827924279936,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 2387,
+          "u": 9.672767607755425,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 469.20754861630934
+        },
+        {
+          "failures": 4301,
+          "law": -4.0510699198646165,
+          "name": "vs_11_8",
+          "raw": -3.975092873806558,
+          "raw_half": 0.5353984566617995,
+          "requests": 277,
+          "restored": -10.039640413667502,
+          "restored_half": 0.6044419245305426,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 4775,
+          "u": 9.663864194704855,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 934.6678767380538
+        },
+        {
+          "failures": 7712,
+          "law": -5.310298963129153,
+          "name": "vs_11_9",
+          "raw": -6.227903574619866,
+          "raw_half": 0.6227182933418086,
+          "requests": 268,
+          "restored": -12.292451114480809,
+          "restored_half": 0.6362411621786297,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 7837,
+          "u": 9.66693009131803,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 1869.7430840129884
+        },
+        {
+          "failures": 13092,
+          "law": -6.790431875005719,
+          "name": "vs_11_10",
+          "raw": -8.87739747266782,
+          "raw_half": 0.9876838907390167,
+          "requests": 268,
+          "restored": -14.941945012528763,
+          "restored_half": 0.9416859798482036,
+          "s_bin": 10,
+          "status": "law",
+          "trials": 13105,
+          "u": 9.666205919466137,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 3731.241635093598
+        },
+        {
+          "failures": 23039,
+          "name": "vs_11_11",
+          "requests": 256,
+          "s_bin": 11,
+          "status": "excluded",
+          "trials": 23039,
+          "u": 9.642445596282869,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 7456.463687024576
+        },
+        {
+          "failures": 6197,
+          "law": -9.932357124610814,
+          "name": "vs_11_12",
+          "raw": -9.105425075913022,
+          "raw_half": 1.6872526265750767,
+          "requests": 163,
+          "restored": -15.169972615773965,
+          "restored_half": 1.5531109787589659,
+          "s_bin": 12,
+          "status": "law",
+          "trials": 6199,
+          "u": 9.77841982301898,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 12045.145675156964
+        }
+      ],
+      "slices": [
+        {
+          "half": 0.7973497559307898,
+          "law": 6.064547539860944,
+          "mu_v": 6.365551141373644,
+          "u": 0.0,
+          "v_bin": 1,
+          "words": [
+            1,
+            20
+          ]
+        },
+        {
+          "half": 0.6407024574910603,
+          "law": 5.762951503819915,
+          "mu_v": 5.719964469217443,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ]
+        },
+        {
+          "half": 0.5715691151115112,
+          "law": 5.476300857050158,
+          "mu_v": 5.313104857324068,
+          "u": 1.9504456707473468,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ]
+        },
+        {
+          "half": 0.5692313978972424,
+          "law": 5.2072794922750045,
+          "mu_v": 5.090398393855718,
+          "u": 2.8424380467298898,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ]
+        },
+        {
+          "half": 0.5670019630183637,
+          "law": 4.916662201559202,
+          "mu_v": 4.832858388476434,
+          "u": 3.8060358928112192,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ]
+        },
+        {
+          "half": 0.5664566029376366,
+          "law": 4.628982394371299,
+          "mu_v": 4.7085380287606995,
+          "u": 4.759893944011756,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ]
+        },
+        {
+          "half": 0.558177167055874,
+          "law": 4.338767000309791,
+          "mu_v": 4.456373983574819,
+          "u": 5.722159223990526,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ]
+        },
+        {
+          "half": 0.5629034694777136,
+          "law": 4.055394789410743,
+          "mu_v": 4.153214745984239,
+          "u": 6.661734606408676,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ]
+        },
+        {
+          "half": 0.5608199046383523,
+          "law": 3.766221600114207,
+          "mu_v": 3.8425784663121254,
+          "u": 7.620544254878982,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ]
+        },
+        {
+          "half": 0.5928729973076399,
+          "law": 3.4468572693550485,
+          "mu_v": 3.4596509835564846,
+          "u": 8.679458473220075,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ]
+        },
+        {
+          "half": 0.6501615048026042,
+          "law": 3.143289681813896,
+          "mu_v": 2.9483789869093093,
+          "u": 9.68599553360722,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ]
+        }
+      ]
+    },
+    "capacities": [
+      {
+        "interval": [
+          20.214017071748444,
+          28.91384201569409
+        ],
+        "key": "instruction_capacity",
+        "level": 0.5,
+        "method": "law",
+        "plus_minus": 4.326776947081696,
+        "status": "measured",
+        "value": 24.175708802744083
+      },
+      {
+        "key": "instruction_capacity",
+        "level": 0.5,
+        "method": "bins",
+        "status": "measured",
+        "value": 23.867978745811943
+      },
+      {
+        "interval": [
+          511.74937891030334,
+          758.4092573186215
+        ],
+        "key": "fatigue_capacity_words",
+        "level": 0.5,
+        "method": "law",
+        "plus_minus": 122.5382711529633,
+        "status": "measured",
+        "value": 622.9891382621602
+      },
+      {
+        "change": -3.3399467120349224,
+        "change_half": 0.4297109492342779,
+        "interval": [
+          18.361126927472093,
+          43.3652167012045
+        ],
+        "key": "density_odds_factor",
+        "level": null,
+        "method": "law",
+        "status": "measured",
+        "value": 28.217623005635122
+      }
+    ],
+    "density_loss_at_one": 3.3399467120349224,
+    "fit": {
+      "dropped": [
+        "vs_11_11"
+      ],
+      "failures": 713686,
+      "loglik": -174209.03012984086,
+      "method": "glmm_heterogeneous",
+      "parameters": 103,
+      "points": 3656,
+      "rows": 75717,
+      "sigma2": 1.7404559158497195,
+      "sigma2_half": 0.28433124906777124,
+      "spread": {
+        "M": [
+          {
+            "bins": [
+              1
+            ],
+            "center": 1.0,
+            "failing": 374,
+            "half": 2.771362268513861,
+            "share": 0.13211159737417943,
+            "sigma2": 8.686548965041856
+          },
+          {
+            "bins": [
+              2
+            ],
+            "center": 2.0,
+            "failing": 407,
+            "half": 0.687484822772294,
+            "share": 0.11898249452954048,
+            "sigma2": 2.5164574021806216
+          },
+          {
+            "bins": [
+              3
+            ],
+            "center": 3.4789683809527587,
+            "failing": 531,
+            "half": 0.38637723416268926,
+            "share": 0.1561816192560175,
+            "sigma2": 1.4770130254582612
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 6.840818815500049,
+            "failing": 396,
+            "half": 0.16142434049943996,
+            "share": 0.10858862144420131,
+            "sigma2": 0.5873358500090443
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 13.195188469485581,
+            "failing": 439,
+            "half": 0.08927836378877042,
+            "share": 0.12062363238512035,
+            "sigma2": 0.31427305124392363
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 24.922573715656938,
+            "failing": 430,
+            "half": 0.07165963983352244,
+            "share": 0.11788840262582057,
+            "sigma2": 0.20948075864889645
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 50.0186661277356,
+            "failing": 345,
+            "half": 0.06689752892623012,
+            "share": 0.09436542669584246,
+            "sigma2": 0.20610347146814342
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 96.1855959515633,
+            "failing": 304,
+            "half": 0.1295074129742448,
+            "share": 0.0836980306345733,
+            "sigma2": 0.2613500941359017
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 196.05945397428738,
+            "failing": 247,
+            "half": 0.20829864019929076,
+            "share": 0.0675601750547046,
+            "sigma2": 0.42453748766392463
+          }
+        ],
+        "P": [
+          {
+            "bins": [
+              1
+            ],
+            "center": 0.0005835126422551235,
+            "failing": 56,
+            "half": 0.07883888596479259,
+            "share": 0.015317286652078774,
+            "sigma2": 0.00940975889640109
+          },
+          {
+            "bins": [
+              2
+            ],
+            "center": 0.0015095757467434552,
+            "failing": 130,
+            "half": 0.13061555453632212,
+            "share": 0.03555798687089715,
+            "sigma2": 0.12845031524481215
+          },
+          {
+            "bins": [
+              3
+            ],
+            "center": 0.002583680013878028,
+            "failing": 94,
+            "half": 0.27514202305801627,
+            "share": 0.02762582056892779,
+            "sigma2": 0.3798978289272615
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 0.005316804668927022,
+            "failing": 138,
+            "half": 0.29017645855432395,
+            "share": 0.039934354485776806,
+            "sigma2": 0.48136415488002443
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 0.010199913352158252,
+            "failing": 203,
+            "half": 0.181573205264674,
+            "share": 0.06044857768052517,
+            "sigma2": 0.41883447632004744
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 0.021518754657138827,
+            "failing": 258,
+            "half": 0.3521961336215827,
+            "share": 0.07685995623632386,
+            "sigma2": 0.8188879697345208
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 0.039790744188606,
+            "failing": 251,
+            "half": 0.18129068388340827,
+            "share": 0.07904814004376368,
+            "sigma2": 0.5825128003493728
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 0.08023199004227229,
+            "failing": 365,
+            "half": 0.20134461265195147,
+            "share": 0.1061269146608315,
+            "sigma2": 0.870199772204189
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 0.1611712633496038,
+            "failing": 457,
+            "half": 0.1294937278334038,
+            "share": 0.1301969365426696,
+            "sigma2": 0.7343589550889564
+          },
+          {
+            "bins": [
+              10
+            ],
+            "center": 0.3113655272059451,
+            "failing": 434,
+            "half": 0.21252743695402496,
+            "share": 0.1263676148796499,
+            "sigma2": 0.9343651647015279
+          },
+          {
+            "bins": [
+              11
+            ],
+            "center": 0.6541575011224696,
+            "failing": 600,
+            "half": 0.5057555934075062,
+            "share": 0.16766958424507658,
+            "sigma2": 1.577445724021633
+          },
+          {
+            "bins": [
+              12
+            ],
+            "center": 1.0,
+            "failing": 487,
+            "half": 0.5602670218782815,
+            "share": 0.1348468271334792,
+            "sigma2": 1.487699276362499
+          }
+        ],
+        "V": [
+          {
+            "bins": [
+              1,
+              2
+            ],
+            "center": 31.18336675572742,
+            "failing": 75,
+            "half": 0.144812030198851,
+            "share": 0.028172866520787748,
+            "sigma2": 0.22830473096163942
+          },
+          {
+            "bins": [
+              3
+            ],
+            "center": 76.47011684758499,
+            "failing": 85,
+            "half": 0.11608339638486471,
+            "share": 0.027899343544857767,
+            "sigma2": 0.2154881038875451
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 139.32113005588954,
+            "failing": 155,
+            "half": 0.1782550612536454,
+            "share": 0.048960612691466086,
+            "sigma2": 0.4065115297748878
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 275.01916419443694,
+            "failing": 275,
+            "half": 0.14726282327048362,
+            "share": 0.0886214442013129,
+            "sigma2": 0.39473592439639227
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 524.8600479833776,
+            "failing": 468,
+            "half": 0.17071705116958447,
+            "share": 0.13676148796498905,
+            "sigma2": 0.5779379941696654
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 1021.7784962385211,
+            "failing": 552,
+            "half": 0.18259499927917738,
+            "share": 0.15289934354485776,
+            "sigma2": 0.6130519639065223
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 2014.4473153757842,
+            "failing": 469,
+            "half": 0.218381499623841,
+            "share": 0.1323851203501094,
+            "sigma2": 0.8461554182607793
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 3923.8541514133776,
+            "failing": 581,
+            "half": 0.21475169685708934,
+            "share": 0.15973741794310722,
+            "sigma2": 0.801488752930014
+          },
+          {
+            "bins": [
+              10
+            ],
+            "center": 7870.344477073876,
+            "failing": 486,
+            "half": 0.5608427728334783,
+            "share": 0.1337527352297593,
+            "sigma2": 1.722113396938419
+          },
+          {
+            "bins": [
+              11
+            ],
+            "center": 16669.765777751745,
+            "failing": 327,
+            "half": 1.5307150181833744,
+            "share": 0.09080962800875274,
+            "sigma2": 3.035745865348422
+          }
+        ],
+        "loglik_gain": 1025.5886484277435,
+        "parameters": 28
+      },
+      "steps": 8,
+      "trials": 829043
+    },
+    "laws": {
+      "density": {
+        "at_one": -1.2765251286644337,
+        "c_hat": 1.0,
+        "candidates": [
+          {
+            "chi2": 1.6178074348742681,
+            "converged": true,
+            "criterion": 11.617807434874269,
+            "form": "two_slope_hyperbolic",
+            "free": 5
+          },
+          {
+            "chi2": 1.7075109369531944,
+            "converged": true,
+            "criterion": 9.707510936953195,
+            "form": "slanted_hyperbolic",
+            "free": 4
+          },
+          {
+            "chi2": 367.90765935136466,
+            "converged": true,
+            "criterion": 371.90765935136466,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 1567.172047470534,
+            "converged": true,
+            "criterion": 1571.172047470534,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 18.73733130187006,
+            "converged": true,
+            "criterion": 24.73733130187006,
+            "form": "binary_exponential",
+            "free": 3
+          }
+        ],
+        "chi2": 1.6178074348742681,
+        "established_form": "two_slope_hyperbolic",
+        "formula": "μ + β·(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]",
+        "free": 5,
+        "half": {
+          "beta": 0.14858741201116657,
+          "corner": 0.5500522972065871,
+          "kappa": 0.3308165555497972,
+          "mu": 0.9104140276245728,
+          "omega": 1.708588812899827
+        },
+        "held": [],
+        "law_form": "two_slope_hyperbolic",
+        "n_points": 11,
+        "outliers": [],
+        "params": {
+          "beta": -0.023852234681799377,
+          "corner": 6.537648041582778,
+          "kappa": -0.8740088679691086,
+          "mu": 1.9995255028567762,
+          "omega": 1.6728018668955433
+        }
+      },
+      "grid": {
+        "A": 1.3686150037327867,
+        "chi2": 122.34710113952819,
+        "gamma": 0.23859451810730198,
+        "half": {
+          "A": 0.2939046147783736,
+          "gamma": 0.02386229881334933
+        },
+        "held": [],
+        "n_parameters": 13,
+        "n_points": 76
+      },
+      "grid_plateau": {
+        "c_hat": 1.0,
+        "candidates": [
+          {
+            "chi2": 1.90441265710041,
+            "converged": true,
+            "criterion": 5.90441265710041,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "converged": false,
+            "form": "hyperbolic"
+          },
+          {
+            "chi2": 2.274821363291393,
+            "converged": true,
+            "criterion": 6.274821363291393,
+            "form": "slanted_hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 1.8735509457395245,
+            "converged": true,
+            "criterion": 7.873550945739525,
+            "form": "binary_exponential",
+            "free": 3
+          }
+        ],
+        "chi2": 1.90441265710041,
+        "established_form": "linear",
+        "formula": "a + b·log₂(v/20)",
+        "free": 2,
+        "half": {
+          "a": 0.5654310586310936,
+          "b": 0.03712340030139403
+        },
+        "held": [],
+        "law_form": "linear",
+        "n_points": 11,
+        "outliers": [],
+        "params": {
+          "a": 6.064547539860944,
+          "b": -0.30159603604102886
+        }
+      },
+      "rule_position": {
+        "c_hat": 1.0,
+        "candidates": [
+          {
+            "chi2": 0.8439274373264777,
+            "converged": true,
+            "criterion": 8.843927437326478,
+            "form": "slanted_hyperbolic",
+            "free": 4
+          },
+          {
+            "chi2": 158.32676157953122,
+            "converged": true,
+            "criterion": 162.32676157953122,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 517.6109684933849,
+            "converged": true,
+            "criterion": 521.6109684933849,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 1.2035808306562195,
+            "converged": true,
+            "criterion": 7.20358083065622,
+            "form": "binary_exponential",
+            "free": 3
+          }
+        ],
+        "chi2": 0.8439274373264777,
+        "established_form": "slanted_hyperbolic",
+        "formula": "μ + (κ/2)·[(log₂ r − log₂ r*) + √((log₂ r − log₂ r*)² + ω²)]",
+        "free": 4,
+        "half": {
+          "corner": 2.5057888348061503,
+          "kappa": 1.8685273931970927,
+          "mu": 0.4585655350370082,
+          "omega": 0.4814332682154782
+        },
+        "held": [],
+        "law_form": "slanted_hyperbolic",
+        "n_points": 8,
+        "outliers": [],
+        "params": {
+          "corner": 7.141932952237241,
+          "kappa": -1.6985593736713933,
+          "mu": 0.2096820740958058,
+          "omega": 2.677864470698404
+        }
+      },
+      "table_size": {
+        "c_hat": 15.572869947237583,
+        "candidates": [
+          {
+            "chi2": 235.20673286983757,
+            "converged": true,
+            "criterion": 19.103621469051056,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 204.55875286282281,
+            "converged": true,
+            "criterion": 17.135584741662136,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 77.86434973618792,
+            "converged": true,
+            "criterion": 11.0,
+            "form": "slanted_hyperbolic",
+            "free": 3
+          },
+          {
+            "chi2": 91.74108604553497,
+            "converged": true,
+            "criterion": 9.891084068406325,
+            "form": "binary_exponential",
+            "free": 2
+          }
+        ],
+        "chi2": 235.20673286983757,
+        "established_form": "linear",
+        "formula": "a + b·log₂ m",
+        "free": 2,
+        "half": {
+          "a": 0.3706857851765682,
+          "b": 0.029876466086655902
+        },
+        "held": [],
+        "law_form": "linear",
+        "n_points": 8,
+        "outliers": [],
+        "params": {
+          "a": -0.0753093812564535,
+          "b": 0.008329679222963062
+        }
+      }
+    },
+    "model": "VS-PMR",
+    "shifts": {
+      "lambda_M": {
+        "half": 0.3706857851764245,
+        "value": -0.0753093812564535
+      },
+      "lambda_R": {
+        "half": 0.1791657895989224,
+        "value": -0.20266720746415795
+      },
+      "mu_0": {
+        "half": 0.5654310586334038,
+        "value": 6.064547539860944
+      },
+      "mu_P": {
+        "half": 0.42350336162408064,
+        "value": 2.0634215833704888
+      }
+    },
+    "spread_laws": {
+      "M": {
+        "chi2": 50.91414304227139,
+        "form": "inverse",
+        "n_points": 9,
+        "params": {
+          "A": 4.327050659668526,
+          "c": 0.14663170872290876
+        }
+      },
+      "P": {
+        "chi2": 17.76229894406205,
+        "form": "line",
+        "n_points": 12,
+        "params": {
+          "a": 1.1722219247189873,
+          "b": 0.10561357110265579
+        }
+      },
+      "V": {
+        "chi2": 29.388451852411006,
+        "form": "line",
+        "n_points": 10,
+        "params": {
+          "a": -0.44531148650775476,
+          "b": 0.11879818358858486
+        }
+      }
+    },
+    "status": "measured",
+    "weights": "V x P x M"
+  },
+  "P_sync": {
+    "alpha": {
+      "half": 1.1981603898881945,
+      "value": 10.36043833252658
+    },
+    "bins": {
+      "M": [
+        {
+          "bin": 1,
+          "center": 1.0,
+          "failures": 4170178,
+          "law": 0.37632754743789837,
+          "name": "m_bin_1",
+          "own_half": 0.43597011702521055,
+          "raw": 0.0,
+          "requests": 314,
+          "restored": -0.37632754743789837,
+          "restored_half": 0.5011326759227213,
+          "status": "reference",
+          "trials": 5353970
+        },
+        {
+          "bin": 2,
+          "center": 2.000000000000004,
+          "failures": 3404305,
+          "law": -0.04412488030253897,
+          "name": "m_bin_2",
+          "own_half": 0.34424031212390827,
+          "raw": -0.15278510128527895,
+          "requests": 335,
+          "restored": -0.5291126487231773,
+          "restored_half": 0.27141537499032553,
+          "status": "law",
+          "trials": 4626126
+        },
+        {
+          "bin": 3,
+          "center": 3.616848371890867,
+          "failures": 3948088,
+          "law": -0.4034994946533769,
+          "name": "m_bin_3",
+          "own_half": 0.27354279347120314,
+          "raw": -0.6069969835879757,
+          "requests": 487,
+          "restored": -0.983324531025874,
+          "restored_half": 0.295947150033987,
+          "status": "law",
+          "trials": 5469433
+        },
+        {
+          "bin": 4,
+          "center": 7.161344755581246,
+          "failures": 2166754,
+          "law": -0.817854270817757,
+          "name": "m_bin_4",
+          "own_half": 0.26824708818255977,
+          "raw": -0.6468658435503104,
+          "requests": 365,
+          "restored": -1.0231933909882087,
+          "restored_half": 0.37930356674604415,
+          "status": "law",
+          "trials": 2869151
+        },
+        {
+          "bin": 5,
+          "center": 13.637167168768551,
+          "failures": 4190001,
+          "law": -1.20855614039535,
+          "name": "m_bin_5",
+          "own_half": 0.251220273071969,
+          "raw": -0.965551728294567,
+          "requests": 439,
+          "restored": -1.3418792757324653,
+          "restored_half": 0.41833805379977196,
+          "status": "law",
+          "trials": 5341878
+        },
+        {
+          "bin": 6,
+          "center": 27.28275032526446,
+          "failures": 4204921,
+          "law": -1.6291957118915121,
+          "name": "m_bin_6",
+          "own_half": 0.40199531749435036,
+          "raw": -2.018551894183488,
+          "requests": 436,
+          "restored": -2.3948794416213866,
+          "restored_half": 0.5753894150535531,
+          "status": "law",
+          "trials": 5132708
+        },
+        {
+          "bin": 7,
+          "center": 51.38671232730218,
+          "failures": 5066736,
+          "law": -2.0132395937961696,
+          "name": "m_bin_7",
+          "own_half": 0.7414127392819535,
+          "raw": -2.671045434910416,
+          "requests": 352,
+          "restored": -3.0473729823483144,
+          "restored_half": 0.9024367557029465,
+          "status": "law",
+          "trials": 6051390
+        },
+        {
+          "bin": 8,
+          "center": 98.80561796422504,
+          "failures": 3550559,
+          "law": -2.4098093654870616,
+          "name": "m_bin_8",
+          "own_half": 0.8605598020040099,
+          "raw": -2.7006437864837967,
+          "requests": 310,
+          "restored": -3.076971333921695,
+          "restored_half": 1.0380155928047212,
+          "status": "law",
+          "trials": 3999421
+        },
+        {
+          "bin": 9,
+          "center": 200.57645465685667,
+          "failures": 3899325,
+          "law": -2.839296172762667,
+          "name": "m_bin_9",
+          "own_half": 1.2880421288281179,
+          "raw": -3.2516802746679567,
+          "requests": 248,
+          "restored": -3.628007822105855,
+          "restored_half": 1.4469477401155348,
+          "status": "law",
+          "trials": 4298008
+        }
+      ],
+      "P": [
+        {
+          "bin": 1,
+          "center": 0.0005636489217581458,
+          "failures": 1372953,
+          "law": 5.4902963748520035,
+          "name": "p_bin_1",
+          "own_half": 1.6515040951955446,
+          "raw": 6.0424872384265935,
+          "requests": 55,
+          "restored": 0.5521907784609734,
+          "restored_half": 1.4228906242221409,
+          "status": "law",
+          "trials": 1871969
+        },
+        {
+          "bin": 2,
+          "center": 0.0013136623697179407,
+          "failures": 1412563,
+          "law": 5.490296310595785,
+          "name": "p_bin_2",
+          "own_half": 1.2241697258149875,
+          "raw": 5.687033718007158,
+          "requests": 115,
+          "restored": 0.19673725804153808,
+          "restored_half": 0.7864838037158968,
+          "status": "law",
+          "trials": 2318771
+        },
+        {
+          "bin": 3,
+          "center": 0.0024127370461879856,
+          "failures": 925125,
+          "law": 5.49029613353167,
+          "name": "p_bin_3",
+          "own_half": 1.2792598337513765,
+          "raw": 5.860482724226427,
+          "requests": 91,
+          "restored": 0.3701862642608065,
+          "restored_half": 0.8607422966291088,
+          "status": "law",
+          "trials": 1499959
+        },
+        {
+          "bin": 4,
+          "center": 0.005096484615623279,
+          "failures": 1777637,
+          "law": 5.162845624887326,
+          "name": "p_bin_4",
+          "own_half": 0.9547242441484435,
+          "raw": 6.300333194742813,
+          "requests": 121,
+          "restored": 0.8100367347771931,
+          "restored_half": 1.2533865364654753,
+          "status": "law",
+          "trials": 2547055
+        },
+        {
+          "bin": 5,
+          "center": 0.009835296575690444,
+          "failures": 2966504,
+          "law": 4.2465271673048886,
+          "name": "p_bin_5",
+          "own_half": 1.053942250299506,
+          "raw": 3.341841624087489,
+          "requests": 196,
+          "restored": -2.1484548358781312,
+          "restored_half": 1.3620374073529404,
+          "status": "law",
+          "trials": 3894766
+        },
+        {
+          "bin": 6,
+          "center": 0.020790686087158654,
+          "failures": 4442812,
+          "law": 3.2032321414428053,
+          "name": "p_bin_6",
+          "own_half": 0.7877684973942055,
+          "raw": 2.9994142246664217,
+          "requests": 253,
+          "restored": -2.4908822352991984,
+          "restored_half": 1.1849678693913326,
+          "status": "law",
+          "trials": 5959621
+        },
+        {
+          "bin": 7,
+          "center": 0.03583361641320114,
+          "failures": 2698146,
+          "law": 2.4444752588829863,
+          "name": "p_bin_7",
+          "own_half": 0.5164622932794612,
+          "raw": 1.813491371395537,
+          "requests": 222,
+          "restored": -3.676805088570083,
+          "restored_half": 1.0440771267276834,
+          "status": "law",
+          "trials": 3310631
+        },
+        {
+          "bin": 8,
+          "center": 0.08372734025955472,
+          "failures": 4375089,
+          "law": 1.2615891831107575,
+          "name": "p_bin_8",
+          "own_half": 0.37539184472420023,
+          "raw": 1.0312822697648758,
+          "requests": 343,
+          "restored": -4.459014190200744,
+          "restored_half": 1.0338296051911509,
+          "status": "law",
+          "trials": 5262508
+        },
+        {
+          "bin": 9,
+          "center": 0.16724932325600195,
+          "failures": 4704928,
+          "law": 0.2971933041422652,
+          "name": "p_bin_9",
+          "own_half": 0.32205203837838686,
+          "raw": 0.7081070294805031,
+          "requests": 424,
+          "restored": -4.782189430485117,
+          "restored_half": 1.0599245687547483,
+          "status": "law",
+          "trials": 5520730
+        },
+        {
+          "bin": 10,
+          "center": 0.32365493480164614,
+          "failures": 3968624,
+          "law": -0.622980472754854,
+          "name": "p_bin_10",
+          "own_half": 0.28577474113559065,
+          "raw": 0.0,
+          "requests": 404,
+          "restored": -5.49029645996562,
+          "restored_half": 1.0873743865101038,
+          "status": "reference",
+          "trials": 4435162
+        },
+        {
+          "bin": 11,
+          "center": 0.6719288350334489,
+          "failures": 3796300,
+          "law": -1.6411133774332454,
+          "name": "p_bin_11",
+          "own_half": 0.26812896519043156,
+          "raw": -1.451233730880064,
+          "requests": 579,
+          "restored": -6.941530190845684,
+          "restored_half": 1.1331253098471639,
+          "status": "law",
+          "trials": 4177766
+        },
+        {
+          "bin": 12,
+          "center": 1.0,
+          "failures": 2160186,
+          "law": -2.19529088516948,
+          "name": "p_bin_12",
+          "own_half": 0.31714198989916087,
+          "raw": -2.5628145440512715,
+          "requests": 483,
+          "restored": -8.053111004016891,
+          "restored_half": 1.169414089727596,
+          "status": "law",
+          "trials": 2343147
+        }
+      ],
+      "grid": [
+        {
+          "failures": 11,
+          "law": 4.493814229219376,
+          "name": "vs_1_1",
+          "raw": 7.7983662892460295,
+          "raw_half": 1.612267129434155,
+          "requests": 8,
+          "restored": 3.3045519641229664,
+          "restored_half": 1.3626089269700474,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 374,
+          "u": 0.0,
+          "v_bin": 1,
+          "words": [
+            1,
+            20
+          ],
+          "x": 4.547190334217864
+        },
+        {
+          "failures": 51,
+          "law": 4.493814196594799,
+          "name": "vs_1_2",
+          "raw": 5.612153948562435,
+          "raw_half": 1.0824344726648836,
+          "requests": 16,
+          "restored": 1.1183396234393719,
+          "restored_half": 0.8553023767081468,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 375,
+          "u": 0.0,
+          "v_bin": 1,
+          "words": [
+            1,
+            20
+          ],
+          "x": 15.24182376828595
+        },
+        {
+          "failures": 35,
+          "law": 4.979546879419855,
+          "name": "vs_2_1",
+          "raw": 6.617680592297638,
+          "raw_half": 0.9845729173204447,
+          "requests": 18,
+          "restored": 2.1238662671745745,
+          "restored_half": 0.715669252578997,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 678,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ],
+          "x": 4.544810738703798
+        },
+        {
+          "failures": 52,
+          "law": 4.979546844651892,
+          "name": "vs_2_2",
+          "raw": 6.380261719439007,
+          "raw_half": 0.8774263564345017,
+          "requests": 18,
+          "restored": 1.8864473943159439,
+          "restored_half": 0.6364709512302555,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 699,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ],
+          "x": 15.236180757559906
+        },
+        {
+          "failures": 92,
+          "law": 4.979546811947368,
+          "name": "vs_2_3",
+          "raw": 6.15574047576207,
+          "raw_half": 0.8195200893996242,
+          "requests": 21,
+          "restored": 1.6619261506390073,
+          "restored_half": 0.627509963240484,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 1344,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ],
+          "x": 29.93630261733397
+        },
+        {
+          "failures": 73,
+          "law": 5.442547367575358,
+          "name": "vs_3_1",
+          "raw": 5.472035340639933,
+          "raw_half": 0.6992110315034258,
+          "requests": 33,
+          "restored": 0.97822101551687,
+          "restored_half": 0.6070120857060443,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 1049,
+          "u": 1.9532002593612308,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 4.513803784837755
+        },
+        {
+          "failures": 73,
+          "law": 5.442342558120191,
+          "name": "vs_3_2",
+          "raw": 5.437485373313902,
+          "raw_half": 0.7390075350907183,
+          "requests": 31,
+          "restored": 0.943671048190839,
+          "restored_half": 0.6477315767510705,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 1047,
+          "u": 1.9527786849161888,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 15.167654385169866
+        },
+        {
+          "failures": 131,
+          "law": 5.44276456310395,
+          "name": "vs_3_3",
+          "raw": 5.427041249821325,
+          "raw_half": 0.7834539143442494,
+          "requests": 38,
+          "restored": 0.9332269246982623,
+          "restored_half": 0.7412916026743305,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 2099,
+          "u": 1.9536475591898872,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 29.91434831514968
+        },
+        {
+          "failures": 173,
+          "law": 5.453171334365878,
+          "name": "vs_3_4",
+          "raw": 5.948722551327946,
+          "raw_half": 0.6773160891093322,
+          "requests": 32,
+          "restored": 1.454908226204883,
+          "restored_half": 0.6150053700470365,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 3818,
+          "u": 1.9750725785790768,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ],
+          "x": 58.762979736919135
+        },
+        {
+          "failures": 98213,
+          "law": 5.918122047016787,
+          "name": "vs_4_1",
+          "raw": 5.392852776330636,
+          "raw_half": 0.761548401979033,
+          "requests": 49,
+          "restored": 0.8990384512075726,
+          "restored_half": 0.7241397768454759,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 99923,
+          "u": 2.93228754757872,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 1.9730157089826563
+        },
+        {
+          "failures": 318,
+          "law": 5.866870206565507,
+          "name": "vs_4_2",
+          "raw": 5.322912734095509,
+          "raw_half": 0.6878353548842264,
+          "requests": 60,
+          "restored": 0.8290984089724462,
+          "restored_half": 0.6171390742712521,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 2018,
+          "u": 2.826773157015996,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 15.24687765942059
+        },
+        {
+          "failures": 393,
+          "law": 5.8700576268699045,
+          "name": "vs_4_3",
+          "raw": 5.356075372708651,
+          "raw_half": 0.6848123938313104,
+          "requests": 75,
+          "restored": 0.8622610475855881,
+          "restored_half": 0.620260979407184,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 3697,
+          "u": 2.833335323406745,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 29.85989629055616
+        },
+        {
+          "failures": 882,
+          "law": 5.869963427591152,
+          "name": "vs_4_4",
+          "raw": 5.233701143984147,
+          "raw_half": 0.6767001964866504,
+          "requests": 89,
+          "restored": 0.7398868188610841,
+          "restored_half": 0.6002289464396176,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 7483,
+          "u": 2.8331415309832875,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 59.39491196940235
+        },
+        {
+          "failures": 846,
+          "law": 5.904529402420291,
+          "name": "vs_4_5",
+          "raw": 5.652594694334364,
+          "raw_half": 0.6519068250498405,
+          "requests": 88,
+          "restored": 1.1587803692113008,
+          "restored_half": 0.6006067892192996,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 11058,
+          "u": 2.904304368415576,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ],
+          "x": 113.47811596864308
+        },
+        {
+          "failures": 33245,
+          "law": 6.06648874349998,
+          "name": "vs_5_1",
+          "raw": 5.5055631718083715,
+          "raw_half": 1.0381707532344482,
+          "requests": 98,
+          "restored": 1.0117488466853084,
+          "restored_half": 1.0332225181434829,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 36359,
+          "u": 3.237736892008054,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 5.823372817747774
+        },
+        {
+          "failures": 98709,
+          "law": 6.169389710925372,
+          "name": "vs_5_2",
+          "raw": 5.299262329826065,
+          "raw_half": 0.775102541489877,
+          "requests": 96,
+          "restored": 0.8054480047030017,
+          "restored_half": 0.7646804554282303,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 101761,
+          "u": 3.449583893129885,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 16.24588652206948
+        },
+        {
+          "failures": 110743,
+          "law": 6.236666565234806,
+          "name": "vs_5_3",
+          "raw": 4.891292022539515,
+          "raw_half": 0.6396858731136532,
+          "requests": 130,
+          "restored": 0.397477697416452,
+          "restored_half": 0.6332488731514486,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 116552,
+          "u": 3.588089860050048,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 21.582924819727616
+        },
+        {
+          "failures": 1526,
+          "law": 6.346309463749903,
+          "name": "vs_5_4",
+          "raw": 5.4034176850687246,
+          "raw_half": 0.5955258933565979,
+          "requests": 152,
+          "restored": 0.9096033599456614,
+          "restored_half": 0.5802149528327462,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 13180,
+          "u": 3.813816911575063,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 59.30299355312943
+        },
+        {
+          "failures": 2718,
+          "law": 6.346763366298442,
+          "name": "vs_5_5",
+          "raw": 5.805657125489239,
+          "raw_half": 0.5888308830424204,
+          "requests": 151,
+          "restored": 1.3118428003661755,
+          "restored_half": 0.5970527105501088,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 26276,
+          "u": 3.814751753535834,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 118.20460065771802
+        },
+        {
+          "failures": 3304,
+          "law": 6.388854242864388,
+          "name": "vs_5_6",
+          "raw": 6.109436595983884,
+          "raw_half": 0.6338332881401462,
+          "requests": 152,
+          "restored": 1.615622270860821,
+          "restored_half": 0.6561356583353313,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 38960,
+          "u": 3.901407870131752,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ],
+          "x": 226.6938432346817
+        },
+        {
+          "failures": 132593,
+          "law": 6.863383155079745,
+          "name": "vs_6_1",
+          "raw": 4.978948578063305,
+          "raw_half": 1.3653453082042353,
+          "requests": 161,
+          "restored": 0.4851342529402416,
+          "restored_half": 1.3879573316414526,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 137327,
+          "u": 4.878339757263475,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 1.06845805568908
+        },
+        {
+          "failures": 63074,
+          "law": 6.866059572825949,
+          "name": "vs_6_2",
+          "raw": 4.523246293111434,
+          "raw_half": 0.8345594132704922,
+          "requests": 160,
+          "restored": 0.029431967988371,
+          "restored_half": 0.8610285553543972,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 67596,
+          "u": 4.88384994526748,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 11.50907908982732
+        },
+        {
+          "failures": 34205,
+          "law": 6.855629613508854,
+          "name": "vs_6_3",
+          "raw": 5.458912989225103,
+          "raw_half": 0.8048522126517391,
+          "requests": 208,
+          "restored": 0.9650986641020403,
+          "restored_half": 0.832904155569583,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 43148,
+          "u": 4.862377447686352,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 31.98696314564071
+        },
+        {
+          "failures": 59271,
+          "law": 6.838856455824768,
+          "name": "vs_6_4",
+          "raw": 4.9870397692574935,
+          "raw_half": 0.8417041251449037,
+          "requests": 244,
+          "restored": 0.49322544413443037,
+          "restored_half": 0.8743813262963879,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 77116,
+          "u": 4.827845985175671,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 65.05996158042322
+        },
+        {
+          "failures": 175928,
+          "law": 6.76894683680224,
+          "name": "vs_6_5",
+          "raw": 4.867982883377588,
+          "raw_half": 0.8318850901184673,
+          "requests": 266,
+          "restored": 0.37416855825452533,
+          "restored_half": 0.8480038536063107,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 211602,
+          "u": 4.683920276184914,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 119.70840691686324
+        },
+        {
+          "failures": 292140,
+          "law": 6.823807384782077,
+          "name": "vs_6_6",
+          "raw": 4.92618682958981,
+          "raw_half": 0.6785586943876126,
+          "requests": 312,
+          "restored": 0.4323725044667466,
+          "restored_half": 0.7186065743661952,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 363310,
+          "u": 4.796866996918437,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 226.5771777421989
+        },
+        {
+          "failures": 108807,
+          "law": 4.8859163435284465,
+          "name": "vs_6_7",
+          "raw": 5.680401146117405,
+          "raw_half": 0.7431976898224794,
+          "requests": 265,
+          "restored": 1.186586820994342,
+          "restored_half": 0.7596147477745355,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 204399,
+          "u": 4.895635249043458,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ],
+          "x": 481.3272461681388
+        },
+        {
+          "failures": 133187,
+          "law": 7.139988018845727,
+          "name": "vs_7_1",
+          "raw": 12.0107713746493,
+          "raw_half": 2.0825520379561793,
+          "requests": 177,
+          "restored": 7.516957049526237,
+          "restored_half": 2.1286043544550552,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 138426,
+          "u": 5.447798842118163,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 1.6538592847706814
+        },
+        {
+          "failures": 128127,
+          "law": 7.308217975993257,
+          "name": "vs_7_2",
+          "raw": 9.997794368191142,
+          "raw_half": 2.6833429538541442,
+          "requests": 216,
+          "restored": 5.503980043068079,
+          "restored_half": 2.7204365862512128,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 133044,
+          "u": 5.794141669946657,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 12.93199151607677
+        },
+        {
+          "failures": 30301,
+          "law": 7.215448396419819,
+          "name": "vs_7_3",
+          "raw": 12.355477037057817,
+          "raw_half": 1.5392504555300488,
+          "requests": 234,
+          "restored": 7.861662711934754,
+          "restored_half": 1.5881408231700898,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 40116,
+          "u": 5.603152817591404,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 29.91762037081021
+        },
+        {
+          "failures": 156951,
+          "law": 7.307317676622432,
+          "name": "vs_7_4",
+          "raw": 12.074678367559859,
+          "raw_half": 1.6629734198508688,
+          "requests": 285,
+          "restored": 7.5808640424367955,
+          "restored_half": 1.7094612565638307,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 176604,
+          "u": 5.792288449407631,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 50.66462593090909
+        },
+        {
+          "failures": 755874,
+          "law": 7.290754763226088,
+          "name": "vs_7_5",
+          "raw": 8.870819784406526,
+          "raw_half": 2.192207567879768,
+          "requests": 348,
+          "restored": 4.377005459283463,
+          "restored_half": 2.223333169853794,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 794944,
+          "u": 5.758190123606319,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 107.32784227436531
+        },
+        {
+          "failures": 913125,
+          "law": 7.308474405799705,
+          "name": "vs_7_6",
+          "raw": 7.7992535917868295,
+          "raw_half": 1.7001386377804057,
+          "requests": 389,
+          "restored": 3.3054392666637664,
+          "restored_half": 1.7325706678001576,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 988317,
+          "u": 5.794679080967851,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 231.32871893342684
+        },
+        {
+          "failures": 620139,
+          "law": 5.426246585474503,
+          "name": "vs_7_7",
+          "raw": 4.122510953675952,
+          "raw_half": 1.2378437517802914,
+          "requests": 404,
+          "restored": -0.37130337144711145,
+          "restored_half": 1.2737495766779894,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 756573,
+          "u": 5.8751121935489286,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 417.6022535416583
+        },
+        {
+          "failures": 294506,
+          "law": 2.388463079430866,
+          "name": "vs_7_8",
+          "raw": 3.451921239479497,
+          "raw_half": 1.0201674614009892,
+          "requests": 327,
+          "restored": -1.041893085643566,
+          "restored_half": 1.0410164614650839,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 463079,
+          "u": 5.895793361843535,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ],
+          "x": 927.9397264169257
+        },
+        {
+          "failures": 35508,
+          "law": 7.700920951785603,
+          "name": "vs_8_1",
+          "raw": 14.751739704564928,
+          "raw_half": 2.613845933177473,
+          "requests": 96,
+          "restored": 10.257925379441865,
+          "restored_half": 2.663800622309859,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 40207,
+          "u": 6.602617198435578,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 8.934156269287524
+        },
+        {
+          "failures": 33123,
+          "law": 7.837454238455286,
+          "name": "vs_8_2",
+          "raw": 14.504307716959053,
+          "raw_half": 2.5950408487208043,
+          "requests": 79,
+          "restored": 10.01049339183599,
+          "restored_half": 2.646176288162625,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 37776,
+          "u": 6.883704543458334,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 11.80663487479726
+        },
+        {
+          "failures": 550,
+          "law": 7.763786550653576,
+          "name": "vs_8_3",
+          "raw": 13.932811587863972,
+          "raw_half": 2.6705795264775154,
+          "requests": 120,
+          "restored": 9.438997262740909,
+          "restored_half": 2.7220617281713535,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 9799,
+          "u": 6.7320416537878565,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 29.88544282678082
+        },
+        {
+          "failures": 892,
+          "law": 7.764211178317215,
+          "name": "vs_8_4",
+          "raw": 15.45314793869548,
+          "raw_half": 2.2641910168753894,
+          "requests": 149,
+          "restored": 10.959333613572417,
+          "restored_half": 2.3205204440660334,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 19607,
+          "u": 6.732916093183757,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 59.37693564399893
+        },
+        {
+          "failures": 482694,
+          "law": 7.717913667545173,
+          "name": "vs_8_5",
+          "raw": 10.653994553046882,
+          "raw_half": 2.291531574808431,
+          "requests": 195,
+          "restored": 6.160180227923819,
+          "restored_half": 2.344261470999027,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 520237,
+          "u": 6.637601862344564,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 109.22939963055518
+        },
+        {
+          "failures": 1386330,
+          "law": 7.600696779884962,
+          "name": "vs_8_6",
+          "raw": 7.249448068125359,
+          "raw_half": 2.1678766672821035,
+          "requests": 275,
+          "restored": 2.7556337430022957,
+          "restored_half": 2.2244983158750755,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 1459397,
+          "u": 6.711774067876048,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 235.8047396876357
+        },
+        {
+          "failures": 1870431,
+          "law": 5.092401319921464,
+          "name": "vs_8_7",
+          "raw": 4.503968118974587,
+          "raw_half": 1.886538039141368,
+          "requests": 316,
+          "restored": 0.010153793851523929,
+          "restored_half": 1.9170247216930947,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 1998012,
+          "u": 6.813943096416843,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 455.90108796871647
+        },
+        {
+          "failures": 782016,
+          "law": 2.7514560425309,
+          "name": "vs_8_8",
+          "raw": 1.6910380251578119,
+          "raw_half": 1.2898736139472535,
+          "requests": 321,
+          "restored": -2.8027762999652515,
+          "restored_half": 1.3161879224130215,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 990834,
+          "u": 6.792264024029402,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 843.4995448372374
+        },
+        {
+          "failures": 200521,
+          "law": 0.012016574863459972,
+          "name": "vs_8_9",
+          "raw": 1.5556966805181565,
+          "raw_half": 1.5050513983973035,
+          "requests": 253,
+          "restored": -2.9381176446049064,
+          "restored_half": 1.5157292770387993,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 438297,
+          "u": 6.88734539363463,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ],
+          "x": 1732.9513319545795
+        },
+        {
+          "failures": 36134,
+          "law": 8.065501005358158,
+          "name": "vs_9_1",
+          "raw": 13.503570859208779,
+          "raw_half": 1.9430996606822524,
+          "requests": 97,
+          "restored": 9.009756534085716,
+          "restored_half": 2.044286236521328,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 41842,
+          "u": 7.3531947103524455,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 1.5485839660860348
+        },
+        {
+          "failures": 181,
+          "law": 8.242005086270456,
+          "name": "vs_9_2",
+          "raw": 14.408658132263746,
+          "raw_half": 1.8961679933196016,
+          "requests": 79,
+          "restored": 9.914843807140683,
+          "restored_half": 1.999252823756523,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 5920,
+          "u": 7.7165718981054185,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 15.215446061572914
+        },
+        {
+          "failures": 13424,
+          "law": 8.132682626063547,
+          "name": "vs_9_3",
+          "raw": 12.640608069043571,
+          "raw_half": 3.3125443099957974,
+          "requests": 108,
+          "restored": 8.146793743920508,
+          "restored_half": 3.3886468726533896,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 24919,
+          "u": 7.491504913153623,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 33.97089194482351
+        },
+        {
+          "failures": 57940,
+          "law": 8.071829251602663,
+          "name": "vs_9_4",
+          "raw": 12.847633170912477,
+          "raw_half": 2.293971361580588,
+          "requests": 157,
+          "restored": 8.353818845789414,
+          "restored_half": 2.3674653407211994,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 80883,
+          "u": 7.366223549596042,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 62.50882421849613
+        },
+        {
+          "failures": 390411,
+          "law": 8.142828579773173,
+          "name": "vs_9_5",
+          "raw": 10.47282224891326,
+          "raw_half": 1.7633402213372196,
+          "requests": 199,
+          "restored": 5.979007923790197,
+          "restored_half": 1.8463500963627002,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 436413,
+          "u": 7.512394282287514,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 126.3506805136214
+        },
+        {
+          "failures": 2373444,
+          "law": 7.79067921386272,
+          "name": "vs_9_6",
+          "raw": 5.8086600450179615,
+          "raw_half": 2.1010193524479424,
+          "requests": 271,
+          "restored": 1.3148457198948984,
+          "restored_half": 2.194523452223732,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 2463928,
+          "u": 7.643685366891444,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 224.31960719115295
+        },
+        {
+          "failures": 2981802,
+          "law": 5.213035396666564,
+          "name": "vs_9_7",
+          "raw": 4.472254731973401,
+          "raw_half": 1.804800777040649,
+          "requests": 364,
+          "restored": -0.021559593149661715,
+          "restored_half": 1.8673223830594792,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 3142288,
+          "u": 7.754167585146187,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 441.6726426106875
+        },
+        {
+          "failures": 1817833,
+          "law": 2.7421251017136625,
+          "name": "vs_9_8",
+          "raw": 0.7034204342772882,
+          "raw_half": 1.4672824476307955,
+          "requests": 426,
+          "restored": -3.790393890845775,
+          "restored_half": 1.5357903529066788,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 2043990,
+          "u": 7.764923127396719,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 845.5707746872287
+        },
+        {
+          "failures": 515602,
+          "law": -0.16058403869197058,
+          "name": "vs_9_9",
+          "raw": 0.642445805426005,
+          "raw_half": 1.6953255469195907,
+          "requests": 399,
+          "restored": -3.851368519697058,
+          "restored_half": 1.736175312994821,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 909894,
+          "u": 7.720916668071866,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 1813.3781583364707
+        },
+        {
+          "failures": 650641,
+          "law": -2.7560992944037324,
+          "name": "vs_9_10",
+          "raw": -1.1682991277631554,
+          "raw_half": 1.3974524389326626,
+          "requests": 368,
+          "restored": -5.662113452886219,
+          "restored_half": 1.404081121050751,
+          "s_bin": 10,
+          "status": "law",
+          "trials": 1092958,
+          "u": 7.854713105403054,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ],
+          "x": 3587.2465512657363
+        },
+        {
+          "failures": 35528,
+          "law": 8.45221118243003,
+          "name": "vs_10_1",
+          "raw": 12.640143786423025,
+          "raw_half": 2.1572290608938136,
+          "requests": 55,
+          "restored": 8.146329461299961,
+          "restored_half": 2.262095417801181,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 40384,
+          "u": 8.14933261140912,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 1.2306700121398422
+        },
+        {
+          "failures": 26389,
+          "law": 8.513310321041445,
+          "name": "vs_10_2",
+          "raw": 13.666478322444751,
+          "raw_half": 2.268651610988297,
+          "requests": 34,
+          "restored": 9.172663997321688,
+          "restored_half": 2.373245510627345,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 31257,
+          "u": 8.275120353335879,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 11.783769119465356
+        },
+        {
+          "failures": 250,
+          "law": 8.721332335835644,
+          "name": "vs_10_3",
+          "raw": 13.697005725630163,
+          "raw_half": 2.236014950560579,
+          "requests": 58,
+          "restored": 9.2031914005071,
+          "restored_half": 2.3454164137706806,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 9964,
+          "u": 8.703384967846345,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 29.944746656572235
+        },
+        {
+          "failures": 366,
+          "law": 8.721702650256017,
+          "name": "vs_10_4",
+          "raw": 15.062958663374614,
+          "raw_half": 2.3542623798261717,
+          "requests": 63,
+          "restored": 10.56914433825155,
+          "restored_half": 2.4631060053683016,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 19896,
+          "u": 8.70414768672914,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 59.37141286354511
+        },
+        {
+          "failures": 56885,
+          "law": 8.527881022631728,
+          "name": "vs_10_5",
+          "raw": 11.224640320377631,
+          "raw_half": 2.61329631559034,
+          "requests": 111,
+          "restored": 6.730825995254568,
+          "restored_half": 2.6740017380691126,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 95871,
+          "u": 8.305120055419355,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 129.99938932713215
+        },
+        {
+          "failures": 749826,
+          "law": 7.591184336190923,
+          "name": "vs_10_6",
+          "raw": 6.855224998102121,
+          "raw_half": 2.1095537754369085,
+          "requests": 159,
+          "restored": 2.3614106729790576,
+          "restored_half": 2.205990609324806,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 827582,
+          "u": 8.61242346592517,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 236.39564355082678
+        },
+        {
+          "failures": 1440819,
+          "law": 4.796396112173673,
+          "name": "vs_10_7",
+          "raw": 4.387910464445686,
+          "raw_half": 2.4657843467706657,
+          "requests": 222,
+          "restored": -0.105903860677377,
+          "restored_half": 2.5461039124463785,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 1591101,
+          "u": 8.52244827826195,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 492.7867800985322
+        },
+        {
+          "failures": 1446841,
+          "law": 2.849155225686163,
+          "name": "vs_10_8",
+          "raw": 2.190287451077871,
+          "raw_half": 1.7144409473873239,
+          "requests": 252,
+          "restored": -2.303526874045192,
+          "restored_half": 1.7502123886021081,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 1711588,
+          "u": 8.639345841293228,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 822.115228415048
+        },
+        {
+          "failures": 917454,
+          "law": -0.12409477778761602,
+          "name": "vs_10_9",
+          "raw": -0.4293153514086873,
+          "raw_half": 1.6622432522114081,
+          "requests": 281,
+          "restored": -4.92312967653175,
+          "restored_half": 1.6764246805933356,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 1361009,
+          "u": 8.688906127694327,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 1796.0697812695025
+        },
+        {
+          "failures": 735980,
+          "law": -2.8927703529524846,
+          "name": "vs_10_10",
+          "raw": -0.9964783972081079,
+          "raw_half": 1.4512997575598199,
+          "requests": 329,
+          "restored": -5.490292722331171,
+          "restored_half": 1.450862139745484,
+          "s_bin": 10,
+          "status": "law",
+          "trials": 1540631,
+          "u": 8.7036393010239,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 3718.4500651273083
+        },
+        {
+          "failures": 2106177,
+          "law": -5.525587817039603,
+          "name": "vs_10_11",
+          "raw": -3.825969436815093,
+          "raw_half": 1.3691627486556137,
+          "requests": 366,
+          "restored": -8.319783761938156,
+          "restored_half": 1.353533237360754,
+          "s_bin": 11,
+          "status": "law",
+          "trials": 3052548,
+          "u": 8.91944198972368,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ],
+          "x": 7428.357037999372
+        },
+        {
+          "failures": 8646,
+          "law": 9.306650061087138,
+          "name": "vs_11_1",
+          "raw": 6.7376355138963175,
+          "raw_half": 2.8159323529665556,
+          "requests": 42,
+          "restored": 2.2438211887732544,
+          "restored_half": 2.9187716068285727,
+          "s_bin": 1,
+          "status": "law",
+          "trials": 11913,
+          "u": 9.908404981796332,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 1.64351352792819
+        },
+        {
+          "failures": 139,
+          "law": 9.230066532701453,
+          "name": "vs_11_2",
+          "raw": 8.017314844623863,
+          "raw_half": 2.9301037543844672,
+          "requests": 30,
+          "restored": 3.5235005195008,
+          "restored_half": 3.0254623424405516,
+          "s_bin": 2,
+          "status": "law",
+          "trials": 3423,
+          "u": 9.750739172022364,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 15.193136783332239
+        },
+        {
+          "failures": 248,
+          "law": 9.23202185331867,
+          "name": "vs_11_3",
+          "raw": 9.731990765513627,
+          "raw_half": 3.0129614894266727,
+          "requests": 36,
+          "restored": 5.238176440390564,
+          "restored_half": 3.1225439371853754,
+          "s_bin": 3,
+          "status": "law",
+          "trials": 6822,
+          "u": 9.754764848722198,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 29.94091466708697
+        },
+        {
+          "failures": 466,
+          "law": 9.232051963801984,
+          "name": "vs_11_4",
+          "raw": 9.926580786505419,
+          "raw_half": 3.1150666522490953,
+          "requests": 35,
+          "restored": 5.432766461382355,
+          "restored_half": 3.224071196174718,
+          "s_bin": 4,
+          "status": "law",
+          "trials": 13641,
+          "u": 9.754827253029708,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 59.371137449243534
+        },
+        {
+          "failures": 918,
+          "law": 9.232048621261475,
+          "name": "vs_11_5",
+          "raw": 10.172312543900789,
+          "raw_half": 3.22363592970545,
+          "requests": 52,
+          "restored": 5.678498218777726,
+          "restored_half": 3.3326742664029605,
+          "s_bin": 5,
+          "status": "law",
+          "trials": 27282,
+          "u": 9.754822978312315,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 118.23146081446708
+        },
+        {
+          "failures": 54722,
+          "law": 7.598123321814104,
+          "name": "vs_11_6",
+          "raw": 7.72518432714618,
+          "raw_half": 2.5795947470349594,
+          "requests": 75,
+          "restored": 3.231370002023117,
+          "restored_half": 2.660650891183591,
+          "s_bin": 6,
+          "status": "law",
+          "trials": 107386,
+          "u": 9.529591450620135,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 235.96492396131714
+        },
+        {
+          "failures": 330348,
+          "law": 4.862146534017345,
+          "name": "vs_11_7",
+          "raw": 2.6287894351611247,
+          "raw_half": 2.473281501277416,
+          "requests": 109,
+          "restored": -1.8650248899619384,
+          "restored_half": 2.551727462146911,
+          "s_bin": 7,
+          "status": "law",
+          "trials": 435014,
+          "u": 9.823246341036647,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 484.3438358791692
+        },
+        {
+          "failures": 752838,
+          "law": 2.2995382082852105,
+          "name": "vs_11_8",
+          "raw": -0.8514254237483807,
+          "raw_half": 2.277440130431134,
+          "requests": 147,
+          "restored": -5.345239748871444,
+          "restored_half": 2.326073755455177,
+          "s_bin": 8,
+          "status": "law",
+          "trials": 955211,
+          "u": 9.529558473902913,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 949.8835654637319
+        },
+        {
+          "failures": 472124,
+          "law": -0.0932073377118261,
+          "name": "vs_11_9",
+          "raw": -2.850192328803503,
+          "raw_half": 1.7241760094750822,
+          "requests": 158,
+          "restored": -7.3440066539265665,
+          "restored_half": 1.74619813009706,
+          "s_bin": 9,
+          "status": "law",
+          "trials": 841564,
+          "u": 9.844893210659516,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 1781.5477544961227
+        },
+        {
+          "failures": 748181,
+          "law": -2.968522020959389,
+          "name": "vs_11_10",
+          "raw": -3.440194030576352,
+          "raw_half": 1.4701495691410753,
+          "requests": 182,
+          "restored": -7.934008355699415,
+          "restored_half": 1.4756489204598828,
+          "s_bin": 10,
+          "status": "law",
+          "trials": 1418929,
+          "u": 9.795102827630853,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 3793.2271903276555
+        },
+        {
+          "failures": 2891620,
+          "law": -5.64471609104334,
+          "name": "vs_11_11",
+          "raw": -6.207003369899205,
+          "raw_half": 1.4062248375677773,
+          "requests": 293,
+          "restored": -10.700817695022268,
+          "restored_half": 1.4067611164996094,
+          "s_bin": 11,
+          "status": "law",
+          "trials": 3970442,
+          "u": 9.786256302491315,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 7664.626964661758
+        },
+        {
+          "failures": 3944809,
+          "law": -7.856239042365933,
+          "name": "vs_11_12",
+          "raw": -9.372400260077201,
+          "raw_half": 1.4209191069272726,
+          "requests": 318,
+          "restored": -13.866214585200265,
+          "restored_half": 1.4198754000541522,
+          "s_bin": 12,
+          "status": "law",
+          "trials": 4247075,
+          "u": 9.87147457621284,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ],
+          "x": 13706.668730093435
+        }
+      ],
+      "slices": [
+        {
+          "cells": 2,
+          "determined": true,
+          "law": 0.0,
+          "mu_v": 1.797591898956548,
+          "plateau_weight": 0.9999999934815413,
+          "se": 0.39119431803945565,
+          "se_fit": 0.5402333145791764,
+          "u": 0.0,
+          "v_bin": 1,
+          "words": [
+            1,
+            20
+          ]
+        },
+        {
+          "cells": 3,
+          "determined": true,
+          "law": 0.48573265282957134,
+          "mu_v": 1.863045159077081,
+          "plateau_weight": 0.9999999934305865,
+          "se": 0.2530501895686524,
+          "se_fit": 0.39549297982502557,
+          "u": 1.0,
+          "v_bin": 2,
+          "words": [
+            21,
+            40
+          ]
+        },
+        {
+          "cells": 4,
+          "determined": true,
+          "law": 0.9513922923109499,
+          "mu_v": 1.0956525994996502,
+          "plateau_weight": 0.9999999940273794,
+          "se": 0.22687047726413678,
+          "se_fit": 0.27728514728608,
+          "u": 1.9586747705115959,
+          "v_bin": 3,
+          "words": [
+            41,
+            80
+          ]
+        },
+        {
+          "cells": 5,
+          "determined": true,
+          "law": 1.392094426804917,
+          "mu_v": 0.9025964111689602,
+          "plateau_weight": 0.9999999958235588,
+          "se": 0.2563545971658905,
+          "se_fit": 0.2933784249823022,
+          "u": 2.865968385480065,
+          "v_bin": 4,
+          "words": [
+            81,
+            160
+          ]
+        },
+        {
+          "cells": 6,
+          "determined": true,
+          "law": 1.7652647601877511,
+          "mu_v": 1.0295949592220213,
+          "plateau_weight": 0.9999999933410855,
+          "se": 0.2698439956942927,
+          "se_fit": 0.26910593195623944,
+          "u": 3.634231196738439,
+          "v_bin": 5,
+          "words": [
+            161,
+            320
+          ]
+        },
+        {
+          "cells": 7,
+          "determined": true,
+          "law": 2.347395726581773,
+          "mu_v": 0.4644897732713087,
+          "plateau_weight": 0.9999999967627947,
+          "se": 0.31196203877441414,
+          "se_fit": 0.290466489212891,
+          "u": 4.8326908082199695,
+          "v_bin": 6,
+          "words": [
+            321,
+            640
+          ]
+        },
+        {
+          "cells": 8,
+          "determined": true,
+          "law": 2.790604311602312,
+          "mu_v": 7.420723290630503,
+          "plateau_weight": 0.9999999917948565,
+          "se": 0.8196470591891255,
+          "se_fit": 0.7919074887572376,
+          "u": 5.745144567378811,
+          "v_bin": 7,
+          "words": [
+            641,
+            1280
+          ]
+        },
+        {
+          "cells": 9,
+          "determined": true,
+          "law": 3.2810813217833115,
+          "mu_v": 9.909556771330703,
+          "plateau_weight": 0.9999999455428054,
+          "se": 1.3253104264706788,
+          "se_fit": 1.2980813986431372,
+          "u": 6.754911992574113,
+          "v_bin": 8,
+          "words": [
+            1281,
+            2560
+          ]
+        },
+        {
+          "cells": 10,
+          "determined": true,
+          "law": 3.700228541864101,
+          "mu_v": 9.282713414499487,
+          "plateau_weight": 0.9999999896244705,
+          "se": 1.0070310970258274,
+          "se_fit": 0.9511020173788816,
+          "u": 7.617829520640432,
+          "v_bin": 9,
+          "words": [
+            2561,
+            5120
+          ]
+        },
+        {
+          "cells": 11,
+          "determined": true,
+          "law": 4.160667150393769,
+          "mu_v": 8.820663970095861,
+          "plateau_weight": 0.9999999914752797,
+          "se": 1.1308904848241805,
+          "se_fit": 1.073569461501562,
+          "u": 8.565755516242008,
+          "v_bin": 10,
+          "words": [
+            5121,
+            10240
+          ]
+        },
+        {
+          "cells": 12,
+          "determined": true,
+          "law": 4.74009019302064,
+          "mu_v": 4.3054053684679126,
+          "plateau_weight": 0.9999999944477498,
+          "se": 1.4972439658497625,
+          "se_fit": 1.440094030429744,
+          "u": 9.75864020136976,
+          "v_bin": 11,
+          "words": [
+            10241,
+            20480
+          ]
+        }
+      ]
+    },
+    "capacities": [
+      {
+        "interval": [
+          228111.26177448244,
+          3001330638.2826467
+        ],
+        "key": "instruction_capacity",
+        "level": 0.5,
+        "method": "law",
+        "plus_minus": 124086743.98733379,
+        "status": "extrapolated",
+        "value": 26165575.07300513
+      },
+      {
+        "key": "instruction_capacity",
+        "level": 0.5,
+        "lower_bound": 256,
+        "method": "bins",
+        "reserve_left": 6.732430510420725,
+        "status": "beyond_support",
+        "value": null
+      },
+      {
+        "interval": [
+          6600.84002297016,
+          10001.002162188315
+        ],
+        "key": "fatigue_capacity_words",
+        "level": 0.5,
+        "method": "law",
+        "plus_minus": 1687.9137783493152,
+        "status": "measured",
+        "value": 8124.962482496995
+      },
+      {
+        "change": -7.6855873451351,
+        "change_half": 1.1511853800776495,
+        "interval": [
+          688.4219608059745,
+          6882.744251842889
+        ],
+        "key": "density_odds_factor",
+        "level": null,
+        "method": "law",
+        "status": "measured",
+        "value": 2176.7481006261905
+      }
+    ],
+    "density_status": "measured",
+    "fit": {
+      "dropped": [],
+      "failures": 34600867,
+      "loglik": -5540968.250429936,
+      "method": "glmm_heterogeneous",
+      "parameters": 96,
+      "points": 3695,
+      "rows": 31422,
+      "sigma2": 35.35398801535843,
+      "sigma2_half": 4.296660693105023,
+      "spread": {
+        "M": [
+          {
+            "bins": [
+              1
+            ],
+            "center": 1.0,
+            "failing": 314,
+            "half": 10.240996907686249,
+            "share": 0.13261163734776726,
+            "sigma2": 40.90746073275859
+          },
+          {
+            "bins": [
+              2
+            ],
+            "center": 2.0,
+            "failing": 335,
+            "half": 4.921058245997672,
+            "share": 0.11853856562922868,
+            "sigma2": 21.11274745717224
+          },
+          {
+            "bins": [
+              3
+            ],
+            "center": 3.476276128582854,
+            "failing": 487,
+            "half": 4.445603284495359,
+            "share": 0.15534506089309877,
+            "sigma2": 21.714226430137728
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 6.841214197286553,
+            "failing": 365,
+            "half": 2.9257383277780336,
+            "share": 0.10771312584573749,
+            "sigma2": 13.662063419524303
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 13.204771171368568,
+            "failing": 439,
+            "half": 3.3940335731447213,
+            "share": 0.12070365358592693,
+            "sigma2": 14.561593251459824
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 24.970634306313105,
+            "failing": 436,
+            "half": 4.142849412003529,
+            "share": 0.11799729364005412,
+            "sigma2": 20.967441939450076
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 50.10297086618213,
+            "failing": 352,
+            "half": 5.5027427837776175,
+            "share": 0.09526387009472259,
+            "sigma2": 24.324399633255435
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 95.97001909853574,
+            "failing": 310,
+            "half": 4.102619570695363,
+            "share": 0.08389715832205684,
+            "sigma2": 19.759556798203764
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 195.60838898519847,
+            "failing": 248,
+            "half": 4.6574193747207735,
+            "share": 0.0679296346414073,
+            "sigma2": 18.217644182279223
+          }
+        ],
+        "P": [
+          {
+            "bins": [
+              1
+            ],
+            "center": 0.000579938560570782,
+            "failing": 55,
+            "half": 1.1886224146298672,
+            "share": 0.015696887686062245,
+            "sigma2": 1.837009768991763
+          },
+          {
+            "bins": [
+              2
+            ],
+            "center": 0.0015025197154275747,
+            "failing": 115,
+            "half": 3.804051696697198,
+            "share": 0.03599458728010826,
+            "sigma2": 6.150655457286647
+          },
+          {
+            "bins": [
+              3
+            ],
+            "center": 0.002586521134399458,
+            "failing": 91,
+            "half": 3.407829210621908,
+            "share": 0.027604871447902572,
+            "sigma2": 6.93467817435674
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 0.005294700171838283,
+            "failing": 121,
+            "half": 3.9080712714512367,
+            "share": 0.040054127198917454,
+            "sigma2": 10.604321075058696
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 0.01020554115896099,
+            "failing": 196,
+            "half": 6.279100526094242,
+            "share": 0.06062246278755074,
+            "sigma2": 17.33458077584441
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 0.021517880490437298,
+            "failing": 253,
+            "half": 6.22394335728269,
+            "share": 0.07658998646820027,
+            "sigma2": 17.518427991218868
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 0.03965907651215061,
+            "failing": 222,
+            "half": 5.354799419140533,
+            "share": 0.07956698240866035,
+            "sigma2": 21.073723803071143
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 0.08027353956784165,
+            "failing": 343,
+            "half": 3.798511481060273,
+            "share": 0.10581867388362652,
+            "sigma2": 18.140315095113564
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 0.16104736161960692,
+            "failing": 424,
+            "half": 3.6312728377561805,
+            "share": 0.1293640054127199,
+            "sigma2": 17.823586559665166
+          },
+          {
+            "bins": [
+              10
+            ],
+            "center": 0.3115251188958843,
+            "failing": 404,
+            "half": 3.5415639970822412,
+            "share": 0.1253044654939107,
+            "sigma2": 18.104103804393667
+          },
+          {
+            "bins": [
+              11
+            ],
+            "center": 0.6551155283319875,
+            "failing": 579,
+            "half": 8.665328959575096,
+            "share": 0.16833558863328824,
+            "sigma2": 39.806964416582815
+          },
+          {
+            "bins": [
+              12
+            ],
+            "center": 1.0,
+            "failing": 483,
+            "half": 13.844361162254192,
+            "share": 0.1350473612990528,
+            "sigma2": 49.60540813989994
+          }
+        ],
+        "V": [
+          {
+            "bins": [
+              1,
+              2
+            ],
+            "center": 31.18336675572742,
+            "failing": 52,
+            "half": 0.8534286246015098,
+            "share": 0.02787550744248985,
+            "sigma2": 1.4210756513098686
+          },
+          {
+            "bins": [
+              3
+            ],
+            "center": 76.47011684758499,
+            "failing": 64,
+            "half": 0.4168957853868566,
+            "share": 0.027604871447902572,
+            "sigma2": 0.8554467349126351
+          },
+          {
+            "bins": [
+              4
+            ],
+            "center": 139.32113005588954,
+            "failing": 138,
+            "half": 0.9440728322686569,
+            "share": 0.04844384303112314,
+            "sigma2": 2.41881458587029
+          },
+          {
+            "bins": [
+              5
+            ],
+            "center": 274.90422721694733,
+            "failing": 243,
+            "half": 0.8214798263511489,
+            "share": 0.08822733423545331,
+            "sigma2": 2.700090631853488
+          },
+          {
+            "bins": [
+              6
+            ],
+            "center": 524.0087622521604,
+            "failing": 446,
+            "half": 1.5953169579268591,
+            "share": 0.13667117726657646,
+            "sigma2": 5.20575892327146
+          },
+          {
+            "bins": [
+              7
+            ],
+            "center": 1022.99197538189,
+            "failing": 534,
+            "half": 8.58992676226674,
+            "share": 0.1537212449255751,
+            "sigma2": 24.55586572455243
+          },
+          {
+            "bins": [
+              8
+            ],
+            "center": 2012.584376407222,
+            "failing": 449,
+            "half": 16.134668160044573,
+            "share": 0.1317997293640054,
+            "sigma2": 55.40922958482049
+          },
+          {
+            "bins": [
+              9
+            ],
+            "center": 3920.324945506037,
+            "failing": 542,
+            "half": 18.658220273719657,
+            "share": 0.15886332882273344,
+            "sigma2": 76.75911425866393
+          },
+          {
+            "bins": [
+              10
+            ],
+            "center": 7870.191512645349,
+            "failing": 477,
+            "half": 24.46689068040341,
+            "share": 0.1345060893098782,
+            "sigma2": 93.54927028112773
+          },
+          {
+            "bins": [
+              11
+            ],
+            "center": 16728.451650787218,
+            "failing": 341,
+            "half": 22.62654975582173,
+            "share": 0.09228687415426251,
+            "sigma2": 52.041028432794775
+          }
+        ],
+        "loglik_gain": 1469.2484301514924,
+        "parameters": 28
+      },
+      "steps": 16,
+      "trials": 43142085
+    },
+    "grid_status": "measured",
+    "laws": {
+      "density": {
+        "at_one": -2.19529088516948,
+        "c_hat": 4.2875392620312125,
+        "candidates": [
+          {
+            "chi2": 34.3003140962497,
+            "converged": true,
+            "criterion": 14.0,
+            "form": "slanted_hyperbolic",
+            "free": 3
+          },
+          {
+            "chi2": 46.03322928124085,
+            "converged": true,
+            "criterion": 14.736514925680869,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 372.9360901510961,
+            "converged": true,
+            "criterion": 90.98138194410807,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 37.38239979545866,
+            "converged": true,
+            "criterion": 14.718847224677969,
+            "form": "binary_exponential",
+            "free": 3
+          }
+        ],
+        "chi2": 34.3003140962497,
+        "established_form": "slanted_hyperbolic",
+        "formula": "μ + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]",
+        "free": 3,
+        "half": {
+          "corner": 0.9929753250778294,
+          "kappa": 0.10224880583865067,
+          "mu": 1.0873743865125098,
+          "omega": 0.0
+        },
+        "held": [
+          "omega"
+        ],
+        "law_form": "slanted_hyperbolic",
+        "n_points": 11,
+        "outliers": [],
+        "params": {
+          "corner": 2.0447801677694315,
+          "kappa": -0.9661062141408315,
+          "mu": 5.49029645996562,
+          "omega": 0.001
+        }
+      },
+      "grid": {
+        "chi2": 115.65740904636195,
+        "half": {
+          "kappa_S": 0.2100387365730556,
+          "lambda_S_restored": 2.327724239012572,
+          "omega_S": 16.56948128213823
+        },
+        "kappa_S": -2.63719058619996,
+        "lambda_S": 28.38559098787977,
+        "lambda_S_restored": 23.891776662756705,
+        "n_parameters": 14,
+        "n_points": 77,
+        "omega_S": 0.0010000000000009795
+      },
+      "grid_plateau": {
+        "c_hat": 21.043541925504705,
+        "candidates": [
+          {
+            "converged": false,
+            "form": "slanted_hyperbolic"
+          },
+          {
+            "chi2": 189.39187732954235,
+            "converged": true,
+            "criterion": 13.0,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "converged": false,
+            "form": "hyperbolic"
+          },
+          {
+            "converged": false,
+            "form": "binary_exponential"
+          }
+        ],
+        "chi2": 189.39187732954235,
+        "established_form": "slanted_hyperbolic",
+        "formula": "a + b·log₂(v/20)",
+        "free": 2,
+        "half": {
+          "a": 0.6246588697343021,
+          "b": 0.13358635864811855
+        },
+        "held": [],
+        "law_form": "linear",
+        "n_points": 11,
+        "outliers": [],
+        "params": {
+          "a": 4.493814325123063,
+          "b": 0.4857326528295717
+        }
+      },
+      "table_size": {
+        "c_hat": 1.9836585448250186,
+        "candidates": [
+          {
+            "chi2": 13.291715503040406,
+            "converged": true,
+            "criterion": 10.70060658257739,
+            "form": "linear",
+            "free": 2
+          },
+          {
+            "chi2": 43.35497050396545,
+            "converged": true,
+            "criterion": 25.856065206922924,
+            "form": "hyperbolic",
+            "free": 2
+          },
+          {
+            "chi2": 7.934634179300074,
+            "converged": true,
+            "criterion": 12.0,
+            "form": "slanted_hyperbolic",
+            "free": 4
+          },
+          {
+            "chi2": 10.00217484770676,
+            "converged": true,
+            "criterion": 11.042286573866505,
+            "form": "binary_exponential",
+            "free": 3
+          }
+        ],
+        "chi2": 13.291715503040406,
+        "established_form": "linear",
+        "formula": "a + b·log₂ m",
+        "free": 2,
+        "half": {
+          "a": 0.5011326759222201,
+          "b": 0.10032406679920443
+        },
+        "held": [],
+        "law_form": "linear",
+        "n_points": 8,
+        "outliers": [],
+        "params": {
+          "a": 0.37632754743789837,
+          "b": -0.4204524277404361
+        }
+      }
+    },
+    "model": "VS-PM",
+    "shifts": {
+      "delta_M": {
+        "half": 0.5011326759227213,
+        "value": 0.37632754743789837
+      },
+      "delta_P": {
+        "half": 1.0873743865101038,
+        "value": 5.49029645996562
+      },
+      "delta_VS": {
+        "half": 0.624658869731326,
+        "value": 4.493814325123063
+      }
+    },
+    "spread_laws": {
+      "M": {
+        "chi2": 31.320155459804088,
+        "form": "inverse",
+        "n_points": 9,
+        "params": {
+          "A": 14.131315293162874,
+          "c": 17.750698639753985
+        }
+      },
+      "P": {
+        "chi2": 46.464580635288996,
+        "form": "line",
+        "n_points": 12,
+        "params": {
+          "a": 30.29940676314434,
+          "b": 2.639900305503186
+        }
+      },
+      "V": {
+        "chi2": 432.1249919909392,
+        "form": "line",
+        "n_points": 10,
+        "params": {
+          "a": -19.14573363927434,
+          "b": 3.998785650874512
+        }
+      }
+    },
+    "status": "measured",
+    "weights": "V x P x M"
+  },
+  "format_version": 1,
+  "formula": "P_correct = P_sync * [pi * H + (1 - pi) * (1 - F)]",
+  "model": {
+    "experiment_id": "pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45",
+    "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free"
+  },
+  "points": 3695,
+  "weighting": {
+    "cells": 327,
+    "max_occupancy": 84,
+    "max_weight": 5.649847094801264,
+    "min_weight": 0.1345201689238396,
+    "n_eff": 2235.069697401963,
+    "runs": 3695
+  }
+}

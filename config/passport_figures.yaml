@@ -1,0 +1,29 @@
+# The plan of the figures of the passport: the figures of every quantity in the order of the document.
+# Read by iec.passport.document.charts.figure_plan.load_figure_plan. A kind draws an entry: "axis" -
+# the bins of an axis and its law before and after the shift correction; "slices" - the cells of the
+# grid by length slices and the curve of every slice, before and after; "plateau" - the levels of the
+# slices and the law of the level; "spread" - the variance of the request shift by the groups of the
+# axes V, P and M, if the quantity has the spread by the load. "block" names the block of
+# config/passport_laws.yaml whose law the figure draws; "stem" starts the names of its files.
+format_version: 1
+
+quantities:
+  P_sync:
+    - {kind: slices, block: grid_slices, stem: S}
+    - {kind: plateau, block: grid_plateau, stem: plateau}
+    - {kind: axis, block: density, stem: P}
+    - {kind: axis, block: table_size, stem: M}
+    - {kind: spread, stem: spread}
+  H:
+    - {kind: slices, block: grid_slices, stem: S}
+    - {kind: plateau, block: grid_plateau, stem: plateau}
+    - {kind: axis, block: density, stem: P}
+    - {kind: axis, block: table_size, stem: M}
+    - {kind: axis, block: rule_position, stem: R}
+    - {kind: spread, stem: spread}
+  F:
+    - {kind: axis, block: length, stem: V}
+    - {kind: axis, block: answer_share, stem: answer-share}
+    - {kind: axis, block: density, stem: P}
+    - {kind: axis, block: table_size, stem: M}
+    - {kind: spread, stem: spread}

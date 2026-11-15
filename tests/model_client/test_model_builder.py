@@ -2,8 +2,9 @@
 
 import pytest
 
-from iec.contracts import GenParams, ModelConfig
+from iec.contracts import GenParams, ModelConfig, Prompt
 from iec.infrastructure.exceptions import ConfigError, ProviderError
+from iec.infrastructure.telemetry import MODEL_CALL, MemorySink, ObservationLevels, TelemetryHub
 from iec.model_client import (
     MockModelClient,
     MockTokenizer,
@@ -68,7 +69,7 @@ def test_unknown_provider_is_configuration_error() -> None:
 
 
 def test_factory_failure_is_wrapped_with_original_cause() -> None:
-    cause = RuntimeError("adapter initialization failed")
+    cause = ConfigError("adapter initialization failed", error_code="ADAPTER_INIT_FAILED")
 
     def failing_factory(config: ModelConfig) -> tuple[ModelClient, Tokenizer]:
         del config
@@ -152,3 +153,42 @@ def test_openai_factory_missing_key_surfaces_through_registry(
     assert caught.value.error_code == "PROVIDER_BUILD_FAILED"
     assert isinstance(caught.value.__cause__, ConfigError)
     assert caught.value.__cause__.error_code == "OPENAI_API_KEY_MISSING"
+
+
+def test_a_programming_error_of_a_factory_is_not_wrapped() -> None:
+    cause = RuntimeError("bug in the factory")
+
+    def failing_factory(config: ModelConfig) -> tuple[ModelClient, Tokenizer]:
+        del config
+        raise cause
+
+    builder = ModelBuilder(factories={"broken": failing_factory})
+    config = ModelConfig(model_id="broken-model", provider="broken", gen_params=GenParams())
+
+    with pytest.raises(RuntimeError) as caught:
+        builder.build(config)
+
+    assert caught.value is cause
+
+
+def test_default_builder_hands_its_hub_to_the_models(mock_model_config: ModelConfig) -> None:
+    sink = MemorySink()
+    builder = build_default_model_builder(TelemetryHub(ObservationLevels(), [sink]))
+
+    client, _ = builder.build(mock_model_config)
+    client.generate(Prompt(text="lake"), mock_model_config.gen_params)
+
+    (event,) = sink.events
+    assert event.block == MODEL_CALL
+    assert event.context.model_id == mock_model_config.model_id
+
+
+def test_openai_factory_hands_the_hub_to_the_client(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv(OPENAI_API_KEY_ENV, "sk-test-key")
+    hub = TelemetryHub(ObservationLevels())
+
+    client, _ = build_openai_provider(_openai_config(), hub)
+    try:
+        assert client.telemetry is hub
+    finally:
+        client.close()

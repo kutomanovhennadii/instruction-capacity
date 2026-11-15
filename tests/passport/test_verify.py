@@ -1,165 +1,137 @@
-"""verify: the tolerance of the passport comparison and the order of the four checks."""
+"""The checks of a published measurement and the tolerance of the comparison of passports."""
 
 import gzip
 import json
 from pathlib import Path
-from typing import Any
 
 import pytest
 
-from iec.contracts import (
-    GenParams,
-    MeasurementDescription,
-    ModelConfig,
-    PointConditions,
-    PointRecord,
-    PointStatus,
-)
-from iec.model_client import MockTokenizer
-from iec.passport import verify
+from iec.contracts import GenParams, MeasurementDescription, ModelConfig
+from iec.passport.laws.forms.law_assignment import build_law_assignment, load_law_assignment_config
 from iec.passport.measurement_files import (
     MEASUREMENT_FILENAME,
-    PASSPORT_DATA_FILENAME,
     POINTS_FILENAME,
     sha256_of,
 )
-from iec.passport.verify import compare_passports, verify_measurement
-from iec.prompt_generator import RuleGenerator, TextGenerator
-from iec.vocab import VocabStore
-
-_VOCAB_DIR = Path(__file__).resolve().parents[2] / "assets" / "vocab"
-_CONDITIONS = (
-    PointConditions(D=8, n=5, m=2, seed_rules=11, seed_text=12, seed_order=0),
-    PointConditions(D=4, n=5, m=1, seed_rules=21, seed_text=22, seed_order=0),
+from iec.passport.verify import (
+    ABSOLUTE_FLOOR,
+    FILES_CHECK,
+    FIRST_STAGE_RTOL,
+    PASSPORT_CHECK,
+    SECOND_STAGE_RTOL,
+    compare_passports,
+    verify_measurement,
 )
 
 
-def test_identical_passports_have_no_differences() -> None:
-    passport = {
-        "fit": {"theta": {"x": 1.5}},
-        "passport": {"s": {"approximation": {"law": {"a": 2.0, "se": {"a": 0.5}}}}},
-    }
+#: The forms of the laws of the new folder.
+ASSIGNMENT = build_law_assignment(
+    load_law_assignment_config(Path(__file__).resolve().parents[2] / "config" / "passport_laws.yaml")
+)
+
+
+def _description(files: dict[str, str]) -> MeasurementDescription:
+    return MeasurementDescription(
+        model=ModelConfig(model_id="mock-model", provider="mock", gen_params=GenParams()),
+        protocol_version="0.2",
+        vocab_id="v1_intersection",
+        vocab_hash="sha256:none",
+        files=files,
+    )
+
+
+def test_equal_passports_have_no_differences() -> None:
+    passport = {"fit": {"sigma2": 2.0}, "laws": {"kappa": -0.5, "names": ["a", 1, None, True]}}
     assert compare_passports(passport, json.loads(json.dumps(passport))) == []
 
 
-def test_the_first_stage_tolerates_rounding_only() -> None:
-    assert compare_passports({"theta": 1.0}, {"theta": 1.0 + 1e-9}) == []
-    assert compare_passports({"theta": 1.0}, {"theta": 1.0 + 1e-5}) != []
-
-
-def test_a_second_stage_value_may_move_by_a_hundredth_of_its_se() -> None:
-    published = {"approximation": {"row": {"value": 10.0, "se": 2.0}}}
-    assert compare_passports(published, {"approximation": {"row": {"value": 10.015, "se": 2.0}}}) == []
-    assert compare_passports(published, {"approximation": {"row": {"value": 10.03, "se": 2.0}}}) != []
-
-
-def test_a_law_parameter_uses_its_se_from_the_se_dictionary() -> None:
-    published = {"approximation": {"law": {"a": -2.0, "se": {"a": 0.1}}}}
-    moved = {"approximation": {"law": {"a": -2.0009, "se": {"a": 0.1}}}}
-    assert compare_passports(published, moved) == []
-    moved["approximation"]["law"]["a"] = -2.002
-    assert compare_passports(published, moved) != []
-
-
-def test_other_second_stage_floats_tolerate_ten_percent() -> None:
-    published = {"approximation": {"law": {"chi2": 10.0}}}
-    assert compare_passports(published, {"approximation": {"law": {"chi2": 10.9}}}) == []
-    assert compare_passports(published, {"approximation": {"law": {"chi2": 12.0}}}) != []
-
-
 def test_the_composition_is_compared_exactly() -> None:
-    assert compare_passports({"status": "measured"}, {"status": "extrapolated"}) != []
-    assert compare_passports({"n": 3}, {"n": 4}) != []
-    assert compare_passports({"value": None}, {"value": 0.0}) != []
-    assert compare_passports({"a": 1}, {"a": 1, "b": 2}) != []
-    assert compare_passports({"rows": [1.0]}, {"rows": [1.0, 2.0]}) != []
+    assert compare_passports({"a": 1}, {"b": 1}) == [".: the keys differ"]
+    assert compare_passports({"a": [1, 2]}, {"a": [1]}) == [".a: the lengths differ"]
+    assert compare_passports({"a": "x"}, {"a": "y"}) == [".a: 'x' vs 'y'"]
+    assert compare_passports({"a": 3}, {"a": 4}) == [".a: 3 vs 4"]
+    assert compare_passports({"a": None}, {"a": 1.0}) == [".a: None vs 1.0"]
+    assert compare_passports({"a": True}, {"a": 1}) == [".a: True vs 1"]
 
 
-def _measurement(directory: Path, *, tamper_rules: bool = False) -> dict[str, Any]:
-    """Write a two-point measurement with a stand-in passport; return the passport."""
-    vocab = VocabStore(_VOCAB_DIR).load("v1_intersection")
-    records = []
-    for index, conditions in enumerate(_CONDITIONS):
-        table = RuleGenerator(vocab).generate(conditions)
-        text = TextGenerator(vocab, MockTokenizer()).generate(conditions, table)
-        rules = tuple((rule.source, rule.target) for rule in table.rules)
-        if tamper_rules and index == 0:
-            rules = tuple(reversed(rules))
-        records.append(
-            PointRecord(
-                conditions=conditions,
-                rules=rules,
-                source_text=text.text,
-                answer="",
-                status=PointStatus.OK,
-                prompt_tokens=None,
-                response_tokens=None,
-            )
-        )
-    directory.mkdir(parents=True, exist_ok=True)
-    with gzip.open(directory / POINTS_FILENAME, "wt", encoding="utf-8") as handle:
-        for record in records:
-            handle.write(json.dumps(record.as_dict()) + "\n")
-    description = MeasurementDescription(
-        model=ModelConfig(
-            model_id="mock-model",
-            provider="mock",
-            gen_params=GenParams(temperature=0.0, max_tokens=1000, top_p=1.0, seed=None),
-        ),
-        protocol_version="0.1",
-        vocab_id=vocab.vocab_id,
-        vocab_hash=vocab.hash,
-        files={POINTS_FILENAME: sha256_of(directory / POINTS_FILENAME)},
-    )
-    (directory / MEASUREMENT_FILENAME).write_text(
-        json.dumps(description.as_dict()), encoding="utf-8"
-    )
-    passport = {"model": {"id": "mock-model", "experiment_id": directory.name}, "fit": {"x": 1.0}}
-    (directory / PASSPORT_DATA_FILENAME).write_text(json.dumps(passport), encoding="utf-8")
-    return passport
+def test_a_number_of_the_fit_has_the_narrow_tolerance() -> None:
+    near = 1.0 + 0.5 * FIRST_STAGE_RTOL
+    far = 1.0 + 2.0 * FIRST_STAGE_RTOL
+    assert compare_passports({"H": {"fit": {"s": 1.0}}}, {"H": {"fit": {"s": near}}}) == []
+    assert compare_passports({"H": {"fit": {"s": 1.0}}}, {"H": {"fit": {"s": far}}}) != []
+    assert compare_passports({"weighting": {"n": 1.0}}, {"weighting": {"n": far}}) != []
 
 
-def test_a_consistent_measurement_passes_the_four_checks(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    passport = _measurement(tmp_path / "m")
-    monkeypatch.setattr(verify, "build_passport_data", lambda description, records, name: passport)
-    report = verify_measurement(tmp_path / "m", _VOCAB_DIR)
-    assert [check.name for check in report.checks] == ["files", "vocabulary", "generator", "passport"]
-    assert report.passed, report.checks
+def test_a_number_computed_from_the_fit_has_the_wide_tolerance() -> None:
+    near = 1.0 + 0.5 * SECOND_STAGE_RTOL
+    far = 1.0 + 2.0 * SECOND_STAGE_RTOL
+    assert compare_passports({"H": {"laws": {"k": [1.0]}}}, {"H": {"laws": {"k": [near]}}}) == []
+    assert compare_passports({"H": {"laws": {"k": [1.0]}}}, {"H": {"laws": {"k": [far]}}}) != []
 
 
-def test_a_changed_points_file_stops_the_other_checks(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    passport = _measurement(tmp_path / "m")
-    monkeypatch.setattr(verify, "build_passport_data", lambda description, records, name: passport)
-    with gzip.open(tmp_path / "m" / POINTS_FILENAME, "at", encoding="utf-8") as handle:
-        handle.write("\n")
-    report = verify_measurement(tmp_path / "m", _VOCAB_DIR)
+def test_a_number_near_zero_is_compared_by_the_floor() -> None:
+    assert compare_passports({"thresholds": {"q": 1e-16}}, {"thresholds": {"q": -1e-16}}) == []
+    assert compare_passports({"thresholds": {"q": 0.0}}, {"thresholds": {"q": 2 * ABSOLUTE_FLOOR}}) != []
+
+
+def test_a_file_with_another_checksum_stops_the_checks(tmp_path: Path) -> None:
+    (tmp_path / POINTS_FILENAME).write_bytes(b"points")
+    description = _description({POINTS_FILENAME: "0" * 64})
+    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    report = verify_measurement(tmp_path, tmp_path, ASSIGNMENT)
     assert not report.passed
-    assert report.checks[0].passed is False
-    assert all("not run" in check.details[0] for check in report.checks[1:])
+    assert report.checks[0].name == FILES_CHECK
+    assert "SHA-256 differs" in report.checks[0].details[0]
+    assert all(check.details[0].startswith("not run") for check in report.checks[1:])
 
 
-def test_a_rule_list_that_the_seeds_do_not_give_fails_the_generator_check(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    passport = _measurement(tmp_path / "m", tamper_rules=True)
-    monkeypatch.setattr(verify, "build_passport_data", lambda description, records, name: passport)
-    report = verify_measurement(tmp_path / "m", _VOCAB_DIR)
-    assert [check.passed for check in report.checks] == [True, True, False, True]
+def test_a_listed_file_that_does_not_exist_is_reported(tmp_path: Path) -> None:
+    description = _description({POINTS_FILENAME: "0" * 64})
+    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    report = verify_measurement(tmp_path, tmp_path, ASSIGNMENT)
+    assert "the file does not exist" in report.checks[0].details[0]
 
 
-def test_a_different_passport_fails_the_passport_check(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    passport = _measurement(tmp_path / "m")
-    monkeypatch.setattr(
-        verify,
-        "build_passport_data",
-        lambda description, records, name: {**passport, "fit": {"x": 2.0}},
+def test_every_numbered_part_of_the_points_must_be_listed(tmp_path: Path) -> None:
+    first, second = tmp_path / "points-001.jsonl.gz", tmp_path / "points-002.jsonl.gz"
+    for part in (first, second):
+        with gzip.open(part, "wb"):
+            pass
+    description = _description({first.name: sha256_of(first)})
+    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    report = verify_measurement(tmp_path, tmp_path, ASSIGNMENT)
+    assert report.checks[0].details == ("points-002.jsonl.gz is not listed in the description",)
+
+
+def test_listed_numbered_parts_pass_the_files_check(tmp_path: Path) -> None:
+    parts = [tmp_path / "points-001.jsonl.gz", tmp_path / "points-002.jsonl.gz"]
+    for part in parts:
+        with gzip.open(part, "wb"):
+            pass
+    description = _description({part.name: sha256_of(part) for part in parts})
+    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    report = verify_measurement(
+        tmp_path, Path(__file__).resolve().parents[2] / "assets" / "vocab", ASSIGNMENT
     )
-    report = verify_measurement(tmp_path / "m", _VOCAB_DIR)
-    assert [check.passed for check in report.checks] == [True, True, True, False]
-    assert ".fit.x" in report.checks[3].details[0]
+    assert report.checks[0].name == FILES_CHECK
+    assert report.checks[0].passed
+
+
+def test_a_measurement_without_a_passport_fails_the_passport_check(tmp_path: Path) -> None:
+    points = tmp_path / POINTS_FILENAME
+    with gzip.open(points, "wb"):
+        pass
+    description = _description({POINTS_FILENAME: sha256_of(points)})
+    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    report = verify_measurement(
+        tmp_path, Path(__file__).resolve().parents[2] / "assets" / "vocab", ASSIGNMENT
+    )
+    passport = next(check for check in report.checks if check.name == PASSPORT_CHECK)
+    assert not passport.passed
+    assert "MEASUREMENT_FILES_MISSING" in passport.details[0]
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf")])
+def test_special_floats_agree_only_with_themselves(value: float) -> None:
+    assert compare_passports({"a": value}, {"a": value}) == []
+    assert compare_passports({"a": value}, {"a": 1.0}) != []

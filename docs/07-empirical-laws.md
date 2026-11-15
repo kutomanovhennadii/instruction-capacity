@@ -1,138 +1,161 @@
 # Empirical laws
 
 The [passport model](05-passport-model.md) says how the instrument computes. This document says
-what the measurements showed: the laws that the second stage draws through the bins, read as
-empirical regularities. Every number comes from the published passports in `artefacts/`;
-intervals are ±1.96 standard errors.
+what the measurement showed: the laws drawn through the bins, read as empirical regularities. Every
+number comes from the published passport in `artefacts/`; intervals are half-widths of 95%, and a
+capacity marked `*` lies beyond the measured area and continues its law.
 
 ## Established on gpt-4o-mini
 
-`pilot_gpt4o_mini_v34`: `gpt-4o-mini-2024-07-18`, 2958 points, 642430 Bernoulli trials, of which
-2722 points and 517762 trials fall into the area of analysis. It is the only published
-measurement.
+`pilot_gpt4o_mini_v55`: `gpt-4o-mini-2024-07-18`, 5,183 answered points; 11 of them are answers without a word, and the
+passport skips them. The article describes one outcome, a right replacement on a rule word, which joins the loss of the
+place with a wrong replacement. Here the outcomes are apart.
 
-### Length and position: a corner between a plateau and fatigue
+| Quantity | Trials | Failures | Variance of the request shift `σ²` |
+|---|---|---|---|
+| `P_sync` | 22,598,814 | 11,269,394 | 14.23 ± 2.32 |
+| `H` | 1,155,179 | 119,727 | 3.03 ± 0.40 |
+| `F` | 10,213,582 | 77,048 | 6.18 ± 1.05 |
 
-$$VS(v, s) = \tfrac{1}{2}\Big[(\lambda_S + \kappa_S\ell) + \mu(v) - \sqrt{(\lambda_S + \kappa_S\ell - \mu(v))^2 + \kappa_S^2\omega_S^2}\Big], \qquad \ell = \log_2 s, \quad \mu(v) = \mu_0 + \tfrac{\kappa_V}{2}\Big[\log_2\tfrac{v}{v_{*}} + \sqrt{\log_2^2\tfrac{v}{v_{*}} + \omega_V^2}\Big].$$
+The loss of the place depends on the particular request much more than the execution of the rules and
+the misfires do: its variance of the shift is the largest.
 
-At the early positions of the answer the logit stays on a plateau $\mu(v)$; past a corner it falls
-along a straight line in $\log_2 s$: the model tires as it writes. The plateau depends on the text
-length by a hyperbola: up to about 270 words it stays at one level, and longer texts lower it along
-a straight line in $\log_2 v$. The law is fitted in two steps: every length slice gets its own
-plateau $\mu_v$ with $\kappa_S$, $\lambda_S$ and $\omega_S$ shared, and the hyperbola $\mu(v)$ is
-drawn through the plateaus of the eight determined slices.
+The table gives the mean over the requests, because the variance of the shift is not one number: it depends on the load of a
+request, and the fit, a GLMM with heterogeneous random-intercept variance, finds this dependence together with the
+coefficients. Against one variance for all requests, `2·Δ ln L` is
+592.3 for `P_sync`, 719.1 for `H` and 1324.9
+for `F`, with 24, 24 and 22 more
+parameters. The variance of `P_sync` falls with the density, from 23–25 at rare replacements to
+6.74 at full density. The variances of `H` and `F` fall with the number of rules, from 8.01
+to 0.13 and from 7.02 to 0.13. The number of rules is not an axis of the law of
+`P_sync`, and yet it acts on its spread. The passport prints these variances by the groups of the three axes; the capacities,
+taken at the level 0.5, do not depend on them.
+
+## Laws of synchronization: `P_sync`
+
+### Length and word number: a corner between a plateau and fatigue
+
+$$VS(v, s) = \tfrac{1}{2}\Big[(\lambda_S + \kappa_S\ell) + \mu_v - \sqrt{(\lambda_S + \kappa_S\ell - \mu_v)^2 + \kappa_S^2\omega_S^2}\Big], \qquad \ell = \log_2 s.$$
+
+At the start of the answer the logit stays on a plateau of its length slice; past a corner it falls along
+a straight line in $\log_2 s$, with a slope shared by all slices. The plateau depends on the text length by
+the same kind of curve: it stays at one level on short texts, and longer texts lower it along a straight
+line in $\log_2 v$.
+
+$$\mu(v) = \mu_0 + \tfrac{\kappa_V}{2}\Big[\log_2\tfrac{v}{v_{*}} + \sqrt{\log_2^2\tfrac{v}{v_{*}} + \omega_V^2}\Big].$$
 
 | Parameter | Value | Meaning |
 |---|---|---|
-| `kappa_S` | -2.67 ± 0.310 | slope of the fatigue, logit per doubling of the word position |
-| `kappa_V` | -1.60 ± 0.434 | slope of the slanted asymptote of the plateau, logit per doubling of a long text |
-| `v_star` | 274.18 ± 173.65 | corner of the plateau, the text length in words where its asymptotes cross |
-| `omega_V` | 0.00100 (held on its bound) | width of the corner of the plateau, doublings of the text length |
-| `lambda_S` | 17.39 ± 3.37 | level of the asymptote at the first word, relative to `delta_VS` |
-| `omega_S` | 2.23 ± 0.528 | width of the corner, doublings of the position |
+| `kappa_S` | −3.59 ± 0.21 | slope of the fatigue, logit per doubling of the word number |
+| `lambda_S` | 20.23 ± 2.46 | the asymptote at the first word, after the correction |
+| `omega_S` | 2.80 ± 0.49 | width of the corner, doublings of the word number |
+| `mu_0` | 20.01 ± 1.94 | the plateau on short texts, the shift of the grid |
+| `kappa_V` | −2.59 ± 0.69 | slope of the plateau, logit per doubling of a long text |
+| `v_star` | 565 words | corner of the plateau, `log₂(v*/20) = 4.82 ± 0.97` |
 
-The values are those of the median point: the passport model carries the shift of a point
-inside the fit, and $\hat\sigma^2$ = 5.90 ± 0.360 (see the [passport model](05-passport-model.md)).
-Every doubling of the position past the corner costs 2.67 ± 0.310 logit, and every doubling of a
-long text lowers the plateau by 1.60 ± 0.434 logit. Weighted by the own variances of the cells,
-the slices leave χ² = 56.41 over 56 cells with 11 parameters, and the plateau hyperbola leaves
-χ² = 1.28 over 8 plateaus.
+The slices leave `χ² = 186.0` over 56 cells: the curves
+go along the cells, but the law does not pass formally. The plateau hyperbola leaves
+`χ² = 10.1` over 8 slices.
 
-![Length × position grid of gpt-4o-mini by length slice, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/vspmr_glmm_v1/vs-slices-after-shift.png)
+### Density
 
-![Plateau by length slice of gpt-4o-mini and the plateau hyperbola, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/vspmr_glmm_v1/plateau-after-shift.png)
+$$P(p) = \mu_P + \tfrac{\kappa_P}{2}\Big[\log_2\tfrac{p}{p_{*}} + \sqrt{\log_2^2\tfrac{p}{p_{*}} + \omega_P^2}\Big].$$
 
-### Density of replacements
+The profile stays nearly level at rare replacements and falls steeply towards full density.
+`mu_P` = 16.44 ± 1.28, `kappa_P` = −11.59 ± 1.13,
+`p_star` = 1.00 (held on the bound of its range), `omega_P` = 4.22 ± 0.46;
+`χ² = 22.2` over 10 bins. The loss against rare
+replacements at full density is 24.44 logits: full density multiplies the odds of losing the place by `e^24.44`, about
+4·10¹⁰. For the execution of the rules it is 1.72 logits: the density acts first of all on the synchronization.
 
-$$P(p) = \mu_P - A_P\big(1 - e^{-p/p_c}\big), \qquad p = m/D.$$
+The dependence agrees with the copying mechanism proposed in the article: the replacement words do not occur in
+the source text, so each of them interrupts the match of the end of the written answer with a fragment of the
+input, and at full density no answer word occurs in the input. The instrument measures the form of the
+dependence, not its cause, and this reading needs a separate check.
 
-The logit falls as a larger share of the text has to be replaced, and saturates: $A_P$ =
-12.07 ± 2.63, $p_c$ = 0.670 ± 0.269, χ² = 14.68 over 9 bins. Replacing every word of the text
-($p = 1$) costs 9.35 ± 1.01 logit against sparse replacements.
+The number of rules is an axis of the model of `P_sync`: its law is a line in `log₂ m`, and its numbers are in the passport.
 
-### The size of the table
+## Laws of rule execution: `H`
+
+### Length and word number
+
+$$VS(v, s) = \mu_v - A \cdot 2^{\gamma\ell}, \qquad \mu_v = \mu_0 + \kappa_V \log_2\tfrac{v}{20}.$$
+
+Once the loss of the place is a quantity of its own, a slice of the grid has no corner between a plateau and
+fatigue: it falls as an exponent in $\log_2 s$ and dies out to its level at $s \to 0$, with the shared
+`A` = 1.065 ± 0.399 and `gamma` = 0.224 ± 0.036, and the levels of the slices lie on a straight line,
+`mu_0` = 16.14 ± 1.03, `kappa_V` = −0.711 ± 0.094. By the own variances, the law leaves
+`χ² = 151.0` over 56 cells and
+`χ² = 1.4` over 8 slices.
+
+### Density
+
+A two-slope hyperbola, a hyperbola on two slanted asymptotes:
+
+$$P(p) = \mu_P + \beta (x - x_*) + \tfrac{\kappa_P}{2}\Big[(x - x_*) + \sqrt{(x - x_*)^2 + \omega_P^2}\Big], \qquad x = \log_2\tfrac{p}{2^{-10}}.$$
+
+The profile is a hill: at the rarest replacements the rules are executed worse than at a moderate density. The left
+asymptote rises by `beta` = 0.47 ± 0.27 logit per doubling of the density, the right one falls by `beta + kappa_P` = −1.48
+logit per doubling, `kappa_P` = −1.95 ± 0.79; the asymptotes cross at `p* = 0.12`, the width of the corner is
+`omega_P` = 2.53 ± 1.67, and the top stands near `p = 0.04`, 1.57 logits above the rarest density. `χ² = 5.5` over 10 bins,
+and no bin is an outlier. The law has no horizontal asymptote, so its shift `mu_P` = −0.22 ± 0.53 is the law at `p = 2⁻¹⁰`.
+
+### Number of rules
 
 $$M(m) = \lambda_M + \kappa_M \log_2 m.$$
 
-Every rule added to the table costs by itself, apart from its own position: $\kappa_M$ =
--0.427 ± 0.100, so every doubling of the table lowers the level by 0.427 logit. The
-restored rule-count bins fall from -0.440 ± 0.578 at one rule to -3.13 ± 0.730 at 65–128 rules.
+`lambda_M` = −1.01 ± 0.47, `kappa_M` = −0.378 ± 0.040 per doubling;
+`χ² = 36.9` over 8 bins.
 
-![Density bins of gpt-4o-mini and their law, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/vspmr_glmm_v1/P-after-shift.png)
+### Rule number
 
-![Rule-count bins of gpt-4o-mini and their law, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/vspmr_glmm_v1/M-after-shift.png)
+A slanted hyperbola in $\log_2 r$: the rules at the head of the list cost nearly nothing, and past a corner every
+doubling of the rule number costs `kappa_R` = −0.51 ± 0.04 logit. The corner lies near
+`r* = 10`; `χ² = 7.6` over 8 bins.
 
-### The rule number
+## Laws of misfires: `F`
 
-$$R(r) = \lambda_R - A_R\,(r^{\gamma} - 1).$$
+The laws are read on the logit of no misfire: lower means more misfires. They go through every bin with a coefficient
+by generalised least squares, as the laws of the other quantities; no bin of `F` is an outlier.
 
-A later rule costs more than an earlier one, and the cost grows faster than the rule number:
-$A_R$ = 0.0412 ± 0.0398, $\gamma$ = 0.736 ± 0.202, and every doubling of the rule number multiplies
-the degradation by $2^\gamma$ = 1.67 ± 0.234. The restored bins: -0.240 ± 0.103 for the rules
-9–16, -0.412 ± 0.119 for the rules 17–32, -0.664 ± 0.127 for the rules 33–64 and -1.05 ± 0.123 for
-the rules 65–128.
-
-![Rule-number bins of gpt-4o-mini and their law, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/vspmr_glmm_v1/R-after-shift.png)
-
-### The collapse of the answer
-
-$$\ln\frac{\psi}{1 - \psi} = \lambda_\psi + \kappa_\psi \log_2\frac{v}{20} + A_\psi\, p^{\gamma_\psi}.$$
-
-995 of the 2958 answered points lost the text: their answer ended in a failure of the third
-kind - lines dropped, merged or added in the middle, or an answer cut before the end of the text.
-The probability $\psi$ that a point loses the text is measured by the method of the passport model
-over all answered points, the boundary cells too: the logit of the collapse is split into the bins
-of the text length and of the density, a law is drawn through the bins of each axis, and the
-shifts - the length law at $v$ = 20 words, the density law at $p \to 0$ - go into the level
-$\lambda_\psi$. The rate law: $\lambda_\psi$ = -20.00 ± 1.58, $\kappa_\psi$ = 2.40 ± 0.192,
-$A_\psi$ = 12.25 ± 1.01, $\gamma_\psi$ = 0.706 ± 0.0931. Every doubling of the text multiplies the
-odds of the collapse by about 11, and the density term grows steeply only above $p$ = 1/16. The
-number of rules is not an axis of the collapse: fitted together with the length and density
-bins, its bins stay within ±0.5 logit of zero with no trend in the number of rules (one bin of
-eight, 5–8 rules, has an interval just off zero, as chance gives among eight).
-
-![Collapse of gpt-4o-mini by text length, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/collapse-V-after-shift.png)
-
-![Collapse of gpt-4o-mini by replacement density, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/collapse-P-after-shift.png)
-
-### The place of the collapse
-
-$$\ln\frac{F}{1 - F} = \lambda_F + \tfrac{\kappa_{SF}}{2}\Big[\log_2\tfrac{s}{s_*} + \sqrt{\log_2^2\tfrac{s}{s_*} + \omega_{SF}^2}\Big] + A_F\, p^{\gamma_F} + \kappa_{QF}\,\tfrac{s - 1}{v}.$$
-
-$F$ is the probability that a point which lost the text has lost it by the word $s$; every
-replacement word of the 995 points that lost the text is a trial (365955 words, 49.2% of them on
-or after the line where the answer lost the text). By the same method: the bins of the word
-number, the density and the share of the text before the word, a law through the bins of each
-axis, the shifts - the plateau of the word law, the density law at $p \to 0$, the share line at
-the start of the text - in the level $\lambda_F$. Up to the corner $s_*$ = 39.57 ± 22.63 words
-(the first four lines) the word law is flat; past it every doubling of the word number adds
-$\kappa_{SF}$ = 1.14 ± 0.209 logit; the width of the corner is held on its bound. $A_F$ =
-6.95 ± 1.56 and $\gamma_F$ = 0.420 ± 0.155: in a dense text the model loses the text earlier;
-$\kappa_{QF}$ = 3.19 ± 0.589 over the whole text, and the share line passes through the start of
-the text ($\lambda_{QF}$ = -0.130 ± 0.640). The text length beyond the word number and the share
-does not set the place (Wald 13.89 with 7 degrees of freedom, p = 0.0531). The bins of the number
-of rules differ from zero (p = 0.000526) only in one way: the tasks with one rule lose the text
-earlier, the bins from 2 to 128 rules lie 0.5 to 1.9 logit below with no trend, and the other bins
-move by at most 1.06 of their SE.
-
-![Place of the collapse of gpt-4o-mini by word number, after the shift](../artefacts/pilot_gpt4o_mini_v34/figures/place-S-after-shift.png)
-
-### What follows
-
-| Quantity at q = 0.95 | Binned | By law |
+| Axis | Law | Parameters |
 |---|---|---|
-| IEC, rules | 36.58 ± 5.41 | 38.06 ± 6.13 |
-| IGC, rules | 18.69 ± 3.62 | 17.55 ± 4.04 |
-| FEC, words | — | 3277.37 ± 571.30 |
+| text length | a line in $\log_2 v$ | `kappa_V` = −0.455 ± 0.056 per doubling |
+| share of the answer `q = s/v` | $c_q + A_q e^{-q/\tau}$ | `A_q` = 1.119 ± 0.223, `tau` = 0.674 ± 0.286 |
+| density | $a + b\log_2(p/2^{-10}) + cp$ | `b` = −0.029 ± 0.039, `c` = −2.64 ± 0.45; the law has no hill, its maximum stands at the rarest density `p = 2⁻¹⁰` |
+| number of rules | a line in $\log_2 m$ | `kappa_M` = −0.391 ± 0.026 per doubling |
 
-At the zero point, the start of the answer to a short text with sparse replacements,
-gpt-4o-mini holds about 37 to 38 rules while 95% of the replacements over all points are right;
-when every word of the text is replaced (p = 1), it holds about 18 rules (the IGC).
-Fatigue alone spends the same reserve after about 3300 words of the answer (the FEC).
+Part of the growth of the misfires with the number of rules is a matter of spelling: the more rules a task has, the
+closer each background word stands to the left-hand word of some rule, and a word spelled close to a left-hand word
+misfires much more often. The passport law keeps this growth on purpose, because it is part of what adding a rule does
+to a text: the law describes the real mix of the words of a task, not a word far from every rule. The price of this
+choice is that the capacities of `F` are directly comparable only between models measured on the same vocabulary.
+
+## The passport
+
+The capacities are taken at the level 0.5. There the threshold of the logit of the median request is zero whatever the spread of
+request difficulty, so the reserve of a quantity is its whole level: 36.41 ± 2.23 logits for `P_sync`,
+15.00 ± 1.08 for `H` and 11.22 ± 0.54 for `F`. A capacity is given with its 95% interval.
+
+| Quantity | Capacity | q | By the law | By the bins |
+|---|---|---|---|---|
+| `H` | instruction, rules | 0.5 | 32.3 (29.1–36.0) | 30.7 |
+| `H` | fatigue, words | 0.5 | 10,800* (8,912–13,089) | |
+| `H` | measure of the density, times | — | 5.6 (3.0–10.6) | |
+| `P_sync` | fatigue, words | 0.5 | 44,473* (34,076–58,042) | |
+| `P_sync` | measure of the density, times | — | 4.1·10¹⁰ (1.0·10¹⁰–1.7·10¹¹) | |
+| `F` | instruction, rules | 0.5 | 4.4·10⁸* (8.5·10⁷–2.3·10⁹) | at least 256 |
+| `F` | fatigue, words | 0.5 | 1.4·10⁸* (4.0·10⁷–5.2·10⁸) | |
+| `F` | measure of the density, times | — | 18.6 (12.9–26.8) | |
+
+The measure of the density is how many times the full density multiplies the odds of an error against the rarest
+replacements, `e^(−P̂(1))`; a factor below one would mean that the full density lowers them. For `F` it is a conditional
+quantity: a text has no background words at `p = 1`, so the number continues
+the law of the density and has no real meaning of its own.
 
 ## How to read these laws
 
-They are empirical regularities found on published points and open to checking: every number above
-can be recomputed with `scripts/build_passport.py`, and the points can be refitted with any other
-model. They are reasons to continue the measurements, on more models and in the cells named above,
-not a statement that the data are exhausted.
+One model is measured here, so the universality of the laws is not established. The laws describe the median request, and
+they hold inside the measured area; a capacity marked `*` shows that the limit of the answer comes before the reserve is
+spent. The bins are published next to every law: the gap between a law and its bins, and the status of a bin outside its law,
+are part of the result.

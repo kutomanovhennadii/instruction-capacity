@@ -1,0 +1,36 @@
+# The forms of the laws of the passport: the forms of every block of every quantity and the form of
+# the approximation of the variance of the request shift by every axis. Read by
+# iec.passport.laws.forms.law_assignment.load_law_assignment_config; the names of the forms are those
+# of the registry iec.passport.laws.forms.form_registry.LAW_FORMS. The first form of a block is its
+# established form; the others are its alternatives - the line, the hyperbola, the slanted hyperbola
+# and the exponential - which replace it only beyond the threshold of
+# iec.passport.laws.form_threshold (QAIC by more than 10). The slices of the grid keep one form. The
+# density of H has the two-slope hyperbola established: its profile can fall from a top to both sides.
+format_version: 2
+
+quantities:
+  P_sync:
+    blocks:
+      grid_slices: {forms: [asymptotic_hyperbolic]}   # a length slice over log2 of the word number
+      grid_plateau: {forms: [slanted_hyperbolic, linear, hyperbolic, binary_exponential]}   # the plateaus over log2(v/20)
+      density: {forms: [slanted_hyperbolic, linear, hyperbolic, binary_exponential]}        # over log2(p/2^-10)
+      table_size: {forms: [linear, hyperbolic, slanted_hyperbolic, binary_exponential]}     # over log2 of the number of rules
+    spread: {V: logarithmic, P: logarithmic, M: fractional_hyperbolic}
+  H:
+    blocks:
+      grid_slices: {forms: [binary_exponential]}      # a length slice over log2 of the word number
+      grid_plateau: {forms: [linear, hyperbolic, slanted_hyperbolic, binary_exponential]}   # the levels of the slices over log2(v/20)
+      density:          # over log2(p/2^-10); the two-slope hyperbola describes a hill and a rise at one end
+        forms: [two_slope_hyperbolic, slanted_hyperbolic, linear, hyperbolic, binary_exponential]
+      table_size: {forms: [linear, hyperbolic, slanted_hyperbolic, binary_exponential]}     # over log2 of the number of rules
+      rule_position: {forms: [slanted_hyperbolic, linear, hyperbolic, binary_exponential]}  # over log2 of the rule number
+    spread: {V: logarithmic, P: logarithmic, M: fractional_hyperbolic}
+  F:
+    blocks:
+      length: {forms: [linear, hyperbolic, slanted_hyperbolic, binary_exponential]}         # over log2(v/20)
+      answer_share: {forms: [exponential, linear, hyperbolic]}   # over q = s/v
+      density:          # over log2(p/2^-10); the log-linear law describes a hill at rare replacements
+        forms: [log_linear_load, linear, hyperbolic, slanted_hyperbolic, binary_exponential]
+        options: {log_linear_load: {reference: 0.0009765625}}
+      table_size: {forms: [linear, hyperbolic, slanted_hyperbolic, binary_exponential]}     # over log2 of the number of rules
+    spread: {V: fractional_hyperbolic, P: logarithmic, M: fractional_hyperbolic}

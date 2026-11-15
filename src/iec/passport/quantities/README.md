@@ -1,0 +1,39 @@
+# quantities — the sections of the three quantities
+
+The sections of `P_sync`, `H` and `F` of the passport: the model of every quantity, its laws, level and capacities, assembled from
+the common steps in `steps/`.
+
+## What is here
+
+| Module | Role |
+|---|---|
+| `sync_section` | the section of `P_sync`: model VS-PM, the grid with a plateau, the density and the number of rules, three capacities by the laws and the instruction capacity by the bins |
+| `rule_word_section` | the section of `H`: model VS-PMR, the exponent grid, the density, the number of rules and the rule number, the capacities by the laws and by the bins |
+| `background_design` | the trials of `F` by the share of the answer and the folded matrix of model V-(s/v)-PM |
+| `background_section` | the section of `F`: model V-(s/v)-PM, four laws by plain least squares, three capacities by the laws and the instruction capacity by the bins |
+| `steps/` | the common steps of a section |
+
+## The steps of a section
+
+Every section goes by the same steps in the same order: the facts of the fit and the approximations of the spread; the laws of the
+blocks, each with the form the assignment of forms gives it (`config/passport_laws.yaml`); the level - the sum of the shifts of the
+blocks; the capacities by the laws and by the bins; the rows of the bins. A section draws a block only with the forms its fit is
+written for; another form is the error `LAW_FORM_UNSUPPORTED`. The way a section fits its laws - generalised least squares over the
+full covariance, over residuals whitened by the Cholesky factor, plain least squares - stays with the section: it sets the numbers
+of the passport.
+
+## Key signatures
+
+    sync_section(points, layout, weights, assignment) -> dict
+    sync_laws(design, fit, layout, support, assignment) -> dict
+    rule_word_section(points, layout, weights, assignment) -> dict
+    rule_word_laws(design, fit, support_words, assignment) -> dict
+    background_cells(key, D, n, m, aligned, source_text, rule_table) -> BackgroundCells
+    answer_share_design(points, layout, weights) -> AnswerShareDesign
+    background_section(points, layout, weights, assignment) -> dict
+    background_laws(built, fit, assignment) -> dict
+
+## Boundaries
+
+The sections compute; they write nothing. The passport is assembled from them by the root of the package, the document by
+`document/`. The tests of the design of `F` live with the tests of its section: they share its fixtures.

@@ -3,7 +3,7 @@
 # are a single token for every tokenizer of the set -> intersection.
 # Run: python scripts/build_vocab.py --config config/vocab.yaml
 #
-# A changed tokenizer set gives a new vocabulary version: set a new vocab_id, keep v1.
+# A changed tokenizer set gives a new vocabulary: set a new vocab_id, keep this one.
 
 vocab_id: "v1_intersection"
 source: "cmudict"

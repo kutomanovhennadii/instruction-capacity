@@ -6,78 +6,72 @@ every step; `scripts/build_passport.py` recomputes a published passport, and
 
 ## 1. Trials
 
-The validator ([answer validation](04-answer-validation.md)) turns the answer of every point with
-the status `ok` into trials. A trial carries the conditions of its point (`D`, `n`, `m`), the
-number `r` of its rule, the position `s` of its word in the answer and its score `z`.
+The validator ([answer validation](04-answer-validation.md)) aligns the answer of every point with
+the status `ok` with its reference and gives the trials of the three quantities: `P_sync` on the
+places of the alignment, `H` on the rule words standing on their places, `F` on the background
+words standing on their places. All answered points enter the fit: the alignment gives an outcome
+at every place of an answer, so no point is taken out of the analysis because it lost its text. The
+trials of a point with the same conditions are folded into one row with summed counts.
 
-## 2. The area of analysis
+## 2. Bins
 
-Not every measured point enters the fit: where the model collapses completely, or where the task
-does not fit the model, a cell carries no information on capacity and would distort the fit.
-
-The **purchase cube** is a grid of cells `D × m × n` whose axes are cut by doubling from the start
-step `(D, n, m) = (4, 5, 1)` (the `m` axis from 1) up to the largest `D`, `m` and `n` among the
-executed points (status `ok` or `na`). The **representative** of a cell is its upper corner, a
-node `(D, n, m)`. Its state is
-
-- `na` if the provider refused it at least three times with no `ok` or `na` point, or if it has no
-  `ok` point;
-- no state if it has fewer than three points with the status `ok` or `na`;
-- **collapse** if every `ok` point of it has a third-kind collapse;
-- **open** otherwise.
-
-A cell is a **boundary** cell if its representative collapsed or is `na`, and **unreachable** if
-its representative has no state or its task cannot be built (`m > D`, `D + m` larger than the
-vocabulary, the limits of the model). The fit takes the points of the remaining **ordinary**
-cells. The passport prints the filling of the cube ("Bin cube filling").
-
-## 3. Bins
-
-The model has a free coefficient per bin. The bins double:
+A model has a free coefficient per bin. The bins double:
 
 | Axis | Bins |
 |---|---|
 | text length `v = D·n` | 1–20, 21–40, 41–80, … up to the bin of the longest text |
-| word position `s` in the answer | by the answer line of ten words: lines 1–2, 3–4, 5–8, …, that is words 1–20, 21–40, 41–80, …; not beyond the last line of the longest text of the length bin |
+| word number `s` | by the answer line of ten words: lines 1, 2, 3–4, 5–8, …, that is words 1–10, 11–20, 21–40, 41–80, …; not beyond the last line of the longest text of the length bin |
 | density `p = m/D` | by `k = ⌈D/m⌉` in the bins {1}, {2}, {3–4}, {5–8}, …: `p = 1`, `p ∈ [1/2, 1)`, `[1/4, 1/2)`, … down to the sparsest level |
 | rule count `m` | {1}, {2}, {3–4}, {5–8}, … up to the bin of the largest `m` |
 | rule number `r` | the same bins as `m` |
+| share of the answer `q = s/v` | ten equal bins, for `F` only |
 
-A length bin and a position bin form a **cell of the grid** `V·S`.
+A length bin and a word-number bin form a **cell of the grid** `V·S`.
 
-## 4. The model VS-PMR (`vspmr_glmm_v1`)
+## 3. The three models
 
-The logit of a right replacement in trial $i$ of point $j$ is
+The logit of a success in trial $i$ of point $j$ is
 
-$$\eta_{ij} = \log\frac{\pi_{ij}}{1-\pi_{ij}} = VS(v, s) + P(p) + M(m) + R(r) + b_j, \qquad b_j \sim N(0, \sigma^2),$$
+$$\begin{aligned}
+P_{\mathrm{sync}}:&\quad \eta_{ij} = VS(v, s) + P(p) + M(m) + b_j,\\
+H:&\quad \eta_{ij} = VS(v, s) + P(p) + M(m) + R(r) + b_j,\\
+F:&\quad \eta_{ij} = V(v) + Q(s/v) + P(p) + M(m) + b_j,
+\end{aligned}
+\qquad b_j \sim N(0, \sigma_j^2).$$
 
-where $VS(v, s)$ is the free coefficient of the grid cell of the trial (length bin $V$, position
-bin $S$), and $P$, $M$, $R$ are the free coefficients of its density, rule-count and rule-number
-bins. In matrix form $\eta_{ij} = x_{ij}\theta + b_j$: $x_{ij}$ is the design row of the trial
-(ones in its bins), $\theta$ the coefficients. $b_j$ is the **shift of the point**: one number
-for all trials of an answer, the difficulty of that particular request; $\sigma^2$ is the
-variance of the shifts. The number of rules $m$ and the length $D$ are the same for all trials
-of a point, so the bins $M$ and $P$ are estimated by comparing points with each other, and
-without the shift in the model the spread of point difficulty would land in them. The bins
-describe the **median point** ($b = 0$). There is no separate intercept: the grid cells carry
-the level. Three bins are reference bins with an implicit zero: the density bin of the start
-step `(4, 5, 1)` ($p \in [1/4, 1/2)$), the rule-count bin {1} and the rule-number bin {1}.
+For `F` a success is the absence of a misfire, so $\eta$ is the logit of $1 - F$. In every model a
+more negative coefficient means more errors. $VS$ is the free coefficient of a cell of the grid: the
+contributions of the text length and of the word number do not add up, because doubling the text
+costs much at the start of the answer and almost nothing deep in it. $P$, $M$, $R$, $V$ and $Q$ are
+the free coefficients of the bins of their axes. Only a rule word has a rule number, so only `H` has
+`R`.
+For `F` the deviation of a grid cell from the sum of its axes is small: the slices of the length do not
+differ in shape along the answer. So `F` has the length and the share of the answer as two separate axes.
 
-**Exclusion.** A bin in which every replacement is right, or every replacement is wrong, has no
-finite maximum-likelihood estimate. Such a bin is removed together with its trials, and the pass
-repeats until nothing changes. Removed bins are published with the status `excluded` and no
-number.
+$b_j$ is the **shift of the request**: one number for all trials of an answer, the difficulty of that
+particular request; $\sigma_j^2$ is its variance, which depends on the load of the request: the model is a
+GLMM with heterogeneous random-intercept variance (section 5).
+The conditions of a request are the same for all its trials, so the bins of $M$ and $P$ are estimated by comparing requests with each
+other, and without the shift in the model the spread of request difficulty would land in them. The
+bins describe the **median request** ($b = 0$). There is no separate intercept: the cells of the grid,
+and the length bins in `F`, carry the level. The other axes have reference bins with an implicit
+zero: the density bin of the start step `(D, n, m) = (4, 5, 1)` ($p \in [1/4, 1/2)$), the rule-count
+bin {1}, the rule-number bin {1} and the last share bin.
 
-## 5. Weights
+**Exclusion.** A bin in which every trial has one outcome has no finite maximum-likelihood estimate.
+Such a bin is removed together with its trials, and the pass repeats until nothing changes. Removed
+bins are named in the section of the quantity.
+
+## 4. Weights
 
 Points are not spread evenly: some cells were measured densely, others sparsely. Each point gets a
 weight inversely proportional to the number of points in its cell of the **run cube**, length bin
-× density bin × rule-count bin, normalized to a mean of 1. The passport reports the effective
-number of points
+× density bin × rule-count bin, normalized to a mean of 1. All three quantities use the same weights.
+The passport reports the effective number of points
 
 $$n_{\mathrm{eff}} = \frac{\left(\sum w\right)^2}{\sum w^2}.$$
 
-## 6. The fit with the shift of a point
+## 5. The fit with the shift of a request
 
 The shifts are not estimated as free parameters: the likelihood of every point is averaged over
 its shift,
@@ -85,124 +79,196 @@ its shift,
 $$L_j(\theta, \sigma^2) = \int \prod_i \pi_{ij}(b)^{z_{ij}}\big(1 - \pi_{ij}(b)\big)^{1 - z_{ij}}\,\varphi(b; 0, \sigma^2)\,db,$$
 
 and $\theta$ and $\sigma^2$ maximize the weighted marginal likelihood $\sum_j w_j \ln L_j$ jointly
-($w_j$ is the weight of the point, section 5). The integral is computed by adaptive Gauss-Hermite
+($w_j$ is the weight of the point, section 4). The integral is computed by adaptive Gauss-Hermite
 quadrature: for every point the mode $\hat b_j$ of its shift and the curvature $s_j$ of the log
 posterior are found, and the integral becomes a weighted sum over 15 nodes
 $b = \hat b_j + \sqrt{2}\,s_j z_k$, placed anew at every evaluation. The maximum is found by
-Newton's method, the second derivatives by the Louis identity; the start is the plain weighted
-logit of the same trials (Newton's method on collapsed rows: trials with equal design rows are
-merged with summed counts) and $\sigma^2 = 1$. The covariance is the cluster sandwich with one
-point per cluster around the Hessian of the marginal likelihood; it covers $\theta$ and
-$\sigma^2$, so $\hat\sigma^2$ comes with its standard error and its covariance with the
-coefficients. When the data show no spread between points, $\sigma^2$ goes to its floor
-$10^{-8}$ and stays there, and the coefficients are those of the plain logit. If a fit does not
-converge, there is no passport: the command reports the reason and stops; there is no fallback
-fit.
+Newton's method on the total derivative of this sum: the nodes move with the parameters, and their
+motion enters the gradient and the second derivatives; where the matrix of the second derivatives is
+not negative definite, the step takes the moduli of its eigenvalues. The start is the plain weighted
+logit of the same rows and $\sigma^2 = 1$. A full step from a variance far below the maximum can
+overshoot it many times over and leave the fit crawling along a flat slope, so a fit that does not
+converge is started again from $\sigma^2 = 4$, $16$ and $64$, and the first that converges is taken.
+On the published measurement these starts reach the same maximum. The covariance is the cluster
+sandwich with one point per cluster around the Hessian of the marginal likelihood; it covers
+$\theta$ and $\sigma^2$, so $\hat\sigma^2$ comes with its error and its covariance with the
+coefficients. When the data show no spread between points, $\sigma^2$ goes to its floor $10^{-8}$
+and stays there.
 
-## 7. The second stage: laws through the bins
+**The spread by the load.** The fit above takes one variance for all requests. It is the first step: the data
+reject one variance, so the second step fits the GLMM with heterogeneous random-intercept variance: the log of the
+standard deviation of the shift of a request is linear in the groups of its load, the log-linear model that
+[Hedeker, Mermelstein, Demirtas 2008] give the between-subject variance:
 
-The bins of every block are summarized by a law of its axis:
+$$b_j \sim N(0, \sigma_j^2), \qquad \ln\sigma_j = z_j \gamma.$$
 
-$$VS(v, s) = \tfrac{1}{2}\Big[(\lambda_S + \kappa_S\ell) + \mu(v) - \sqrt{(\lambda_S + \kappa_S\ell - \mu(v))^2 + \kappa_S^2\omega_S^2}\Big], \qquad \ell = \log_2 s,$$
+The row $z_j$ holds a one for the level and the free bins of the text length, the density and the number of rules of
+the request. A rare edge of an axis is merged with its neighbour until the group has 30 requests with failures, and the
+most populated group of an axis is its reference and has no column. $\theta$ and $\gamma$ maximize the same weighted
+marginal likelihood from the estimates of the first step, by the same quadrature and Newton steps, and the covariance is
+the same sandwich over $\theta$ and $\gamma$. A group whose standard deviation the data push to the lower bound
+$\ln\sigma = \ln 10^{-4}$ has no measured spread: it is merged with its neighbour on the axis and the fit is made again,
+and the passport notes the merge (`SPREAD_MERGED`). The bins of the logit stay as they were. The variance $\sigma^2$ of the
+section of a quantity is then the mean of $\sigma_j^2$ over the requests with their weights. The section prints the
+variance by the groups of every axis, with the other two axes averaged over the requests, and the gain $2\Delta\ln L$
+against one variance.
 
-$$\mu(v) = \mu_0 + \tfrac{\kappa_V}{2}\Big[\log_2\tfrac{v}{v_{*}} + \sqrt{\log_2^2\tfrac{v}{v_{*}} + \omega_V^2}\Big],$$
+Through the groups of every axis the section draws an approximation, fitted by the residuals in $\ln\sigma^2$: the residual of
+a group is $(\ln\sigma^2 - \ln a(x))/s$ with $s = h/(1.96\,\sigma^2)$, where $a(x)$ is the approximation and $h$ the half-width
+of the group, so every group weighs by its relative precision. The form is chosen for every axis of every quantity: a line in
+$\log_2$ of the axis, $a + b\log_2 x$, or the fractional hyperbola $c + A/(1 + x/x_0)$.
 
-$$P(p) = \mu_P - A_P\big(1 - e^{-p/p_c}\big), \qquad M(m) = \lambda_M + \kappa_M \log_2 m, \qquad R(r) = \lambda_R - A_R\,(r^{\gamma} - 1).$$
+| Quantity | Text length | Density | Number of rules |
+|---|---|---|---|
+| `P_sync` | line | line | hyperbola |
+| `H` | line | line | hyperbola |
+| `F` | hyperbola | line | hyperbola |
 
-The grid law is a smooth corner between two regimes: a **plateau** $\mu(v)$ at the early positions
-of the answer and a slanted **asymptote** $\lambda_S + \kappa_S\ell$, the fatigue along the answer;
-$\omega_S$ is the width of the corner. The plateau itself is a hyperbola in the text length: a
-horizontal asymptote $\mu_0$ for short texts and a slanted one of slope $\kappa_V$ per doubling for
-long texts, which cross at the length $v_*$, with the width $\omega_V$ of the corner.
+The approximations serve the eye. An axis with no more groups
+than the parameters of its form has no approximation. A hyperbola whose $x_0$ stops at the lower bound of its search has
+degenerated into the inverse law $c + A/x$: its $A$ and $x_0$ mean nothing apart, so the section fits the inverse law anew and
+gives it in place of the hyperbola.
 
-**The grid law in two steps.** First, every length slice gets its own plateau level $\mu_v$, with
-$\kappa_S$, $\lambda_S$ and $\omega_S$ shared. This fit is weighted by the own variances of the
-cells: the cells of a slice are strongly correlated, and weights from the full covariance drove the
-free plateau of a slice above all its cells. A slice enters only if its plateau is computable from
-its points: at least two measured cells, at least one of them on the plateau. Second, the
-hyperbola $\mu(v)$ is drawn through the plateaus of all determined slices (at least five), weighted
-by their own variances. The errors of both steps are carried by the full covariance of the fit. A
-corner parameter that the data push to the edge of its range ($v_*$ from 20 words up to the
-longest determined slice; $\omega_V$ from 0.001 up to the doublings from 20 words to that slice)
-is **held** there: its value is the bound, it has no error, and the law names it in `held`. The
-density, rule-count and rule-number laws are fitted by generalized least squares, weighted by the
-covariance of their bins. The abscissa of a bin is the centre of mass of its trials with the fit
-weights.
+The section of a quantity names its fit method. `glmm_heterogeneous` is the
+GLMM with heterogeneous random-intercept variance, the fit with the spread by the load. `glmm` means that it did
+not converge, and the section gives the fit with one variance. `logit` means that the shift did not converge and the plain
+logit is given: its numbers are not comparable with other measurements. `none` means that nothing converged: the quantity
+has no laws and no capacities.
 
-**Zero point and shifts.** Every law has a value at the zero of its axis, the **shift** of its
-block. At vanishing load the grid tends to the horizontal asymptote of its plateau - at the start
-of the answer ($s \to 0$) of short texts ($v \to 0$) - so its shift is $\delta_{VS} = \mu_0$;
-$\lambda_S$ and $\mu_v$ are given relative to it, and $\mu_0$ itself is not published. For the
-density the zero is $p \to 0$, for the rule count $m = 1$, for the rule number $r = 1$. The shifts
-are $\delta_{VS}$, $\mu_P$, $\lambda_M$ and $\lambda_R$. They are moved into one level,
+**The own error of a bin.** The whiskers of a bin are its quasi-variance [Firth 2000]: numbers $q_k$
+such that $q_k + q_l$ gives the variance of the difference of the bins $k$ and $l$. A reference bin has
+an own error too: its zero comes from the coding alone.
 
-$$\alpha_{\mathrm{phys}} = \delta_{VS} + \mu_P + \lambda_M + \lambda_R,$$
+## 6. The laws through the bins
 
-and the bins are published **restored**: each minus the shift of its block. The prediction of a
-trial does not change. The restored bins and laws read as costs relative to the zero point, and
-$\alpha_{\mathrm{phys}}$ is the logit of a right replacement at the zero point.
+The bins of every axis are summarized by a law. Intervals are half-widths of 95%, by the delta method
+over the covariance of the coefficients and of $\sigma^2$. All laws below use $\ell = \log_2 s$ and
+$u = \log_2(v/20)$.
 
-## 8. Public quantities
+**`P_sync`.** The cells of a length slice lie on a hyperbola with shared $\kappa_S$, $\lambda_S$,
+$\omega_S$ and an own plateau $\mu_v$, and a slanted hyperbola runs through the plateaus:
 
-They are computed from $\alpha_{\mathrm{phys}}$, the restored bins and the laws, at the levels
-$q = 0.95$ and $q = 0.5$, with standard errors by the delta method on the full covariance of the
-fit, extended by $\sigma^2$.
+$$VS(v, s) = \tfrac{1}{2}\Big[(\lambda_S + \kappa_S\ell) + \mu(u) - \sqrt{(\lambda_S + \kappa_S\ell - \mu(u))^2 + \kappa_S^2\omega_S^2}\Big],$$
 
-**The threshold of a level.** A capacity of the level $q$ is the load at which the **share of
-right replacements over all points** is still not below $q$. The bins describe the median point;
-the share over all points at the logit $\eta$ of the median point is
+$$\mu(u) = \mu_0 + \tfrac{\kappa_V}{2}\Big[(u - u_*) + \sqrt{(u - u_*)^2 + \omega_V^2}\Big].$$
 
-$$\bar\pi(\eta) = E_b\Big[\frac{1}{1 + e^{-(\eta + b)}}\Big], \qquad b \sim N(0, \sigma^2).$$
+The law of the density is the same slanted hyperbola over $x = \log_2(p/2^{-10})$:
 
-The shift does not depend on the load, so $\bar\pi = q$ holds exactly at $\eta = \eta^*$, where the
-**threshold** $\eta^*(q, \sigma^2)$ is the root of $\bar\pi(\eta^*) = q$ (computed with 64
-Gauss-Hermite nodes; at $\sigma^2 = 0$ it is $\operatorname{logit} q$). The error of $\hat\sigma^2$
-enters a capacity through $d\eta^*/d\sigma^2$. The reserve of the level $q$ is
-$\Delta_q = \alpha_{\mathrm{phys}} - \eta^*(q, \sigma^2)$, the margin of the zero point above the
-threshold. All capacities except the IGC are therefore read at the zero point: the start of the
-answer to a short text with sparse replacements; longer texts, later positions and denser tables
-spend the same reserve. The IGC takes the density at p = 1 and the other axes at the zero point.
+$$P(p) = \mu_P + \tfrac{\kappa_P}{2}\Big[(x - x_*) + \sqrt{(x - x_*)^2 + \omega_P^2}\Big].$$
 
-| Quantity | Formula | Unit |
-|---|---|---|
-| IEC, binned | the largest `m` with `C(m) = Σ_{r=2..m} a(r) ≤ Δ_q`, plus the fraction of the next rule; the price of a rule is `a(r) = −ΔM(r) − R(r)`, where `ΔM(r)` is the step of the restored rule-count profile per rule | rules |
-| IEC, by law | the root of `C(m) = Δ_q` with `C(m) = −κ_M log₂ m + A_R((m^(γ+1) − 1)/(γ + 1) − (m − 1))` | rules |
-| IGC, binned | the IEC walk with the restored bin of full density in the cumulative price: the largest `m` with `C(m) − P(1) ≤ Δ_q`, plus the fraction of the next rule; `P(1)` is the restored coefficient of the density bin `p = 1` | rules |
-| IGC, by law | the root of `C(m) + A_P(1 − e^(−1/p_c)) = Δ_q`, with `C(m)` of the IEC by law | rules |
-| price of a position doubling | `−κ_S` | logit per doubling |
-| FEC, by law | `s` where the asymptote reaches the level: `log₂s = (η*(q, σ²) − α_phys − λ_S)/κ_S` | words |
-| price of a volume doubling | `−κ_V` | logit per doubling |
-| loss at full density | `A_P(1 − e^(−1/p_c))` | logit |
-| late-rule degradation factor | `2^γ` | times per doubling |
-| late-rule degradation scale | `A_R` | logit |
-| rule-set discount per doubling | `κ_M` | logit per doubling |
+The number of rules is the line $M(m) = \lambda_M + \kappa_M \log_2 m$, as for `H` and `F`.
 
-The IEC is computed only inside the measured support of the rule bins, up to the upper edge of
-the last rule-count bin; beyond it the passport gives the support as a lower bound. A quantity
-that lies beyond the measured texts is marked `extrapolated`; the late-rule terms and the
-rule-set discount are marked `not_detected` when they are within 1.96 standard errors of zero.
-The binned and the law calculations of the IEC and the IGC are published side by side: their
-gap measures the approximation. The IGC (Instructional Guaranteed Capacity) is the IEC at
-full density: at p = 1 every rule brings its own word (D = m), the density stays at one as
-rules are added, and the loss of full density enters the cumulative price once, as a term
-constant in `m`. The FEC (Fatigue Execution Capacity) has the law calculation only: the word
-position has no bins of its own, every cell of the grid belongs to its length slice, and a
-crossing read from the cells would carry the error of the slices it is read from.
+**`H`.** A slice of the grid is an exponent with shared $A$ and $\gamma$ and an own level $\mu_v$, and the
+levels of the slices lie on a line:
 
-**Diagnostics.** The passport also reports $\hat\sigma^2$ with its standard error and the
-within-point correlation $\hat\rho = \hat\sigma^2/(\hat\sigma^2 + \pi^2/3)$, both from the fit,
-the plateau by length slice, the deviation of every restored bin from its law in units of its standard error, and the
-canonical correlation of the increments of neighbouring bins of every two components: a
-correlation near one means that the fit cannot tell which of the two components explains an
-observation.
+$$VS(v, s) = \mu_v - A \cdot 2^{\gamma\ell}, \qquad \mu_v = \mu_0 + \kappa_V u.$$
+
+At $s \to 0$ a slice dies out to its level $\mu_v$. The density is a two-slope hyperbola over
+$x = \log_2(p/2^{-10})$, a hyperbola on two slanted asymptotes with the slopes $\beta$ on the left and $\beta + \kappa_P$ on
+the right, of any sign:
+
+$$P(p) = \mu_P + \beta (x - x_*) + \tfrac{\kappa_P}{2}\Big[(x - x_*) + \sqrt{(x - x_*)^2 + \omega_P^2}\Big].$$
+
+It falls from a top to both sides, as a hill, or rises at one end, and at $\beta = 0$ it is the slanted hyperbola of
+`P_sync`. The rule number is a slanted hyperbola over $\log_2 r$, the number of rules is the line
+$M(m) = \lambda_M + \kappa_M \log_2 m$.
+
+**`F`.** The length and the number of rules are lines over $u$ and over $\log_2 m$, the share of the answer
+is an exponent, and the density is a logarithm plus a line:
+
+$$V(v) = V(20) + \kappa_V u, \quad Q(q) = c_q + A_q e^{-q/\tau}, \quad P(p) = a + b\log_2(p/2^{-10}) + cp, \quad M(m) = \lambda_M + \kappa_M \log_2 m.$$
+
+**Which bins enter and with which weights.** The grids of `P_sync` and `H` go in two steps, as in section 5.3.1
+of the article: the curve of the slices with the weights inverse to the own variances of the cells, then the
+law of the slices with the weights inverse to their own variances. The mutual dependence of the cells stays out
+of the weights, because with it the curve of a slice runs away from its cells; the errors are still carried by
+the full covariance, through the sensitivity of the estimates to the coefficients. The other laws of `P_sync`,
+`H` and `F` are drawn by generalised least squares over the full covariance of their bins. Every bin with a
+coefficient enters its law; a bin leaves it only as an outlier, by the procedure of astropy
+(`FittingWithOutlierRemoval` with `sigma_clip`): the residuals of the bins not yet clipped give their median and
+their standard deviation, a bin farther than three standard deviations from the median is clipped, the law is
+fitted again through the rest, and the procedure repeats until the number of the clipped bins stops changing.
+The scale is one for all the bins, so a poorly determined bin gets no wider tolerance. A parameter that the data
+push to a bound of its range stays there, and the law names it in `held`.
+
+**Which form a law takes.** Every block has its established form, the first of the block in
+`config/passport_laws.yaml`, and alternatives after it: the line, the hyperbola $c + A/x$, the slanted hyperbola
+and the exponential. The density of `H` has the two-slope hyperbola established and the slanted hyperbola among its
+alternatives. The established form is fitted first; every form is then fitted through the bins it kept,
+and an alternative replaces the established form only when it is better by more than 10 of the criterion
+$\mathrm{QAIC} = \chi^2/\hat c + 2k$, where $k$ is the number of free parameters and $\hat c$ the overdispersion,
+$\chi^2$ per degree of freedom of the most flexible converged form, not below one (Burnham and Anderson 2002: a
+model behind the best by more than 10 has essentially no support). The bins scatter around any law more than
+their own errors allow, and $\hat c$ brings the residuals to their real scatter. The law publishes its form, the
+established form, $\hat c$ and the clipped bins.
+
+## 7. The level
+
+The shift of a block is the maximum of its law. For a law that falls along its axis the maximum stands at the
+zero of the axis: for the grid of `P_sync` it is $\mu_0$, the horizontal asymptote of the plateau; for the grid of
+`H` it is $\mu_0$, the level of a text of 20 words at $s \to 0$; for the density of `P_sync` it is the law
+at $p \to 0$; for the rules it is the law at $m = 1$ and $r = 1$. The law of the density of `F` can rise at rare
+replacements and have a hill: then its shift $\delta_P$ is the top of the hill, at $p^* = b/(\lvert c\rvert\ln 2)$;
+without a hill it is the law at $p = 2^{-10}$. So after the correction every contribution of these loads is a price
+and never lies above zero. The density of `H` is the exception: its two-slope hyperbola has no horizontal asymptote,
+and its shift $\mu_P$ is the law at the zero of its abscissa, $p = 2^{-10}$, the edge of the measured zone. Where the
+law of the density of `H` rises from rare replacements to a hill or towards full density, its contribution after the
+correction lies above zero there. The level of a quantity is the sum of its shifts:
+
+$$\alpha_{P_{\mathrm{sync}}} = \mu_0 + \mu_P + \lambda_M, \qquad \alpha_H = \mu_0 + \mu_P + \lambda_M + \lambda_R, \qquad \alpha_F = V(20) + Q(0) + \delta_P + M(1).$$
+
+The level answers the **zero point**: a text of 20 words, the start of the answer, the density at the maximum of
+its law and one rule. For a law that falls from rare replacements this density goes to zero; for the law of the
+density of `F` with a hill it is the best density of the model; for the density of `H` it is $p = 2^{-10}$.
+Moving the shifts into the level
+is a calibration, not a change of the model: the prediction of every trial stays the same. The figures
+of a passport show every axis before this correction, as the coefficients of the fit, and after it,
+minus the shift of the axis.
+
+## 8. Capacities
+
+**The level of the capacities.** A capacity of the level $q$ is the load at which the **share of successes
+over all requests** is still not below $q$. The bins describe the median request; the share over all
+requests at the logit $\eta$ of the median request is
+
+$$\bar\pi(\eta) = E_b\Big[\frac{1}{1 + e^{-(\eta + b)}}\Big], \qquad b \sim N(0, \sigma^2),$$
+
+and the **threshold** $\eta^*(q, \sigma^2)$ is the root of $\bar\pi(\eta^*) = q$. Above one half the threshold
+grows with the variance, and the variance depends on the load (section 5), so a capacity of such a level
+would depend on the load at which its variance is read, while the axes a capacity does not name have no
+natural value for it. At $q = 0.5$ the threshold is zero at any variance and for any symmetric
+distribution of the shift, because $1/(1 + e^{-b}) + 1/(1 + e^{b}) = 1$. The passport therefore gives every
+capacity at the level 0.5: a capacity is the load at which the laws bring the logit of the median request
+to zero, the **reserve** of a quantity is its whole level $\alpha$, and the variance of the shift enters the
+capacities only through the laws, which it keeps unbiased.
+
+| Quantity | Capacity | Definition | Unit |
+|---|---|---|---|
+| `H` | instruction | the root of $-\kappa_M\log_2 m + \int_1^m [R(1) - R(r)]\,dr = \alpha$ | rules |
+| `H` | fatigue | the word number at which the full law of the grid reaches zero at the shortest text holding the word, $v = s$ | words |
+| `P_sync` | instruction | $-\kappa_M\log_2 m = \alpha$, as for `F`; none when the 95% interval of $\kappa_M$ reaches zero | rules |
+| `P_sync` | fatigue | the word at which the full law of the grid at $p \to 0$ reaches zero, $v = s$: the root of the same curve as the other capacities of the grid, not its slanted asymptote | words |
+| `F` | instruction | $-\kappa_M\log_2 m = \alpha$; a background word has no rule number | rules |
+| `F` | fatigue | the number of the last word of a text of the same length: the root of $\alpha - [Q(0) - Q(1)] + [V(s) - V(20)] = 0$ | words |
+| every quantity | measure of the density | $e^{-\hat P(1)}$, where $\hat P(1)$ is the change of the law of the density from its zero point to $p = 1$: how many times the full density multiplies the odds of an error, written as the factor with its interval. A factor below one means that the full density lowers the odds of an error, as the rising law of the density of `H` can give. For `F` a conditional quantity: a text has no background words at $p = 1$, so it continues the law of the density | times |
+
+By the law, `P_sync` has an instruction capacity only when its law of the number of rules falls beyond its errors: when the 95% interval of $\kappa_M$ reaches zero, the data do not bound the capacity from above, and the passport gives none.
+
+**Intervals and the measured area.** The intervals of a capacity are computed by the delta method on the
+scale of its logarithm, so they are not symmetric. A capacity that lies beyond the measured rules or words
+is marked as a continuation of the law (the status `extrapolated`). The instruction capacities of `H`,
+`F` and `P_sync` are also given by the bins: the walk along the bins that spends the reserve; when the reserve is not
+spent at the edge of the measured area, the passport gives the edge as a lower bound and what is left of the
+reserve. The gap between the law and the bins measures the approximation.
 
 ## 9. Verification
 
-`scripts/verify.py` recomputes the passport and compares it with the published one: the
-composition exactly (keys, list lengths, strings, integers, statuses); floating-point numbers
-outside the second stage within $10^{-6}$ relative; numbers of the second stage that have their
-own standard error within $0.01\,\mathrm{SE}$; other numbers of the second stage within 10%
-relative. The tolerances keep a margin of 3 to 600 times over the spread that a mere reordering
-of the summation produced on the published measurements: the second stage contains nonlinear
-fits that stop at the tolerance of their optimizer and, for a degenerate law, anywhere along a
-flat valley.
+`scripts/verify.py` runs four checks: the SHA-256 of the files listed in `measurement.json`; the vocabulary
+against its reference; the rule list and the source text of every point rebuilt from its seeds; the passport
+recomputed from the points against the published one. The composition of the passport is compared exactly
+(keys, list lengths, strings, integers, statuses). Floating-point numbers of the fits and the weights are
+compared within $10^{-6}$ relative, all the others within $10^{-3}$ relative; every number also has
+an absolute floor of $10^{-9}$. Reordering the summation of the same points moved the passport of the published
+measurement by at most $7.6 \cdot 10^{-9}$ relative in the first group and $9.5 \cdot 10^{-6}$ in the second, so
+the tolerances keep a margin of about 100 times and more. `verify` checks integrity and reproducibility only; it
+does not prove the method right.

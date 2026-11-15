@@ -1,48 +1,39 @@
-# infrastructure — cross-cutting mechanisms of the measurement core
+# infrastructure — the cross-cutting mechanisms of the measuring bench
 
-The package holds the mechanisms every working layer uses: one exception hierarchy, one
-logging setup and step telemetry. There is no measurement logic here.
+Every working layer uses these mechanisms: one exception hierarchy, one logging setup, the telemetry of working operations,
+the loading of YAML files, the assembly of observability from one configuration and the reliable writing of files. There is
+no measurement logic here.
 
 ## What is here
 
-- `exceptions/` — the exception hierarchy. `IECError` is the common root; subclasses
-  separate configuration, vocabulary, provider, validation and contract errors. Every error
-  carries a stable `error_code`.
-- `logging/` — standard library logging. `LogContext` renders a stable prefix with the
-  point identity (`m`, `seed_rules`, `seed_text`, `seed_order`, ...), `LogContextAdapter`
-  adds it to messages, `configure_package_logger()` idempotently sets up the handler of the
-  `iec` package.
-- `telemetry/` — `@telemetry_step` measures the duration of a working operation, logs its
-  success or failure and optionally sends an event to a sink. `TelemetryCollector` keeps
-  events in memory; `global_sink.py` is a process-wide sink that connects a file to the
-  decorators already in place without rebinding any of them.
+| Folder | Role |
+|---|---|
+| `exceptions/` | the root `IECError` and its subclasses, each with a machine-readable `error_code` |
+| `logging/` | loggers of the `iec` package with the context of a point in every record |
+| `telemetry/` | telemetry events, blocks of observation and their levels, sinks, the hub and the `@telemetry_step` decorator |
+| `configuration/` | loading of a YAML file into a Pydantic model or a plain mapping, with one rule for its errors |
+| `observability/` | the observability configuration, the registry of sink kinds and the builder of the hub |
+| `files/` | reliable writing of files: a whole file through a temporary file and a rename, a journal by whole appended lines |
 
-Key signatures:
+## Key signatures
 
 ```python
 IECError(message: str, *, error_code: str | None = None)
 IECError.from_cause(message: str, cause: BaseException, *, error_code: str | None = None)
-
-LogContext(module_name: str, ..., seed_order: int | None = None)
-LogContext.render() -> str
-get_logger(context: LogContext, *, level: int = logging.INFO) -> LogContextAdapter
-
-telemetry_step(operation: str, *, module_name: str | None = None,
-               context_extractor: ContextExtractor | None = None,
-               sink: TelemetrySink | None = None) -> Callable
-set_telemetry_sink(sink: TelemetrySink) -> None
-reset_telemetry_sink() -> None
+get_logger(context: LogContext) -> LogContextAdapter
+telemetry_step(operation: str, *, block: str, module_name=None, context_extractor=None,
+               provider_extractor=None)
+TelemetryHub(levels: ObservationLevels, sinks: Sequence[TelemetrySink] = ())
+load_yaml_model(path: Path, model: type[ModelT], *, error_code: str, description: str) -> ModelT
+load_yaml_mapping(path: Path, *, error_code: str, description: str) -> dict[str, Any]
+load_observability_config(path: Path) -> ObservabilityConfig
+build_observability(config, *, known_blocks=OPEN_PART_BLOCKS, registry=None) -> TelemetryHub
+write_text_atomically(path: Path, text: str) -> None
+append_line(path: Path, line: str) -> None
 ```
 
 ## Boundaries
 
-`from_cause()` builds an exception keeping the original one in `__cause__`; the caller
-decides when to raise it. Valid empty results are not exceptions.
-
-The logger factory writes no files: its only side effect is at most one stream handler of
-the package logger.
-
-The decorator never swallows exceptions: it records a `failure` event and re-raises the
-original exception. An explicit sink of a decorator takes precedence: when it is given, the
-global sink is not called, so an event is never written twice. The global sink is process
-state; its owner removes it in `finally`.
+The package keeps no process-wide state of its own: the telemetry hub is built once at the setup of a command and handed to
+the observed objects through their constructors. The standard library `logging` keeps its loggers per process; the package
+configures only its own logger `iec`. The package depends on no other package of `iec`: the layers depend on it.

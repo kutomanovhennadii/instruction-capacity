@@ -4,11 +4,17 @@ from __future__ import annotations
 
 import dataclasses
 import random
+from collections.abc import Iterable, Sequence
 
 from iec.contracts import PointConditions, RuleTable, SourceText, Vocab
 from iec.infrastructure.exceptions import ConfigError
 from iec.infrastructure.logging import LogContext, get_logger
-from iec.infrastructure.telemetry import TelemetryContext, telemetry_step
+from iec.infrastructure.telemetry import (
+    TASK_GENERATION,
+    TelemetryHub,
+    point_context,
+    telemetry_step,
+)
 from iec.model_client.tokenizer import Tokenizer
 
 _MODULE_NAME = "text_generator"
@@ -17,17 +23,23 @@ _MODULE_NAME = "text_generator"
 WORDS_PER_LINE = 10
 
 
-def _telemetry_context(
-    self: TextGenerator,
-    params: PointConditions,
-    rule_table: RuleTable,
-) -> TelemetryContext:
-    """Extract the point identity for the telemetry event of text generation."""
-    return TelemetryContext(
-        m=rule_table.m,
-        seed_rules=rule_table.seed_rules,
-        seed_text=params.seed_text,
-    )
+def replacement_positions(words: Sequence[str], sources: Iterable[str]) -> tuple[int, ...]:
+    """Return the indices of the words that the rules replace, in reading order.
+
+    A position is replaced when its word stands on the left side of a rule. The words to replace
+    and the replacements never intersect, and replacements never occur in the source text, so the
+    markup is unambiguous. The generator marks a new text by this rule, and the point executor
+    restores the markup of a published record by the same function.
+
+    Args:
+        words: The words of the source text in reading order.
+        sources: The left-hand words of the rules.
+
+    Returns:
+        The indices of the words to replace, ascending.
+    """
+    source_set = frozenset(sources)
+    return tuple(index for index, word in enumerate(words) if word in source_set)
 
 
 class TextGenerator:
@@ -44,20 +56,35 @@ class TextGenerator:
     do not occur in the stream at all - in a correct answer a replacement word appears only
     as the result of a rule. The tokenizer is needed solely to record the fact
     ``len_tokens``.
+
+    ``telemetry`` is the hub that records every generation in the block ``task_generation``
+    with the point key of the conditions.
     """
 
-    def __init__(self, vocab: Vocab, tokenizer: Tokenizer) -> None:
+    telemetry: TelemetryHub
+
+    def __init__(
+        self, vocab: Vocab, tokenizer: Tokenizer, *, telemetry: TelemetryHub | None = None
+    ) -> None:
         """Prepare the generator.
 
         Args:
             vocab: The vocabulary ``V`` - the source of the background words of the lexicon.
             tokenizer: The tokenizer for one measurement of ``len_tokens`` of the ready text.
+            telemetry: Hub that records every generation in the block ``task_generation``;
+                without it the generator gets a hub of its own that writes the log line only.
         """
         self._vocab = vocab
         self._tokenizer = tokenizer
+        self.telemetry = telemetry if telemetry is not None else TelemetryHub.log_only()
         self._logger = get_logger(LogContext(module_name=_MODULE_NAME))
 
-    @telemetry_step("text_generate", module_name=_MODULE_NAME, context_extractor=_telemetry_context)
+    @telemetry_step(
+        "text_generate",
+        block=TASK_GENERATION,
+        module_name=_MODULE_NAME,
+        context_extractor=point_context,
+    )
     def generate(self, params: PointConditions, rule_table: RuleTable) -> SourceText:
         """Build the word stream from the seed ``params.seed_text``.
 
@@ -96,12 +123,10 @@ class TextGenerator:
             f"{params.v} words total"
         )
 
-        source_set = frozenset(rule_table.sources)
-        positions = tuple(index for index, word in enumerate(stream) if word in source_set)
         draft = SourceText(
             words=tuple(stream),
             words_per_line=WORDS_PER_LINE,
-            replacement_positions=positions,
+            replacement_positions=replacement_positions(stream, rule_table.sources),
             len_tokens=0,
             tokenizer_name=self._tokenizer.name,
             seed_text=params.seed_text,

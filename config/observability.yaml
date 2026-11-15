@@ -1,0 +1,25 @@
+# Observability of the IEC commands: the package log and the telemetry of working operations.
+# Read by iec.infrastructure.observability.load_observability_config.
+format_version: 1
+
+logging:
+  level: info        # debug, info, warning or error
+  file: null         # a path appends the log to this file besides the console
+
+# Level of every block of observation: debug, info, warning, error or off. A successful call
+# has the severity info and a failed one error; an event passes when its severity is not below
+# the level of its block, and at off the operation is not even timed. A block that is not
+# listed takes default_level.
+default_level: info
+blocks:
+  model_call: info
+  task_generation: info
+  vocab_build: info
+  point_execution: info
+  fit: info
+  passport_build: info
+
+# Where telemetry events go besides the log. Kinds: jsonl (options: path), console (options:
+# stream, stdout or stderr) and opentelemetry (options: tracer_name; needs the optional
+# dependency: pip install "iec[opentelemetry]").
+sinks: []

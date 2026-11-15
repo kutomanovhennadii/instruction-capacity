@@ -3,19 +3,19 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
-import yaml
-from pydantic import BaseModel, ConfigDict, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
-from iec.infrastructure.exceptions import ConfigError
+from iec.infrastructure.configuration import load_yaml_model
 
 
 class TokenizerSpec(BaseModel):
     """Specification of one tokenizer for the single-token check.
 
-    ``provider`` is the factory key (``"tiktoken"`` | ``"hf"``); ``name`` is the model
-    name or path by which the tokenizer is loaded (``"gpt-4o"``, ``"Qwen/Qwen2.5-0.5B"`` and
-    the like).
+    ``provider`` is the key of the tokenizer registry of ``iec.model_client`` (``"tiktoken"`` |
+    ``"hf"`` | ``"hfjson"`` | ``"gemini_count"``); ``name`` is the model name or path by which
+    the tokenizer is loaded (``"gpt-4o"``, ``"Qwen/Qwen2.5-0.5B"`` and the like).
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -29,11 +29,13 @@ class VocabBuildConfig(BaseModel):
 
     Loaded from YAML by :func:`load_vocab_config`; all filtering parameters live here, not
     in the code. ``tokenizer_specs`` sets the tokenizer set over which the intersection of
-    single-token sets is taken.
+    single-token sets is taken. ``format_version`` is the version of the file format
+    (specification §5): version 1 is the only one, and a file without the field is of version 1.
     """
 
     model_config = ConfigDict(extra="forbid")
 
+    format_version: Literal[1] = 1
     vocab_id: str
     source: str = "cmudict"
     max_syllables: int = 1
@@ -70,29 +72,6 @@ def load_vocab_config(path: Path) -> VocabBuildConfig:
         ConfigError: the file is not found, the YAML is invalid or the schema is violated
             (``error_code="VOCAB_CONFIG_INVALID"``); the original cause is kept.
     """
-    try:
-        raw_text = path.read_text(encoding="utf-8")
-    except OSError as cause:
-        raise ConfigError.from_cause(
-            f"vocab config not found or unreadable: '{path}'",
-            cause,
-            error_code="VOCAB_CONFIG_INVALID",
-        ) from cause
-
-    try:
-        raw_data = yaml.safe_load(raw_text)
-    except yaml.YAMLError as cause:
-        raise ConfigError.from_cause(
-            f"vocab config is not valid YAML: '{path}'",
-            cause,
-            error_code="VOCAB_CONFIG_INVALID",
-        ) from cause
-
-    try:
-        return VocabBuildConfig.model_validate(raw_data)
-    except ValidationError as cause:
-        raise ConfigError.from_cause(
-            f"vocab config does not satisfy the schema: '{path}'",
-            cause,
-            error_code="VOCAB_CONFIG_INVALID",
-        ) from cause
+    return load_yaml_model(
+        path, VocabBuildConfig, error_code="VOCAB_CONFIG_INVALID", description="vocab config"
+    )

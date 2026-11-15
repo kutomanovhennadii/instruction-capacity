@@ -24,32 +24,23 @@ nor the NLTK corpora, nor tokenizers.
 
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any
 
-import yaml
-
 from iec.contracts import Vocab
-from iec.infrastructure.exceptions import ConfigError, VocabError
+from iec.infrastructure.exceptions import VocabError
 from iec.infrastructure.logging import LogContext, get_logger
+from iec.vocab.version_reference import (
+    PROVENANCE_LIBRARIES,
+    installed_python,
+    load_reference,
+    reference_file,
+)
 from iec.vocab.vocab_store import VocabStore
 
 _MODULE_NAME = "vocab_verifier"
-
-REFERENCE_SUFFIX = ".reference.yaml"
-
-# Reference key -> distribution name for importlib.metadata. Python is checked separately.
-_CHECKED_PACKAGES = {
-    "nltk": "nltk",
-    "tiktoken": "tiktoken",
-    "transformers": "transformers",
-    "tokenizers": "tokenizers",
-}
-
-_logger = get_logger(LogContext(module_name=_MODULE_NAME))
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,39 +61,6 @@ class VerificationResult:
     def is_valid(self) -> bool:
         """Return whether the artifact matches the reference (version drift is not counted)."""
         return not self.mismatches
-
-
-def _load_reference(path: Path) -> dict[str, Any]:
-    """Load the reference of the vocabulary version.
-
-    Raises:
-        ConfigError: the file is missing, unreadable or not a YAML mapping
-            (``error_code="VOCAB_REFERENCE_INVALID"``).
-    """
-    try:
-        raw_text = path.read_text(encoding="utf-8")
-    except OSError as cause:
-        raise ConfigError.from_cause(
-            f"vocab reference not found or unreadable: '{path}'",
-            cause,
-            error_code="VOCAB_REFERENCE_INVALID",
-        ) from cause
-
-    try:
-        data = yaml.safe_load(raw_text)
-    except yaml.YAMLError as cause:
-        raise ConfigError.from_cause(
-            f"vocab reference is not valid YAML: '{path}'",
-            cause,
-            error_code="VOCAB_REFERENCE_INVALID",
-        ) from cause
-
-    if not isinstance(data, dict):
-        raise ConfigError(
-            f"vocab reference must be a mapping: '{path}'",
-            error_code="VOCAB_REFERENCE_INVALID",
-        )
-    return data
 
 
 def _compare_with_reference(vocab: Vocab, reference: dict[str, Any]) -> list[str]:
@@ -149,21 +107,21 @@ def _compare_provenance(reference: dict[str, Any]) -> list[str]:
     problems: list[str] = []
 
     expected_python = provenance.get("python")
-    actual_python = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    actual_python = installed_python()
     if expected_python is not None and str(expected_python) != actual_python:
         problems.append(f"python: installed {actual_python} != reference {expected_python}")
 
-    for key, distribution in _CHECKED_PACKAGES.items():
-        expected = provenance.get(key)
+    for name in PROVENANCE_LIBRARIES:
+        expected = provenance.get(name)
         if expected is None:
             continue
         try:
-            actual = version(distribution)
+            actual = version(name)
         except PackageNotFoundError:
-            problems.append(f"{key}: not installed (reference {expected})")
+            problems.append(f"{name}: not installed (reference {expected})")
             continue
         if actual != str(expected):
-            problems.append(f"{key}: installed {actual} != reference {expected}")
+            problems.append(f"{name}: installed {actual} != reference {expected}")
 
     return problems
 
@@ -184,10 +142,11 @@ class VocabVerifier:
         """
         self._base_dir = base_dir
         self._store = VocabStore(base_dir)
+        self._logger = get_logger(LogContext(module_name=_MODULE_NAME))
 
     def reference_path(self, vocab_id: str) -> Path:
         """Return the path to the version reference by the vocabulary identifier."""
-        return self._base_dir / f"{vocab_id}{REFERENCE_SUFFIX}"
+        return reference_file(self._base_dir, vocab_id)
 
     def verify(self, vocab_id: str, *, check_provenance: bool = True) -> VerificationResult:
         """Verify the vocabulary and return a detailed result.
@@ -202,23 +161,25 @@ class VocabVerifier:
             :meth:`require_valid`).
 
         Raises:
-            ConfigError: the reference is missing or invalid.
-            VocabError: the vocabulary is not found, damaged or failed the integrity check.
+            ConfigError: the reference is missing or invalid, or of a newer format than this
+                code reads.
+            VocabError: the vocabulary is not found, damaged, of a newer format or failed the
+                integrity check.
         """
-        reference = _load_reference(self.reference_path(vocab_id))
+        reference = load_reference(self.reference_path(vocab_id))
         vocab = self._store.load(vocab_id)  # level 1: integrity by the hash
 
         mismatches = _compare_with_reference(vocab, reference)
         drift = _compare_provenance(reference) if check_provenance else []
 
         if mismatches:
-            _logger.error(
+            self._logger.error(
                 f"vocab '{vocab_id}' does not match its reference: {len(mismatches)} mismatch(es)"
             )
         else:
-            _logger.info(f"vocab '{vocab_id}' matches its reference (hash {vocab.hash})")
+            self._logger.info(f"vocab '{vocab_id}' matches its reference (hash {vocab.hash})")
         if drift:
-            _logger.warning(
+            self._logger.warning(
                 f"library versions differ from the reference for '{vocab_id}': "
                 f"{len(drift)} item(s); artifact is still valid"
             )

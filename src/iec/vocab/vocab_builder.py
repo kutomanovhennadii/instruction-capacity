@@ -7,7 +7,7 @@ from collections.abc import Callable, Sequence
 from iec.contracts import Vocab
 from iec.infrastructure.exceptions import VocabError
 from iec.infrastructure.logging import LogContext, get_logger
-from iec.infrastructure.telemetry import telemetry_step
+from iec.infrastructure.telemetry import VOCAB_BUILD, TelemetryHub, telemetry_step
 from iec.model_client.tokenizer import Tokenizer
 from iec.vocab.vocab_config import VocabBuildConfig
 from iec.vocab.word_source import load_noun_monosyllables
@@ -38,7 +38,11 @@ class VocabBuilder:
     in ``Vocab`` the word is stored without the space. The substitution is made by the
     builder, not by the tokenizer: the probe form is knowledge of the experiment protocol,
     not a provider detail.
+
+    ``telemetry`` is the hub that records every build in the block ``vocab_build``.
     """
+
+    telemetry: TelemetryHub
 
     def __init__(
         self,
@@ -46,6 +50,7 @@ class VocabBuilder:
         tokenizers: Sequence[Tokenizer],
         *,
         word_source: WordSource | None = None,
+        telemetry: TelemetryHub | None = None,
     ) -> None:
         """Check the dependencies and prepare the builder.
 
@@ -54,6 +59,8 @@ class VocabBuilder:
             tokenizers: Tokenizers over which the intersection of single-token sets is taken.
             word_source: Source of the initial word set; by default the NLTK corpus
                 (CMU Pronouncing Dictionary + WordNet). Passed explicitly in tests.
+            telemetry: Hub that records the build in the block ``vocab_build``; without it the
+                builder gets a hub of its own that writes the log line only.
 
         Raises:
             VocabError: the tokenizer list is empty - the intersection is undefined.
@@ -68,9 +75,10 @@ class VocabBuilder:
         self._word_source: WordSource = (
             word_source if word_source is not None else load_noun_monosyllables
         )
+        self.telemetry = telemetry if telemetry is not None else TelemetryHub.log_only()
         self._logger = get_logger(LogContext(module_name=_MODULE_NAME))
 
-    @telemetry_step("vocab_build", module_name=_MODULE_NAME)
+    @telemetry_step("vocab_build", block=VOCAB_BUILD, module_name=_MODULE_NAME)
     def build(self) -> Vocab:
         """Build the vocabulary as the intersection of single-token sets.
 

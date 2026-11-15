@@ -3,27 +3,33 @@
 Usage (from the repository of the public part, with the package installed):
 
     python scripts/verify.py artefacts/<measurement>
-    python scripts/verify.py artefacts/<measurement> --vocab-dir assets/vocab
+    python scripts/verify.py artefacts/<measurement> --vocab-dir assets/vocab --laws config/passport_laws.yaml --workers 8
 
 Four checks: the SHA-256 of the files listed in ``measurement.json``; the vocabulary against
 its reference version; the rule list and the source text of every point rebuilt from its
 seeds; the passport recomputed from the points against ``passport_data.json`` (the composition
-exactly, the numbers within the tolerance of computation). Exit code: 0 - all four passed;
-1 - a check failed or an error occurred.
+exactly, the numbers within the tolerance of computation), with the forms of the laws from
+``--laws``, in a pool of ``--workers`` processes (by default one per processor; 1 - without a
+pool). Exit code: 0 - all four passed; 1 - a check failed or an error occurred.
 """
 
 from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 from iec.infrastructure.exceptions import IECError
+from iec.passport.laws.forms.law_assignment import build_law_assignment, load_law_assignment_config
+from iec.passport.passport_data import calculation_pool
 from iec.passport.verify import VerificationReport, verify_measurement
 
 DEFAULT_VOCAB_DIR = Path(__file__).resolve().parents[1] / "assets" / "vocab"
+DEFAULT_LAWS = Path(__file__).resolve().parents[1] / "config" / "passport_laws.yaml"
+DEFAULT_WORKERS = os.cpu_count() or 1
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -35,6 +41,18 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         type=Path,
         default=DEFAULT_VOCAB_DIR,
         help=f"folder of vocabularies and their references (default {DEFAULT_VOCAB_DIR})",
+    )
+    parser.add_argument(
+        "--laws",
+        type=Path,
+        default=DEFAULT_LAWS,
+        help=f"the assignment of the forms of the laws (default {DEFAULT_LAWS})",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=DEFAULT_WORKERS,
+        help=f"worker processes of the recomputation, 1 - without a pool (default {DEFAULT_WORKERS})",
     )
     return parser.parse_args(argv)
 
@@ -55,7 +73,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     # The validator writes one INFO line per point; the report below says what matters.
     logging.disable(logging.INFO)
     try:
-        report = verify_measurement(args.measurement_dir.resolve(), args.vocab_dir.resolve())
+        assignment = build_law_assignment(load_law_assignment_config(args.laws.resolve()))
+        with calculation_pool(args.workers) as executor:
+            report = verify_measurement(
+                args.measurement_dir.resolve(), args.vocab_dir.resolve(), assignment, executor=executor
+            )
     except IECError as error:
         print(f"verification failed [{error.error_code}]: {error.message}", file=sys.stderr)
         return 1

@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from iec.contracts import Prompt, RuleTable, SourceText
 
-_MODULE_NAME = "prompt_builder"
-
 # The prompt template is a code constant, not a config: the wording of the task is part of
 # the measurement protocol, the instrument has one mode of operation. Changing the wording
 # is a new protocol version, not a turn of a knob. The draft was finalized after the pilot

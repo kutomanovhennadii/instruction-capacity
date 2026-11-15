@@ -1,0 +1,12 @@
+# Vocabulary of gemini-3.5-flash-lite: its tokenizer is not published, so single tokens are read
+# from the count of the model (countTokens, a difference of two counts, needs GEMINI_API_KEY).
+# Run: python scripts/build_vocab.py --config config/vocab/v1_gemini35fl.yaml --assets-dir my_vocab
+
+vocab_id: "v1_gemini35fl"
+source: "cmudict"
+max_syllables: 1
+ascii_lower_only: true
+
+tokenizer_specs:
+  - provider: gemini_count
+    name: gemini-3.5-flash-lite

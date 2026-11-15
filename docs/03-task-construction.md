@@ -53,11 +53,12 @@ exactly `n` times and the stream is shuffled by the same `rng`. All words, those
 the background, therefore have exactly equal frequencies, and no word stands out by the
 statistics of the stream. The stream is cut into lines of ten words (the last line may be
 shorter); there is no punctuation. The lines are part of the measurement: the validator uses
-them to resynchronize the answer with the reference ([answer validation](04-answer-validation.md)).
+them as the anchors of the alignment of the answer with the reference
+([answer validation](04-answer-validation.md)).
 
 ## The prompt
 
-The template is a constant of the protocol, version `0.1`. The rules go one per line as
+The template is a constant of the protocol: versions `0.1` and `0.2` share it. The rules go one per line as
 `source -> target` in the order of the table; the text goes as built:
 
 ```text
@@ -91,10 +92,13 @@ reserve or the response ceiling. Otherwise the model is called.
 
 | Status | Meaning |
 |---|---|
-| `ok` | the model answered; an empty answer and silence until the time limit of the call are answers too, and the validator reads them as a collapse from the first line |
+| `ok` | the model answered with at least one word |
 | `na` | the task does not fit the limits of the model; the model was not called |
-| `api_error` | the provider did not answer; the point is not measured |
+| `api_error` | the provider did not answer, the model stayed silent until the doubled time limit, or it answered twice without a word; the point is not measured |
 
 The model is called through a reliability layer: repeated attempts on transient failures, an
-overall time limit of the call, a circuit breaker. A technical failure becomes the status
-`api_error`, never a trial of the model.
+overall time limit of the call (300 s; a call that does not fit is retried once with 600 s), a
+circuit breaker. An answer without a word is asked once more. A technical failure becomes the
+status `api_error` with the code of its reason (`PROVIDER_TIMEOUT`, `EMPTY_ANSWER` or a code of
+the provider), never a trial of the model. The records of the measurements bought before this rule
+keep their empty answers as `ok`; the passport skips them.

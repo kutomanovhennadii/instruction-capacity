@@ -1,7 +1,12 @@
-# The test runner, pinned to the version the test suite was run with:
+# The test runner and the reference library of the logit fit tests, pinned to the versions the
+# test suite was run with:
 #     pip install -r requirements-test.txt
 #     python -m pytest
 iniconfig==2.3.1
+pandas==3.0.5
+patsy==1.0.2
 pluggy==1.6.0
 Pygments==2.21.0
 pytest==9.1.1
+statsmodels==0.14.6
+tzdata==2026.3

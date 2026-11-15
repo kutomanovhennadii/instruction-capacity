@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from iec.answer_validator import build_reference
+from iec.answer_validator import build_reference, rebuild_reference
 from iec.contracts import Rule, RuleTable, SourceText
 from iec.infrastructure.exceptions import ContractViolationError
 
@@ -35,6 +35,12 @@ def test_targets_replace_sources_and_background_is_untouched() -> None:
     reference = build_reference(table, text)
 
     assert reference.words == ("cat", "rock", "dog", "lake", "cat", "rock")
+
+
+def test_a_rebuilt_reference_equals_the_built_one() -> None:
+    table, text = _handmade()
+
+    assert rebuild_reference(table, text) == build_reference(table, text)
 
 
 def test_reference_is_deterministic() -> None:

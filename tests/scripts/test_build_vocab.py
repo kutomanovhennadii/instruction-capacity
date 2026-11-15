@@ -1,17 +1,20 @@
-"""The build command: tokenizer registry and the version guard; no corpora, no network."""
+"""The build command: tokenizers through the registry and the published configs; no network."""
 
 import importlib.util
 from pathlib import Path
 from types import ModuleType
 
 import pytest
+import yaml
 
-from iec.contracts import Vocab
-from iec.infrastructure.exceptions import ConfigError, VocabError
-from iec.vocab import TokenizerSpec, VocabStore
+from iec.infrastructure.exceptions import ConfigError
+from iec.model_client import MockTokenizer, TokenizerBuilder, build_default_tokenizer_builder
+from iec.vocab import TokenizerSpec, VocabVerifier, load_vocab_config
 
-_SCRIPT = Path(__file__).resolve().parents[2] / "scripts" / "build_vocab.py"
-_WORDS = frozenset({"lake", "stone"})
+_ROOT = Path(__file__).resolve().parents[2]
+_SCRIPT = _ROOT / "scripts" / "build_vocab.py"
+_ASSETS = _ROOT / "assets" / "vocab"
+_CONFIGS = (_ROOT / "config" / "vocab.yaml", *sorted((_ROOT / "config" / "vocab").glob("*.yaml")))
 
 
 def _module() -> ModuleType:
@@ -22,50 +25,47 @@ def _module() -> ModuleType:
     return module
 
 
-def _vocab(words: frozenset[str]) -> Vocab:
-    return Vocab(
-        vocab_id="v_test",
-        words=words,
-        hash=Vocab.compute_hash(words),
-        tokenizer_names=("mock",),
-        source="test",
-        build_params={},
-    )
-
-
-def test_new_version_is_saved(tmp_path: Path) -> None:
-    store = VocabStore(tmp_path)
-
-    path = _module().save_new_version(store, _vocab(_WORDS))
-
-    assert path.is_file()
-    assert store.load("v_test").words == _WORDS
-
-
-def test_same_vocabulary_may_be_saved_again(tmp_path: Path) -> None:
-    module = _module()
-    store = VocabStore(tmp_path)
-
-    module.save_new_version(store, _vocab(_WORDS))
-    module.save_new_version(store, _vocab(_WORDS))
-
-    assert store.load("v_test").words == _WORDS
-
-
-def test_changed_vocabulary_under_the_same_id_is_refused(tmp_path: Path) -> None:
-    module = _module()
-    store = VocabStore(tmp_path)
-    module.save_new_version(store, _vocab(_WORDS))
-
-    with pytest.raises(VocabError) as excinfo:
-        module.save_new_version(store, _vocab(frozenset({"lake"})))
-
-    assert excinfo.value.error_code == "VOCAB_VERSION_CONFLICT"
-    assert store.load("v_test").words == _WORDS
-
-
 def test_unknown_tokenizer_provider_is_a_config_error() -> None:
     with pytest.raises(ConfigError) as excinfo:
         _module().build_tokenizers([TokenizerSpec(provider="claude", name="claude-x")])
 
     assert excinfo.value.error_code == "UNKNOWN_TOKENIZER_PROVIDER"
+
+
+def test_the_count_of_a_gemini_model_needs_its_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+
+    with pytest.raises(ConfigError) as excinfo:
+        _module().build_tokenizers([TokenizerSpec(provider="gemini_count", name="m")])
+
+    assert excinfo.value.error_code == "GEMINI_API_KEY_MISSING"
+
+
+def test_tokenizers_are_built_by_the_registry_in_the_order_of_the_config() -> None:
+    builder = TokenizerBuilder(factories={"mock": lambda name: MockTokenizer(name=f"mock/{name}")})
+    specs = [TokenizerSpec(provider="mock", name="b"), TokenizerSpec(provider="mock", name="a")]
+
+    tokenizers = _module().build_tokenizers(specs, builder)
+
+    assert [tokenizer.name for tokenizer in tokenizers] == ["mock/b", "mock/a"]
+
+
+@pytest.mark.parametrize("config", _CONFIGS, ids=lambda path: path.stem)
+def test_a_published_config_names_the_tokenizers_of_its_reference(config: Path) -> None:
+    parsed = load_vocab_config(config)
+    reference = yaml.safe_load(
+        (_ASSETS / f"{parsed.vocab_id}.reference.yaml").read_text(encoding="utf-8")
+    )
+
+    names = [f"{spec.provider}/{spec.name}" for spec in parsed.tokenizer_specs]
+    known = build_default_tokenizer_builder().known_providers()
+
+    assert names == reference["tokenizer_names"]
+    assert all(spec.provider in known for spec in parsed.tokenizer_specs)
+
+
+@pytest.mark.parametrize("config", _CONFIGS, ids=lambda path: path.stem)
+def test_a_published_vocabulary_matches_its_reference(config: Path) -> None:
+    vocab_id = load_vocab_config(config).vocab_id
+
+    assert VocabVerifier(_ASSETS).verify(vocab_id, check_provenance=False).is_valid

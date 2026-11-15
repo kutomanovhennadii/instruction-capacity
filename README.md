@@ -1,15 +1,22 @@
 # IEC — instruction capacity of language models
 
-IEC measures how many independent instructions a language model holds and executes at once.
-The instruction is the simplest one a program can check: *replace word A with word B*. A task
-gives the model a list of such rules and a text made of words from a fixed vocabulary; the
-model rewrites the text. Every occurrence of a word that a rule replaces is one Bernoulli
-trial: 1 if the model wrote the right replacement, 0 otherwise. A statistical model fitted to
-many trials gives the **passport** of the model under measurement: how many rules it holds
-above a quality level (the IEC), how fast its accuracy falls along a long answer, and what a
-longer text, a denser table of replacements and a longer list of rules cost.
+IEC studies the behavior and degradation of a language model under controlled load. The load
+is set by the simplest independent instructions a program can check: *replace word A with
+word B*. A task gives the model a list of such rules and a text without meaning, made of words
+from a fixed vocabulary; the model rewrites the text. Each kind of load is set separately: the
+text length, the word position in the answer, the replacement density (the share of words in
+the text that must be replaced), the number of rules and the position of a rule in the list.
+The answer is aligned with the reference by places, and three quantities are counted on them:
+`P_sync`, the answer word stands against its reference word; `H`, a rule word on its place is
+replaced correctly; `F`, a background word on its place gets the replacement of a rule. Every
+place is a Bernoulli trial. From many trials a statistical model recovers the laws by which each
+quantity depends on each kind of load. The laws and the parameters derived from them with
+uncertainties — the instruction capacity (the IEC), the fatigue capacity and the measure of the
+density, how many times the full density multiplies the odds of an error — form the **passport**
+of the model under measurement, together with the way the spread of difficulty between requests
+depends on the load.
 
-This repository is the public part of the instrument, version 0.1.0. With it you can
+This repository is the public part of the instrument, version 0.2.0. With it you can
 
 - recompute the passports of the published measurements from their points and check that the
   published files are intact and reproducible;
@@ -23,6 +30,54 @@ neither its design nor its rules for choosing points are published. A passport d
 on it: it is computed from the published points alone, whoever chose them, so every number of a
 published passport can be checked without the closed part.
 
+## Version 0.2.0
+
+This is the second version of the instrument. The first, 0.1.0, is the version the article
+describes; the tag `v0.1.0` of this repository holds it and reproduces the numbers of the article.
+Version 0.2.0 keeps the task: the prompt, the text, the vocabulary `v1_intersection` and the format
+of the point records are those of 0.1.0, and the protocol version is `0.2`. It changes how an answer
+is read and what the passport describes:
+
+- **Reading of an answer.** Version 0.1.0 matched an answer with the reference line by line; 0.2.0
+  aligns it by places, so skipped pieces of text, returns, repeats, glued and split lines are seen
+  and counted in words ([answer validation](docs/04-answer-validation.md)).
+- **Quantities.** Version 0.1.0 counted one outcome, a right replacement on a rule word; 0.2.0
+  counts three, `P_sync`, `H` and `F`, which combine as `P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`.
+- **Models and laws.** Every quantity has its own model, laws, level and capacities
+  ([passport model](docs/05-passport-model.md), [empirical laws](docs/07-empirical-laws.md)). The
+  loss of the place in the text is `P_sync`, so the laws of the collapse of the answer are gone.
+- **Spread of request difficulty.** Version 0.1.0 had one variance of the shift of a request. In
+  0.2.0 the model is a GLMM with heterogeneous random-intercept variance: the variance depends on
+  the load of the request, its text length, density and number of rules, and its groups are a part
+  of the passport.
+- **Capacities.** The measure of the density, `e^(−P̂(1))`, replaces the guaranteed capacities. All
+  three quantities have the instruction and the fatigue capacities and the measure of the density.
+  All capacities are taken at the level 0.5, where they do not depend on the spread of request
+  difficulty.
+- **One standard of the passport.** Every law goes through every bin with a coefficient; a bin
+  leaves a law only as an outlier beyond three standard deviations of the residuals (the procedure
+  of astropy). Every block has its established form, and an alternative replaces it only when it is
+  better by more than 10 of `QAIC = χ²/ĉ + 2k`. A call that does not fit the time limit is retried
+  once with twice the limit, an answer without a word once; a second failure is `api_error` with the
+  code of its reason.
+- **Measurements, vocabularies, commands.** The published measurement of GPT-4o mini is new and
+  contains the points of the measurement of 0.1.0; the measurements of Gemini 3.5 Flash Lite,
+  Gemini 3.1 Flash Lite, Nemotron 3.5 Lightning and Nemotron 3 Nano Omni 30B A3B Reasoning are
+  published with it. Three more vocabularies are published with their build configs and
+  tokenizers. `build_passport.py` and `verify.py` work with the new `passport_data.json`.
+
+The numbers of a 0.2.0 passport are not those of the article: the answer is read differently and
+the quantities are others. The full list of changes is in the [CHANGELOG](CHANGELOG.md).
+
+## Article
+
+H. Kutomanov. *Instruction Capacity: Behavior and Degradation of Language Models under
+Controlled Load.* arXiv:2610.36095, 2026. [arXiv page](https://arxiv.org/abs/2610.36095) ·
+[PDF](articles/instruction-capacity.pdf)
+
+The article describes version 0.1.0 of the instrument; the tag `v0.1.0` of this repository
+reproduces its numbers, and [Version 0.2.0](#version-020) above says what this version changes.
+
 ## Quick start: recompute a published passport
 
 Python 3.11 or newer.
@@ -33,36 +88,43 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt    # the exact library versions the passports were checked with
 pip install --no-deps .
 
-python scripts/build_passport.py artefacts/pilot_gpt4o_mini_v34 --out-dir my_passport
-python scripts/verify.py artefacts/pilot_gpt4o_mini_v34
+python scripts/build_passport.py artefacts/pilot_gpt4o_mini_v55 --out-dir my_passport
+python scripts/verify.py artefacts/pilot_gpt4o_mini_v55
 ```
 
 `requirements.txt` pins every library to the version in which the published passports were
 recomputed; `pyproject.toml` gives the ranges the code is written against. With other versions
 the recomputation may differ in the last digits, which is what the tolerance of `verify` is for.
 
-`build_passport.py` reads the published points (`points.jsonl.gz`) and the description of the
-measurement (`measurement.json`), writes `passport_data.json`, `passport.md`, ten figures of
-the model and ten figures of the collapse of the answer (its rate and its place) into
-`my_passport/` and prints the IEC it computed. The numbers equal the published
-`artefacts/pilot_gpt4o_mini_v34/passport_data.json` up to the rounding of floating-point
-arithmetic. `verify.py` runs four checks and prints `RESULT: PASSED`: the SHA-256 of the files
-listed in `measurement.json`; the vocabulary against its reference; the rule list and the
-source text of every point rebuilt from its seeds; the passport recomputed from the points
-against the published one, within the
-[tolerance of computation](docs/05-passport-model.md#9-verification). The model is not called;
-a recomputation takes a few minutes.
+`poetry.lock` holds the same versions for Poetry: `poetry install --with test` builds the same
+environment and installs the package.
+
+`build_passport.py` reads the published points (`points.jsonl.gz`, or its numbered parts
+`points-001.jsonl.gz`, `points-002.jsonl.gz` and so on when one file would exceed the 100 MiB limit of a
+file on GitHub) and the description of the
+measurement (`measurement.json`), aligns every answer, writes `passport_data.json`, `passport.md`
+and the figures of the three quantities into `my_passport/` and prints the capacities it computed.
+The numbers equal the published `artefacts/pilot_gpt4o_mini_v55/passport_data.json` up to the rounding of
+floating-point arithmetic. `verify.py` runs four checks and prints `RESULT: PASSED`: the SHA-256 of
+the files listed in `measurement.json`; the vocabulary against its reference; the rule list and the
+source text of every point rebuilt from its seeds; the passport recomputed from the points against
+the published one, within the [tolerance of computation](docs/05-passport-model.md#9-verification).
+The model is not called; a recomputation takes a few minutes and runs a process per processor,
+which `--workers` changes; the result is the same with any number of processes.
 
 ## Published measurements
 
-| Measurement | Model | Points | Bernoulli trials | IEC at q = 0.95, rules: binned · by law |
+| Measurement | Model | Points | Trials of `P_sync` · `H` · `F` | Instruction capacity of `H` at q = 0.5, rules: by law · binned |
 |---|---|---|---|---|
-| [`pilot_gpt4o_mini_v34`](artefacts/pilot_gpt4o_mini_v34/passport.md) | `gpt-4o-mini-2024-07-18` | 2958 | 642430 | 36.58 ± 5.41 · 38.06 ± 6.13 |
+| [`pilot_gpt4o_mini_v55`](artefacts/pilot_gpt4o_mini_v55/passport.md) | `gpt-4o-mini-2024-07-18` | 5,172 | 22,598,814 · 1,155,179 · 10,213,582 | 32.3 (29.1–36.0) · 30.7 |
+| [`pilot_gemini3_5_flash_lite_v58`](artefacts/pilot_gemini3_5_flash_lite_v58/passport.md) | `gemini-3.5-flash-lite` | 3,788 | 48,842,597 · 7,817,448 · 24,081,763 | 22.4 (20.5–24.4) · 20.8 |
+| [`pilot_gemini3_1_flash_lite_v57`](artefacts/pilot_gemini3_1_flash_lite_v57/passport.md) | `gemini-3.1-flash-lite` | 5,336 | 112,208,407 · 4,318,887 · 25,706,292 | 27.3 (24.0–31.0) · 22.1 |
+| [`pilot_nemotron3_5_lightning_v43`](artefacts/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 48,574,151 · 590,039 · 8,872,340 | 8.0 (6.7–9.7) · 3.3 |
+| [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](artefacts/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 43,142,085 · 829,043 · 7,689,136 | 24.2 (20.2–28.9) · 23.9 |
 
-Intervals are ±1.96 standard errors. The measurement is the evidence base of the
-[empirical laws](docs/07-empirical-laws.md). Its directory holds the points, the description,
-the passport (`passport_data.json`, `passport.md`, `figures/`) and `passport.pdf` — the same
-passport as a PDF.
+Intervals are 95%. The measurement of `gpt-4o-mini-2024-07-18` is the evidence base of the
+[empirical laws](docs/07-empirical-laws.md). The directory of every measurement holds the points, the description,
+the passport (`passport_data.json`, `passport.md`, `figures/`) and `passport.pdf` — the same passport as a PDF.
 
 ## Measure your own model
 
@@ -78,15 +140,14 @@ python scripts/measure_point.py --model gpt-4o-mini-2024-07-18 --tokenizer gpt-4
 ```
 
 The command builds the task, checks the limits of the model before the call, calls the model,
-validates the answer and appends the record of the point to `my_points.jsonl`. A dry run of the
-whole chain without a network or a key: `--provider mock --model echo --max-tokens 4096` (the
-mock model echoes the prompt back, so its record is not a measurement).
+appends the record of the point to `my_points.jsonl` and prints the counts of the alignment of its
+answer. A dry run of the whole chain without a network or a key: `--provider mock --model echo
+--max-tokens 4096` (the mock model echoes the prompt back, so its record is not a measurement).
 
 To compute the passport of your model:
 
-1. choose the points: the passport fits a free coefficient per cell of its grid, and a cell of
-   the purchase cube counts only with at least three executed points at its upper corner
-   ([passport model](docs/05-passport-model.md));
+1. choose the points: a model fits a free coefficient per cell of its grid and per bin of its axes,
+   and the bins and weights come from the points you give ([passport model](docs/05-passport-model.md));
 2. measure them, one record per point;
 3. make a measurement directory with the records compressed by gzip as `points.jsonl.gz` and a
    `measurement.json` ([data format](docs/06-data-format.md));
@@ -99,13 +160,18 @@ in the provider registry ([`src/iec/model_client/`](src/iec/model_client/README.
 
 `assets/vocab/v1_intersection.json` holds 2220 English words, each a single token for the
 tokenizers of gpt-4o, gpt-4o-mini, gpt-3.5-turbo and Qwen2.5 ([vocabulary](docs/02-vocabulary.md)).
+Three more vocabularies are built by the same pipeline for other families of models:
+`v1_nemotron`, `v1_gemma4` and `v1_gemini35fl`.
 
 ```bash
 python scripts/verify_vocab.py                         # the file matches its reference
 python scripts/build_vocab.py --assets-dir my_vocab    # rebuild it from the corpora
+python scripts/build_vocab.py --config config/vocab/v1_nemotron.yaml --assets-dir my_vocab
 ```
 
-The rebuild downloads the NLTK corpora and the files of the Qwen tokenizer on first use.
+A rebuild prints the hash of the vocabulary: it must equal the hash in
+`assets/vocab/<vocab_id>.reference.yaml`. The rebuild downloads the NLTK corpora and the tokenizer
+files on first use. A vocabulary read from the count of a Gemini model needs `GEMINI_API_KEY`.
 
 ## Documentation
 
@@ -121,28 +187,44 @@ The rebuild downloads the NLTK corpora and the files of the Qwen tokenizer on fi
 
 ```text
 src/iec/        the package; every folder has a README
-requirements.txt, requirements-test.txt   exact library versions (runtime, test runner)
+requirements.txt, requirements-test.txt, poetry.lock   exact library versions (runtime, test runner)
 scripts/        measure_point.py, build_passport.py, verify.py, build_vocab.py, verify_vocab.py
-tests/          tests of the package, mirroring src/iec/
-config/         vocab.yaml - how the vocabulary is built
-assets/vocab/   the vocabulary and its reference
+tests/          tests of the package, mirroring src/iec/; tests/speed/ times the long operations
+config/         vocab.yaml and vocab/ - how the vocabularies are built; passport_laws.yaml and
+                passport_figures.yaml - the forms of the laws and the figures of the passport;
+                observability.yaml - the telemetry of the bench
+assets/vocab/   the vocabularies and their references
 artefacts/      the published measurements
+articles/       the article as a PDF
 docs/           the method
+.github/        the checks of a reader on every push
+CHANGELOG.md    what changed between versions
 ```
 
 Tests: `pip install -r requirements-test.txt`, then `python -m pytest`. Tests that call a live
-provider or download tokenizer files are marked `network` and excluded by default; one test
-compares the fit with `statsmodels` and is skipped when that library is not installed.
+provider or download tokenizer files are marked `network`, and the timing tests of the long
+operations are marked `speed`; both are excluded by default.
 
 ## License
 
 - Code — `src/`, `scripts/`, `tests/`, `config/`, `pyproject.toml`: MIT License, see
   [LICENSE](LICENSE).
-- Data and documents — `artefacts/`, `assets/vocab/`, `docs/`, this README: Creative Commons
-  Attribution 4.0 International, see [LICENSE-CC-BY-4.0.txt](LICENSE-CC-BY-4.0.txt).
+- Data and documents — `artefacts/`, `articles/`, `assets/vocab/`, `docs/`, this README: Creative
+  Commons Attribution 4.0 International, see [LICENSE-CC-BY-4.0.txt](LICENSE-CC-BY-4.0.txt).
 - The vocabulary is derived from the CMU Pronouncing Dictionary and WordNet; their notices are
   in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The corpora are not redistributed: the
   build code downloads them through NLTK.
-- The model answers in `artefacts/` were generated by OpenAI models through the OpenAI API.
-  Under OpenAI's terms for API customers the customer owns the output (OpenAI Services
-  Agreement, section 4.1); the answers are published here as part of the data.
+- The model answers in `artefacts/` are published here as part of the data. Those of
+  `gpt-4o-mini-2024-07-18` were generated through the OpenAI API: under OpenAI's terms for API
+  customers the customer owns the output (OpenAI Services Agreement, section 4.1). Those of
+  `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite` were generated through the Gemini API: under
+  the Gemini API Additional Terms of Service, Google won't claim ownership over generated content
+  (section "Use of Generated Content"). Those of `nvidia/nemotron-3.5-lightning` were generated
+  through OpenRouter: under the OpenRouter Terms of Service the rights in an output are set by the
+  terms of its model (section 6.1), and the model is released under the OpenMDW License
+  Agreement, version 1.1, which "does not impose any restrictions or obligations with respect to
+  any use, modification, or sharing of any outputs generated by using the Model Materials". Those
+  of `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` were generated through OpenRouter as well:
+  the rights in an output are set by the terms of its model, and the model is governed by the
+  NVIDIA Open Model Agreement, under which "NVIDIA does not claim ownership to any outputs
+  generated using the Works or Derivative Works".

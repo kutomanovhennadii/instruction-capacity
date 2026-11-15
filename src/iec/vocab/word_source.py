@@ -135,6 +135,7 @@ def load_noun_monosyllables(config: VocabBuildConfig) -> set[str]:
     _logger.info(f"after noun filter: {len(nouns)}")
 
     def to_noun_lemma(word: str) -> str:
+        """Return the noun lemma of the word by WordNet."""
         return str(lemmatizer.lemmatize(word, pos=wordnet.NOUN))
 
     singular = {word for word in nouns if _is_singular(word, to_noun_lemma)}

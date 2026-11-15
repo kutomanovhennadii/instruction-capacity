@@ -1,0 +1,15 @@
+# Vocabulary of three Nemotron models: single tokens by the tokenizer files of the models.
+# Run: python scripts/build_vocab.py --config config/vocab/v1_nemotron.yaml --assets-dir my_vocab
+
+vocab_id: "v1_nemotron"
+source: "cmudict"
+max_syllables: 1
+ascii_lower_only: true
+
+tokenizer_specs:
+  - provider: hfjson
+    name: nvidia/NVIDIA-Nemotron-3-Ultra-550B-A55B-BF16
+  - provider: hfjson
+    name: nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16
+  - provider: hfjson
+    name: nvidia/Nemotron-3-Nano-Omni-30B-A3B-Reasoning-BF16

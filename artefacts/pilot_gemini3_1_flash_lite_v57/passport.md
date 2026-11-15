@@ -1,0 +1,269 @@
+# Passport of `gemini-3.1-flash-lite`
+
+Measurement `pilot_gemini3_1_flash_lite_v57`, 5,336 answered points. The method is described in `docs/05-passport-model.md` of the repository.
+
+## The formula
+
+`P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`. The formula is the way to combine the three quantities: it has no law and no capacity of its own. `π = m/D` is the replacement density. The zero point of a capacity is a text of 20 words, the start of the answer, the density at the maximum of its law and one rule; every other axis of the capacity is set by its definition.
+
+The capacities are taken at the level 0.5. At it the share of successes over all requests and the success of the median request reach one half at the same logit, zero, whatever the variance of the request shift: a capacity is the load at which the laws bring the logit of the median request to zero, and it does not depend on that variance.
+
+## P_sync: the answer word stands against its reference word
+
+Model VS-PM, request weights by the cube V × P × M. Fit: GLMM with heterogeneous random-intercept variance, that is with the shift of a request whose variance depends on the load; the variance of the request shift `σ² = 29.93`; 5,272 requests, 112,208,407 trials, 82,197,510 failures, 88 parameters; removed bins: vs_1_1, vs_1_2, vs_2_1, vs_2_2, vs_2_3, vs_3_1, vs_3_2, vs_3_3, vs_3_4, vs_4_1, vs_4_2, vs_4_4, vs_4_5, vs_5_1, vs_5_2, vs_5_4, vs_6_1, vs_6_2, vs_6_3, vs_6_4, vs_7_1, vs_7_2.
+
+The variance of the shift depends on the load: `ln σ_j = z_j·γ`, 26 parameters more than one variance, `2·Δ ln L = 185.7`. `σ²` above is the mean over the requests. A group is taken with the other two axes averaged over the requests.
+
+| Axis | Centre of the group | Share of the requests | σ² |
+|---|---|---|---|
+| text length, words | 369.6 | 0.07 | 17.24 ± 12.73 |
+| text length, words | 1126 | 0.07 | 27.71 ± 11.67 |
+| text length, words | 2044 | 0.16 | 25.51 ± 5.95 |
+| text length, words | 4026 | 0.21 | 26.59 ± 4.60 |
+| text length, words | 7794 | 0.21 | 28.27 ± 4.07 |
+| text length, words | 1.565e+04 | 0.17 | 43.35 ± 6.94 |
+| text length, words | 3.068e+04 | 0.12 | 50.32 ± 9.68 |
+| density | 0.0006355 | 0.02 | 34.61 ± 12.12 |
+| density | 0.001312 | 0.04 | 33.75 ± 11.68 |
+| density | 0.002646 | 0.04 | 39.82 ± 10.78 |
+| density | 0.005214 | 0.06 | 31.95 ± 8.94 |
+| density | 0.0101 | 0.06 | 33.55 ± 8.75 |
+| density | 0.02021 | 0.06 | 31.01 ± 8.35 |
+| density | 0.04013 | 0.08 | 31.73 ± 6.81 |
+| density | 0.07865 | 0.11 | 31.71 ± 5.95 |
+| density | 0.1563 | 0.11 | 36.34 ± 7.26 |
+| density | 0.2995 | 0.11 | 20.01 ± 3.98 |
+| density | 0.6067 | 0.16 | 24.09 ± 5.76 |
+| density | 1 | 0.15 | 37.50 ± 8.20 |
+| number of rules | 1 | 0.10 | 30.06 ± 6.90 |
+| number of rules | 2 | 0.17 | 28.11 ± 4.95 |
+| number of rules | 3.555 | 0.12 | 29.61 ± 5.52 |
+| number of rules | 6.901 | 0.10 | 29.86 ± 7.44 |
+| number of rules | 13.65 | 0.09 | 31.95 ± 6.31 |
+| number of rules | 27.03 | 0.08 | 34.72 ± 7.79 |
+| number of rules | 51.09 | 0.11 | 35.17 ± 7.10 |
+| number of rules | 100.5 | 0.07 | 28.46 ± 5.41 |
+| number of rules | 195.2 | 0.09 | 31.12 ± 8.75 |
+| number of rules | 405.2 | 0.06 | 27.09 ± 7.09 |
+
+The approximations through the groups, by the residuals in `ln σ²`, serve the eye.
+
+| Axis | Approximation | Parameters | χ² |
+|---|---|---|---|
+| text length, words | `a + b·log₂ v` | `a = −26.47`, `b = 4.656` | 14.2 over 7 groups |
+| density | `a + b·log₂ p` | `a = 27.83`, `b = −0.783` | 28.0 over 12 groups |
+| number of rules | `c + A/m` | `c = 30.47`, `A = 0.00` | 5.7 over 10 groups |
+
+The law of the grid: a length slice is a hyperbola with a shared slope and corner width and its own plateau, and the law of the plateau runs through the plateaus. `κ_S = −4.20 ± 0.27`, `λ̃_S = 32.48 ± 5.01`, `ω_S = 2.95 ± 0.39`; `χ² = 373.8` over 67 cells.
+
+The law of the plateau is a binary exponential, `μ − A·2^(γ·log₂(v/20))`: `mu = 19.19 ± 3.85`, `A = 0.36 ± 0.48`, `gamma = 0.57 ± 0.16`; `χ² = 47.2` over 8 bins; chosen by `χ² + 2k` among 4 forms.
+
+The law of the density is a slanted hyperbola, `μ + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `mu = 20.40 ± 7.35`, `kappa = −2.55 ± 0.42`, `corner = 0.59 ± 1.15`, `omega = 3.79 ± 4.58`; `χ² = 11.6` over 11 bins; chosen by `χ² + 2k` among 4 forms.
+
+The law of the number of rules is a line, `a + b·log₂ m`: `a = 1.95 ± 0.73`, `b = 0.04 ± 0.08`; `χ² = 67.6` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+
+The level `α = δ_VS + δ_P + δ_M = 41.55 ± 8.66` is the logit at the density going to zero and one rule, and that density is itself a continuation of the law.
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | none: the law gives no root | at least 512, reserve left 39.60 |
+| fatigue capacity, words | 0.5 | 65,625 (37,710–1.1·10⁵), continuation of the law | - |
+| how many times full density multiplies the odds of an error | - | 7.1·10¹⁰ (3.9·10⁷–1.3·10¹⁴) | - |
+
+The instruction capacity is the number of rules at which the law of the number of rules brings the logit to zero, and next to it the walk along the bins of that axis; by the law it is none when the fall of that law over its bins does not differ from zero. The fatigue capacity is the word at which the full law of the grid at the density going to zero and one rule reaches zero, on a text of the same length: by the curve of the law, as for `H`. Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − δ_P` the change of the law of the density from the density going to zero to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
+
+![P_sync: S before correction](figures/P_sync/S-before-correction.png)
+
+![P_sync: S after correction](figures/P_sync/S-after-correction.png)
+
+![P_sync: plateau before correction](figures/P_sync/plateau-before-correction.png)
+
+![P_sync: P before correction](figures/P_sync/P-before-correction.png)
+
+![P_sync: P after correction](figures/P_sync/P-after-correction.png)
+
+![P_sync: M before correction](figures/P_sync/M-before-correction.png)
+
+![P_sync: M after correction](figures/P_sync/M-after-correction.png)
+
+![P_sync: spread V](figures/P_sync/spread-V.png)
+
+![P_sync: spread P](figures/P_sync/spread-P.png)
+
+![P_sync: spread M](figures/P_sync/spread-M.png)
+
+## H: a rule word on its place is replaced correctly
+
+Model VS-PMR, request weights by the cube V × P × M. Fit: GLMM with heterogeneous random-intercept variance, that is with the shift of a request whose variance depends on the load; the variance of the request shift `σ² = 5.97`; 5,176 requests, 4,318,887 trials, 1,917,294 failures, 97 parameters; removed bins: vs_1_1, vs_1_2, vs_2_1, vs_2_2, vs_2_3, vs_3_1, vs_3_2, vs_3_3, vs_3_4, vs_4_1, vs_4_2, vs_4_3, vs_4_4, vs_4_5, vs_5_1, vs_5_2, vs_5_3, vs_5_4, vs_5_6, vs_6_2, vs_6_3, vs_6_4.
+
+The variance of the shift depends on the load: `ln σ_j = z_j·γ`, 26 parameters more than one variance, `2·Δ ln L = 954.6`. `σ²` above is the mean over the requests. A group is taken with the other two axes averaged over the requests.
+
+| Axis | Centre of the group | Share of the requests | σ² |
+|---|---|---|---|
+| text length, words | 450.1 | 0.06 | 3.28 ± 1.64 |
+| text length, words | 1126 | 0.07 | 2.49 ± 0.97 |
+| text length, words | 2044 | 0.16 | 2.28 ± 0.55 |
+| text length, words | 4026 | 0.21 | 3.04 ± 0.52 |
+| text length, words | 7794 | 0.21 | 4.01 ± 0.61 |
+| text length, words | 1.566e+04 | 0.17 | 5.85 ± 1.25 |
+| text length, words | 3.073e+04 | 0.12 | 4.94 ± 1.19 |
+| density | 0.0006355 | 0.02 | 0.33 ± 0.15 |
+| density | 0.001311 | 0.04 | 0.76 ± 0.31 |
+| density | 0.002646 | 0.04 | 0.96 ± 0.38 |
+| density | 0.005209 | 0.06 | 0.92 ± 0.27 |
+| density | 0.01011 | 0.06 | 0.97 ± 0.28 |
+| density | 0.0202 | 0.07 | 1.36 ± 0.42 |
+| density | 0.0402 | 0.08 | 1.46 ± 0.62 |
+| density | 0.07845 | 0.10 | 1.90 ± 0.67 |
+| density | 0.1561 | 0.11 | 4.78 ± 1.44 |
+| density | 0.3006 | 0.11 | 8.83 ± 2.26 |
+| density | 0.6086 | 0.16 | 13.19 ± 2.27 |
+| density | 1 | 0.15 | 13.78 ± 2.40 |
+| number of rules | 1 | 0.10 | 24.38 ± 7.16 |
+| number of rules | 2 | 0.17 | 8.90 ± 2.09 |
+| number of rules | 3.545 | 0.12 | 6.21 ± 1.38 |
+| number of rules | 6.881 | 0.10 | 4.35 ± 0.94 |
+| number of rules | 13.62 | 0.09 | 3.46 ± 0.77 |
+| number of rules | 27 | 0.09 | 2.44 ± 0.55 |
+| number of rules | 51.13 | 0.12 | 1.97 ± 0.47 |
+| number of rules | 100.4 | 0.07 | 0.92 ± 0.35 |
+| number of rules | 194.1 | 0.09 | 0.86 ± 0.41 |
+| number of rules | 406.5 | 0.06 | 0.67 ± 0.30 |
+
+The approximations through the groups, by the residuals in `ln σ²`, serve the eye.
+
+| Axis | Approximation | Parameters | χ² |
+|---|---|---|---|
+| text length, words | `a + b·log₂ v` | `a = −2.77`, `b = 0.520` | 17.9 over 7 groups |
+| density | `a + b·log₂ p` | `a = 7.22`, `b = 0.660` | 305.2 over 12 groups |
+| number of rules | `c + A/(1 + m/m₀)` | `c = 0.98`, `A = 38.17`, `m₀ = 0.74` | 30.2 over 10 groups |
+
+The law of the grid: a length slice is the exponent `μ_v − A·2^(γ·log₂ s)`, which dies out to its level `μ_v` at `s → 0`, and the law of the levels runs through the levels of the slices. `A = 0.873 ± 0.185`, `γ = 0.296 ± 0.019`; by the own variances, `χ² = 426.2` over 68 cells.
+
+The law of the levels of the slices is a line, `a + b·log₂(v/20)`: `a = 23.18 ± 1.46`, `b = −0.34 ± 0.14`; `χ² = 16.3` over 8 bins; chosen by `χ² + 2k` among 4 forms.
+
+The law of the density is a two-slope hyperbola, `μ + β·(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `mu = 4.89 ± 0.95`, `kappa = −8.74 ± 1.50`, `corner = 10.00 ± 0.00`, `omega = 1.67 ± 0.40`, `beta = 1.10 ± 0.09`; `χ² = 14.0` over 11 bins; on the bound of the search: corner; chosen by `χ² + 2k` among 5 forms.
+
+The law of the number of rules is a line, `a + b·log₂ m`: `a = −2.15 ± 0.54`, `b = −0.79 ± 0.05`; `χ² = 184.6` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+
+The law of the rule number is a slanted hyperbola, `μ + (κ/2)·[(log₂ r − log₂ r*) + √((log₂ r − log₂ r*)² + ω²)]`: `mu = 0.25 ± 0.32`, `kappa = −1.25 ± 0.45`, `corner = 7.27 ± 1.24`, `omega = 3.50 ± 0.53`; `χ² = 7.7` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+
+The level `α = μ₀ + μ_P + λ_M + λ_R = 14.06 ± 1.33`. The loss of the density at `p = 1` is −4.32 logits.
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | 27.3 (24.0–31.0) | 22.1 |
+| fatigue capacity, words | 0.5 | 5,592 (5,123–6,105) | - |
+| how many times full density multiplies the odds of an error | - | 0.0 (0.0–0.0) | - |
+
+Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − μ_P` the change of the law of the density from its zero point, `p = 2⁻¹⁰` for the two-slope hyperbola, to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
+
+![H: S before correction](figures/H/S-before-correction.png)
+
+![H: S after correction](figures/H/S-after-correction.png)
+
+![H: plateau before correction](figures/H/plateau-before-correction.png)
+
+![H: P before correction](figures/H/P-before-correction.png)
+
+![H: P after correction](figures/H/P-after-correction.png)
+
+![H: M before correction](figures/H/M-before-correction.png)
+
+![H: M after correction](figures/H/M-after-correction.png)
+
+![H: R before correction](figures/H/R-before-correction.png)
+
+![H: R after correction](figures/H/R-after-correction.png)
+
+![H: spread V](figures/H/spread-V.png)
+
+![H: spread P](figures/H/spread-P.png)
+
+![H: spread M](figures/H/spread-M.png)
+
+## F: a misfire on a background word on its place
+
+Model V-(s/v)-PM, request weights by the cube V × P × M. Fit: GLMM with heterogeneous random-intercept variance, that is with the shift of a request whose variance depends on the load; the variance of the request shift `σ² = 5.20`; 4,469 requests, 25,706,292 trials, 89,189 failures, 37 parameters; removed bins: v_bin_1, v_bin_2, v_bin_3.
+
+The variance of the shift depends on the load: `ln σ_j = z_j·γ`, 24 parameters more than one variance, `2·Δ ln L = 961.1`. `σ²` above is the mean over the requests. A group is taken with the other two axes averaged over the requests.
+
+| Axis | Centre of the group | Share of the requests | σ² |
+|---|---|---|---|
+| text length, words | 620.8 | 0.10 | 2.91 ± 1.09 |
+| text length, words | 2067 | 0.13 | 1.80 ± 0.42 |
+| text length, words | 4063 | 0.22 | 1.49 ± 0.23 |
+| text length, words | 7792 | 0.23 | 2.17 ± 0.30 |
+| text length, words | 1.559e+04 | 0.19 | 2.81 ± 0.45 |
+| text length, words | 3.057e+04 | 0.12 | 2.74 ± 0.52 |
+| density | 0.0006355 | 0.02 | 0.36 ± 0.19 |
+| density | 0.001311 | 0.04 | 0.61 ± 0.23 |
+| density | 0.002646 | 0.05 | 0.59 ± 0.20 |
+| density | 0.005209 | 0.07 | 0.77 ± 0.24 |
+| density | 0.01011 | 0.07 | 1.09 ± 0.26 |
+| density | 0.0202 | 0.08 | 1.19 ± 0.26 |
+| density | 0.04013 | 0.09 | 1.64 ± 0.39 |
+| density | 0.07828 | 0.12 | 1.62 ± 0.32 |
+| density | 0.1556 | 0.13 | 2.91 ± 0.57 |
+| density | 0.2996 | 0.13 | 4.14 ± 0.89 |
+| density | 0.6062 | 0.19 | 9.21 ± 2.01 |
+| number of rules | 1 | 0.12 | 7.22 ± 2.21 |
+| number of rules | 2 | 0.20 | 5.94 ± 1.29 |
+| number of rules | 3.493 | 0.13 | 7.16 ± 1.60 |
+| number of rules | 6.841 | 0.11 | 3.91 ± 0.80 |
+| number of rules | 13.49 | 0.09 | 2.67 ± 0.51 |
+| number of rules | 26.76 | 0.09 | 1.03 ± 0.23 |
+| number of rules | 49.2 | 0.09 | 0.61 ± 0.14 |
+| number of rules | 98.4 | 0.07 | 0.27 ± 0.09 |
+| number of rules | 191.9 | 0.06 | 0.21 ± 0.06 |
+| number of rules | 404.8 | 0.05 | 0.17 ± 0.06 |
+
+The approximations through the groups, by the residuals in `ln σ²`, serve the eye.
+
+| Axis | Approximation | Parameters | χ² |
+|---|---|---|---|
+| text length, words | `c + A/v` | `c = 2.17`, `A = 0.00` | 43.6 over 6 groups |
+| density | `a + b·log₂ p` | `a = 3.50`, `b = 0.310` | 146.9 over 11 groups |
+| number of rules | `c + A/(1 + m/m₀)` | `c = 0.05`, `A = 11.80`, `m₀ = 2.91` | 26.0 over 10 groups |
+
+The laws run through the bins without the poorly determined ones, by ordinary least squares; the form of a law is chosen by `χ² + 2k`, the residuals weighed by the covariance of the bins.
+
+The law of the length is a line, `a + b·log₂(v/20)`: `a = 7.43 ± 0.50`, `b = 0.36 ± 0.05`; `χ² = 111.2` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+
+The law of the share of the answer is a hyperbola, `c + A/q`: `c = 0.06 ± 0.07`, `A = −0.05 ± 0.00`; `χ² = 246.1` over 9 bins; chosen by `χ² + 2k` among 3 forms. A fall of −0.98 over the whole answer.
+
+The law of the density is a logarithm plus a line, `a + b·log₂(p/2⁻¹⁰) + c·0.0009765625·2^(log₂(p/2⁻¹⁰))`: `a = −0.29 ± 0.32`, `b = 0.14 ± 0.05`, `c = −2.21 ± 0.54`; `χ² = 41.9` over 10 bins; chosen by `χ² + 2k` among 5 forms.
+
+The law of the number of rules is a line, `a + b·log₂ m`: `a = −1.48 ± 0.38`, `b = −0.56 ± 0.03`; `χ² = 204.9` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+
+The level `α_F = V(20) + q(0) + δ_P + M(1) = 5.42 ± 0.41`, where `δ_P` is the maximum of the law of the density, at `p = 0.0934`; `V(20)` = 7.43 ± 0.50, `q(0)` = −0.97 ± 0.09, `δ_P` = 0.44 ± 0.13, `M(1)` = −1.48 ± 0.38. The edge of the measured area: 512 rules and 40,960 words.
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | 773 (441–1,354), continuation of the law | at least 512, reserve left 0.84 |
+| fatigue capacity, words | 0.5 | none: the law gives no root | - |
+| how many times full density multiplies the odds of an error | - | 2.2 (1.4–3.3), conditional: a continuation of the law of the density | - |
+
+The instruction capacity is the number of rules at the zero point. The fatigue capacity is the number of the last word of a text of the same length at the zero point. Full density multiplies the odds of a misfire by `e^(−P̂(1))`, `P̂(1) = P(1) − P(p → 0)`; a factor below one would mean that full density lowers them. It is a conditional quantity: a text has no background words at `p = 1`, so it always continues the law of the density, and it allows comparing the effect of the density on `P_sync`, `H` and `F`.
+
+![F: V before correction](figures/F/V-before-correction.png)
+
+![F: V after correction](figures/F/V-after-correction.png)
+
+![F: answer share before correction](figures/F/answer-share-before-correction.png)
+
+![F: answer share after correction](figures/F/answer-share-after-correction.png)
+
+![F: P before correction](figures/F/P-before-correction.png)
+
+![F: P after correction](figures/F/P-after-correction.png)
+
+![F: M before correction](figures/F/M-before-correction.png)
+
+![F: M after correction](figures/F/M-after-correction.png)
+
+![F: spread V](figures/F/spread-V.png)
+
+![F: spread P](figures/F/spread-P.png)
+
+![F: spread M](figures/F/spread-M.png)

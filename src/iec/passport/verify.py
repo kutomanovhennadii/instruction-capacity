@@ -8,13 +8,11 @@ composition exactly, the numbers within the tolerance of computation. ``verify``
 integrity and reproducibility only; it does not prove the method right.
 
 **Tolerance of check 4.** Reordering the summation of the same points - a perturbation at the
-level of rounding, the same a different machine makes - moved the published passports of two
-measurements by at most 1.5e-9 relative in the first stage (estimates, errors and coefficients
-of bins by 3.1e-12, near-zero elements of the covariance by 1.5e-9), by at most 3.5e-4 of
-their own SE in the numbers of the second stage that have one, and by at most 3.2e-2 relative
-in the other numbers of the second stage (the errors of a degenerate density law, where two
-parameters trade off along a flat valley). The tolerances below keep a margin of 3 to 600
-times over these spreads.
+level of rounding, the same a different machine makes - moved the passport of the published
+measurement by at most 7.6e-9 relative in the fits and the weights, and by at most 9.5e-6 relative
+in everything computed from them: the bins restored by the laws, the laws, the levels and the
+capacities. The tolerances below keep a margin of about 100 times and more over these spreads. A
+number near zero is compared by the absolute floor.
 """
 
 from __future__ import annotations
@@ -22,6 +20,7 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Mapping, Sequence
+from concurrent.futures import Executor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -29,35 +28,32 @@ from typing import Any
 from iec.contracts import MeasurementDescription, PointRecord, Vocab
 from iec.infrastructure.exceptions import IECError
 from iec.model_client import MockTokenizer
+from iec.passport.laws.forms.law_assignment import LawAssignment
 from iec.passport.measurement_files import (
-    POINTS_FILENAME,
+    points_names,
     read_description,
     read_passport_data,
     read_points,
     sha256_of,
 )
-from iec.passport.passport_data import build_passport_data
+from iec.passport.passport_data import build_passport_data, measurement_trials
 from iec.prompt_generator import RuleGenerator, TextGenerator
 from iec.vocab import VocabStore, VocabVerifier
 
-#: Relative tolerance of the floats outside the second stage.
+#: Relative tolerance of the fits and the weights.
 FIRST_STAGE_RTOL = 1e-6
-#: A float of the second stage with its own SE may move by this share of the SE.
-SECOND_STAGE_SE_SHARE = 0.01
-#: Relative tolerance of the other floats of the second stage.
-SECOND_STAGE_RTOL = 0.1
+#: Relative tolerance of the numbers computed from them.
+SECOND_STAGE_RTOL = 1e-3
 #: Absolute floor of every float tolerance: a difference of zeros.
-ABSOLUTE_FLOOR = 1e-12
+ABSOLUTE_FLOOR = 1e-9
 
 FILES_CHECK = "files"
 VOCABULARY_CHECK = "vocabulary"
 GENERATOR_CHECK = "generator"
 PASSPORT_CHECK = "passport"
 
-#: The block of the second stage inside the passport section.
-_SECOND_STAGE_KEY = "approximation"
-#: Keys of a number whose own SE is the scalar ``se`` of the same record.
-_VALUE_KEYS = ("value", "mu_v")
+#: The keys whose numbers are the first stage, wherever they stand in the passport.
+_FIRST_STAGE_KEYS = frozenset({"fit", "weighting"})
 #: Differences listed per check; the rest is counted.
 _SHOWN = 20
 
@@ -83,8 +79,16 @@ class VerificationReport:
         return bool(self.checks) and all(check.passed for check in self.checks)
 
 
-def verify_measurement(directory: Path, vocab_dir: Path) -> VerificationReport:
+def verify_measurement(
+    directory: Path, vocab_dir: Path, assignment: LawAssignment, *, executor: Executor | None = None
+) -> VerificationReport:
     """Run the four checks on a published measurement directory.
+
+    Args:
+        directory: The published measurement directory.
+        vocab_dir: The folder of the vocabularies and their references.
+        assignment: The forms of the laws of the passport.
+        executor: The pool of processes of the recomputation of the passport, or ``None``.
 
     Raises:
         PassportError: ``MEASUREMENT_FILES_MISSING`` - the description is absent.
@@ -108,7 +112,7 @@ def verify_measurement(directory: Path, vocab_dir: Path) -> VerificationReport:
         if vocab is not None
         else CheckResult(GENERATOR_CHECK, False, ("not run: the vocabulary is not verified",))
     )
-    passport = _check_passport(directory, description, records)
+    passport = _check_passport(directory, description, records, assignment, executor)
     return VerificationReport((files, vocabulary, generator, passport))
 
 
@@ -121,10 +125,11 @@ def _listed(name: str, differences: Sequence[str]) -> CheckResult:
 
 
 def _check_files(directory: Path, description: MeasurementDescription) -> CheckResult:
-    """Check 1: every listed file exists and has its SHA-256; the points file is listed."""
+    """Check 1: every listed file exists and has its SHA-256; every file of the points is listed."""
     differences: list[str] = []
-    if POINTS_FILENAME not in description.files:
-        differences.append(f"{POINTS_FILENAME} is not listed in the description")
+    for name in points_names(directory):
+        if name not in description.files:
+            differences.append(f"{name} is not listed in the description")
     for name, digest in sorted(description.files.items()):
         path = directory / name
         if not path.is_file():
@@ -169,13 +174,20 @@ def _check_generator(records: Sequence[PointRecord], vocab: Vocab) -> CheckResul
 
 
 def _check_passport(
-    directory: Path, description: MeasurementDescription, records: Sequence[PointRecord]
+    directory: Path,
+    description: MeasurementDescription,
+    records: Sequence[PointRecord],
+    assignment: LawAssignment,
+    executor: Executor | None,
 ) -> CheckResult:
     """Check 4: the passport recomputed from the points equals the published one."""
     try:
         published = read_passport_data(directory)
         name = str((published.get("model") or {}).get("experiment_id", directory.name))
-        recomputed = build_passport_data(description, records, name)
+        trials = measurement_trials(description, records, executor=executor)
+        recomputed = build_passport_data(
+            description, records, trials, name, assignment, executor=executor
+        )
     except IECError as error:
         return CheckResult(PASSPORT_CHECK, False, (f"[{error.error_code}] {error.message}",))
     # The published passport went through JSON: tuples became lists.
@@ -186,76 +198,55 @@ def compare_passports(published: Any, recomputed: Any) -> list[str]:
     """Return the differences of two passports beyond the tolerance of computation.
 
     The composition is compared exactly: keys, list lengths, strings, booleans, ``null``,
-    integers. Floats outside the block ``approximation`` - within ``FIRST_STAGE_RTOL``; inside
-    it, a number with its own SE in the same record - within ``SECOND_STAGE_SE_SHARE`` of that
-    SE, any other float - within ``SECOND_STAGE_RTOL``.
+    integers. Floats under the keys ``fit`` and ``weighting`` - within ``FIRST_STAGE_RTOL``, all the
+    others - within ``SECOND_STAGE_RTOL``; every float also has the absolute floor ``ABSOLUTE_FLOOR``.
     """
     differences: list[str] = []
-    _compare(published, recomputed, "", False, None, differences)
+    _compare(published, recomputed, "", False, differences)
     return differences
 
 
 def _is_number(value: Any) -> bool:
+    """Return whether a value is a number and not a boolean."""
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
-def _own_se(record: Mapping[str, Any], key: str) -> float | None:
-    """Return the SE standing next to the number ``key`` of a record, if there is one."""
-    se: Any = record.get("se")
-    if key in _VALUE_KEYS and _is_number(se):
-        return float(se)
-    if isinstance(se, Mapping) and key != "se" and _is_number(se.get(key)):
-        return float(se[key])
-    return None
-
-
 def _compare(
-    published: Any,
-    recomputed: Any,
-    path: str,
-    second_stage: bool,
-    own_se: float | None,
-    differences: list[str],
+    published: Any, recomputed: Any, path: str, first_stage: bool, differences: list[str]
 ) -> None:
+    """Compare two values of passports and add every difference to ``differences``."""
     if isinstance(published, Mapping):
         if not isinstance(recomputed, Mapping) or set(published) != set(recomputed):
             differences.append(f"{path or '.'}: the keys differ")
             return
         for key in sorted(published):
-            inside = second_stage or key == _SECOND_STAGE_KEY
-            child_se = _own_se(published, key) if inside else None
-            _compare(
-                published[key], recomputed[key], f"{path}.{key}", inside, child_se, differences
-            )
+            inside = first_stage or key in _FIRST_STAGE_KEYS
+            _compare(published[key], recomputed[key], f"{path}.{key}", inside, differences)
         return
     if isinstance(published, list):
         if not isinstance(recomputed, list) or len(published) != len(recomputed):
             differences.append(f"{path}: the lengths differ")
             return
         for index, (left, right) in enumerate(zip(published, recomputed, strict=True)):
-            _compare(left, right, f"{path}[{index}]", second_stage, None, differences)
+            _compare(left, right, f"{path}[{index}]", first_stage, differences)
         return
     if (
         _is_number(published)
         and _is_number(recomputed)
         and (isinstance(published, float) or isinstance(recomputed, float))
     ):
-        if not _floats_agree(float(published), float(recomputed), second_stage, own_se):
+        if not _floats_agree(float(published), float(recomputed), first_stage):
             differences.append(f"{path}: {published!r} vs {recomputed!r}")
         return
     if type(published) is not type(recomputed) or published != recomputed:
         differences.append(f"{path}: {published!r} vs {recomputed!r}")
 
 
-def _floats_agree(x: float, y: float, second_stage: bool, own_se: float | None) -> bool:
+def _floats_agree(x: float, y: float, first_stage: bool) -> bool:
+    """Return whether two floats agree within the tolerance of their stage."""
     if math.isnan(x) or math.isnan(y):
         return math.isnan(x) and math.isnan(y)
     if math.isinf(x) or math.isinf(y):
         return x == y
-    if second_stage and own_se is not None:
-        limit = SECOND_STAGE_SE_SHARE * abs(own_se) + ABSOLUTE_FLOOR
-    elif second_stage:
-        limit = SECOND_STAGE_RTOL * max(abs(x), abs(y)) + ABSOLUTE_FLOOR
-    else:
-        limit = FIRST_STAGE_RTOL * max(abs(x), abs(y)) + ABSOLUTE_FLOOR
-    return abs(x - y) <= limit
+    tolerance = FIRST_STAGE_RTOL if first_stage else SECOND_STAGE_RTOL
+    return abs(x - y) <= tolerance * max(abs(x), abs(y)) + ABSOLUTE_FLOOR

@@ -19,7 +19,12 @@ from iec.model_client.reliability.failures import (
     TransportFailure,
     TransportFailureKind,
 )
-from iec.model_client.reliability.reliable_client import CallContext, ReliableModelClient
+from iec.model_client.reliability.reliable_client import (
+    DEFAULT_OVERALL_DEADLINE_S,
+    TIMEOUT_RETRY_FACTOR,
+    CallContext,
+    ReliableModelClient,
+)
 
 PROMPT = Prompt(text="lake")
 PARAMS = GenParams()
@@ -169,47 +174,59 @@ def test_max_retries_zero_forbids_any_retry(clock: FakeClock, sleep_spy: SleepSp
     assert sleep_spy.pauses == []
 
 
-# 4. A timeout is not retried even when attempts are left.
-def test_timeout_is_not_retried(clock: FakeClock, sleep_spy: SleepSpy) -> None:
-    """A timeout is not retried: it is a property of the node, not a random failure.
-
-    The model did not fit into the allotted time on **this** node; a second attempt gives
-    the same result in the same time, and a retry would double the cost of a heavy point.
-    """
-    adapter = ScriptedAdapter([_timeout_failure(), _success()])
-    client = _build_client(adapter, clock, sleep_spy, max_retries=3)
-
-    with pytest.raises(ModelCallFailure) as caught:
-        client.generate(PROMPT, PARAMS)
-
-    assert caught.value.category is ModelFailureCategory.TIMEOUT
-    # ``max_retries=3`` would allow four attempts, but a timeout stops the call at once:
-    # ``TIMEOUT_RETRIES = 0`` means "the first attempt only".
-    assert len(adapter.calls) == 1
-
-
-# 5. A mixed sequence "network failure -> timeout": the network failure is retried, the
-#    timeout stops the call.
-def test_a_network_failure_is_retried_but_a_timeout_stops_the_call(
+# 4. A timeout is retried once, with the overall limit doubled.
+def test_a_timeout_is_retried_once_with_the_limit_doubled(
     clock: FakeClock, sleep_spy: SleepSpy
 ) -> None:
-    """What makes sense to retry is retried.
+    """The model did not fit into the limit on this node: the retry gets twice the limit.
 
-    A network failure is random - a second attempt may succeed. A timeout means the model
-    did not fit into the allotted time on this node, and retrying it means paying the same
-    minutes for the same answer.
+    A retry under the same limit would give the same result in the same time (decision 1 of
+    the passport standard); the doubled limit gives the node one more chance.
     """
-    adapter = ScriptedAdapter([_transport_failure(), _timeout_failure(), _success("recovered")])
+    adapter = ScriptedAdapter([_timeout_failure(), _success("in time")])
+    client = _build_client(adapter, clock, sleep_spy, max_retries=3)
+
+    output = client.generate(PROMPT, PARAMS)
+
+    assert output.text == "in time"
+    assert len(adapter.calls) == 2
+    assert adapter.calls[0].remaining_s == pytest.approx(DEFAULT_OVERALL_DEADLINE_S)
+    assert adapter.calls[1].remaining_s == pytest.approx(
+        TIMEOUT_RETRY_FACTOR * DEFAULT_OVERALL_DEADLINE_S
+    )
+    assert sleep_spy.pauses == []
+
+
+def test_a_second_timeout_stops_the_call(clock: FakeClock, sleep_spy: SleepSpy) -> None:
+    adapter = ScriptedAdapter([_timeout_failure(), _timeout_failure(), _success()])
     client = _build_client(adapter, clock, sleep_spy, max_retries=3)
 
     with pytest.raises(ModelCallFailure) as caught:
         client.generate(PROMPT, PARAMS)
 
     assert caught.value.category is ModelFailureCategory.TIMEOUT
-    # Two attempts: the network failure is retried, the timeout on the second stops the call.
+    # ``max_retries=3`` would allow four attempts; ``TIMEOUT_RETRIES = 1`` allows one retry.
     assert len(adapter.calls) == 2
-    # One pause - exponential after the network failure; after the timeout there is no
-    # pause, because there is no retry.
+
+
+# 5. A mixed sequence "network failure -> timeout -> timeout": the network failure is retried by
+#    its policy, the timeout once.
+def test_a_network_failure_and_a_timeout_are_retried_by_their_own_rules(
+    clock: FakeClock, sleep_spy: SleepSpy
+) -> None:
+    """What makes sense to retry is retried, each failure by its own rule."""
+    adapter = ScriptedAdapter(
+        [_transport_failure(), _timeout_failure(), _timeout_failure(), _success("recovered")]
+    )
+    client = _build_client(adapter, clock, sleep_spy, max_retries=3)
+
+    with pytest.raises(ModelCallFailure) as caught:
+        client.generate(PROMPT, PARAMS)
+
+    assert caught.value.category is ModelFailureCategory.TIMEOUT
+    # Three attempts: the network failure is retried, the first timeout too, the second stops.
+    assert len(adapter.calls) == 3
+    # One pause - exponential after the network failure; a timeout is retried at once.
     assert sleep_spy.pauses == [1.0]
 
 
@@ -343,11 +360,12 @@ def test_read_timeouts_do_not_open_the_circuit(clock: FakeClock, sleep_spy: Slee
         cooldown_s=30.0,
     )
     for _ in range(5):
-        adapter = ScriptedAdapter([_timeout_failure()])
+        # A silence is retried once with the limit doubled; the second one ends the call.
+        adapter = ScriptedAdapter([_timeout_failure(), _timeout_failure()])
         client.adapter = adapter
         with pytest.raises(ModelCallFailure):
             client.generate(PROMPT, PARAMS)
-        assert len(adapter.calls) == 1, "silence must not hinder the next call"
+        assert len(adapter.calls) == 2, "silence must not hinder the next call"
 
     healthy = ScriptedAdapter([_success()])
     client.adapter = healthy
@@ -362,8 +380,8 @@ def test_connect_timeouts_still_open_the_circuit(
     """The handshake does not depend on the weight of the task: its failure speaks about the
     channel.
 
-    There are five failures and also five calls: there are no retries on timeout
-    (``TIMEOUT_RETRIES = 0``), and every attempt is a separate ``generate`` call.
+    A timeout is retried once (``TIMEOUT_RETRIES = 1``), so every ``generate`` call makes up to
+    two attempts; the fifth failure opens the breaker, and the calls after it are refused.
     """
     client = _build_client(
         ScriptedAdapter([_transport_failure(TransportFailureKind.CONNECT_TIMEOUT)]),
@@ -375,7 +393,7 @@ def test_connect_timeouts_still_open_the_circuit(
     )
     for _ in range(5):
         client.adapter = ScriptedAdapter(
-            [_transport_failure(TransportFailureKind.CONNECT_TIMEOUT)]
+            [_transport_failure(TransportFailureKind.CONNECT_TIMEOUT)] * 2
         )
         with pytest.raises(ModelCallFailure):
             client.generate(PROMPT, PARAMS)

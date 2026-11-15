@@ -7,12 +7,19 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from iec.contracts import ModelConfig
-from iec.infrastructure.exceptions import ConfigError, ProviderError
-from iec.model_client.mock_provider import build_mock_provider
+from iec.infrastructure.exceptions import ConfigError, IECError, ProviderError
+from iec.infrastructure.telemetry import TelemetryHub
 from iec.model_client.model_client import ModelClient
-from iec.model_client.openai_client import OpenAIModelClient, build_openai_http_client
-from iec.model_client.tiktoken_tokenizer import TiktokenTokenizer, build_tiktoken_tokenizer
+from iec.model_client.provider_adapters.mock_provider import build_mock_provider
+from iec.model_client.provider_adapters.openai_client import (
+    OpenAIModelClient,
+    build_openai_http_client,
+)
 from iec.model_client.tokenizer import Tokenizer
+from iec.model_client.tokenizer_adapters.tiktoken_tokenizer import (
+    TiktokenTokenizer,
+    build_tiktoken_tokenizer,
+)
 
 ProviderFactory = Callable[[ModelConfig], tuple[ModelClient, Tokenizer]]
 
@@ -45,8 +52,9 @@ class ModelBuilder:
 
         Raises:
             ConfigError: The provider is not registered.
-            ProviderError: The provider factory failed; the original cause is kept in
-                ``__cause__``.
+            ProviderError: ``PROVIDER_BUILD_FAILED`` - the factory raised a project error, such as
+                a missing key or a tokenizer that does not load; the original error is kept in
+                ``__cause__``. Any other exception of a factory is a defect and passes unchanged.
 
         Side effects:
             The factory of a live provider loads the tokenizer and opens a connection pool
@@ -60,7 +68,7 @@ class ModelBuilder:
             )
         try:
             return factory(config)
-        except Exception as cause:
+        except IECError as cause:
             raise ProviderError.from_cause(
                 f"failed to build model '{config.model_id}' with provider '{config.provider}'",
                 cause,
@@ -68,7 +76,9 @@ class ModelBuilder:
             ) from cause
 
 
-def build_openai_provider(config: ModelConfig) -> tuple[OpenAIModelClient, TiktokenTokenizer]:
+def build_openai_provider(
+    config: ModelConfig, telemetry: TelemetryHub | None = None
+) -> tuple[OpenAIModelClient, TiktokenTokenizer]:
     """Assemble the live OpenAI pair: the Chat Completions adapter and the tiktoken tokenizer.
 
     The API key is read from the environment and checked here, before the first model call:
@@ -79,6 +89,8 @@ def build_openai_provider(config: ModelConfig) -> tuple[OpenAIModelClient, Tikto
     Args:
         config: Configuration with the ``model_id`` of the model snapshot and the tokenizer
             name.
+        telemetry: Hub that records the calls of the model; without it the model writes the log
+            line of every call only.
 
     Returns:
         A pair of concrete types; outside the layer it goes behind the project contracts.
@@ -103,19 +115,26 @@ def build_openai_provider(config: ModelConfig) -> tuple[OpenAIModelClient, Tikto
     # matching the specification of the intersection is more important.
     tokenizer = build_tiktoken_tokenizer(config.tokenizer_name or config.model_id)
     http_client = build_openai_http_client(api_key)
-    return OpenAIModelClient(model_id=config.model_id, client=http_client), tokenizer
+    hub = telemetry if telemetry is not None else TelemetryHub.log_only()
+    client = OpenAIModelClient(model_id=config.model_id, client=http_client, telemetry=hub)
+    return client, tokenizer
 
 
-def build_default_model_builder() -> ModelBuilder:
-    """Return the standard registry: the deterministic mock and the live OpenAI provider."""
-    return ModelBuilder(factories={"mock": _build_mock, "openai": _build_openai})
+def build_default_model_builder(telemetry: TelemetryHub | None = None) -> ModelBuilder:
+    """Return the standard registry: the deterministic mock and the live OpenAI provider.
 
+    Args:
+        telemetry: Hub handed to every model the builder assembles; without it the models write
+            the log line of every call only.
+    """
+    hub = telemetry if telemetry is not None else TelemetryHub.log_only()
 
-def _build_mock(config: ModelConfig) -> tuple[ModelClient, Tokenizer]:
-    """Adapt the concrete type of the mock factory to the registry signature."""
-    return build_mock_provider(config)
+    def build_mock(config: ModelConfig) -> tuple[ModelClient, Tokenizer]:
+        """Build the mock pair observed by the hub of the builder."""
+        return build_mock_provider(config, hub)
 
+    def build_openai(config: ModelConfig) -> tuple[ModelClient, Tokenizer]:
+        """Build the OpenAI pair observed by the hub of the builder."""
+        return build_openai_provider(config, hub)
 
-def _build_openai(config: ModelConfig) -> tuple[ModelClient, Tokenizer]:
-    """Adapt the concrete type of the OpenAI factory to the registry signature."""
-    return build_openai_provider(config)
+    return ModelBuilder(factories={"mock": build_mock, "openai": build_openai})

@@ -83,3 +83,17 @@ def test_invalid_yaml_raises_config_error(tmp_path: Path) -> None:
         load_vocab_config(path)
 
     assert excinfo.value.error_code == "VOCAB_CONFIG_INVALID"
+
+
+def test_format_version_defaults_to_one() -> None:
+    assert load_vocab_config(SHIPPED_CONFIG).format_version == 1
+
+
+def test_a_newer_format_version_is_rejected(tmp_path: Path) -> None:
+    path = tmp_path / "vocab.yaml"
+    path.write_text("format_version: 2\n" + VALID_YAML, encoding="utf-8")
+
+    with pytest.raises(ConfigError) as excinfo:
+        load_vocab_config(path)
+
+    assert excinfo.value.error_code == "VOCAB_CONFIG_INVALID"

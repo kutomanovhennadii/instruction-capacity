@@ -36,15 +36,25 @@ def build_reference(rule_table: RuleTable, source_text: SourceText) -> Reference
             (``REFERENCE_MARKUP_MISMATCH``) - a desynchronization of the stand generators,
             not a property of the model answer.
     """
-    mapping = {rule.source: rule.target for rule in rule_table.rules}
-    words = tuple(mapping.get(word, word) for word in source_text.words)
-
-    _verify_markup(rule_table, source_text, words)
+    reference = rebuild_reference(rule_table, source_text)
+    _verify_markup(rule_table, source_text, reference.words)
     _logger.info(
-        f"reference built: {len(words)} words, "
+        f"reference built: {len(reference.words)} words, "
         f"{len(source_text.replacement_positions)} replacements by {rule_table.m} rules"
     )
-    return Reference(words=words, words_per_line=source_text.words_per_line)
+    return reference
+
+
+def rebuild_reference(rule_table: RuleTable, source_text: SourceText) -> Reference:
+    """Build the reference of a task rebuilt from its own record: no check and no log line.
+
+    The markup of such a task follows from its words, so there is nothing to check.
+    """
+    mapping = {rule.source: rule.target for rule in rule_table.rules}
+    return Reference(
+        words=tuple(mapping.get(word, word) for word in source_text.words),
+        words_per_line=source_text.words_per_line,
+    )
 
 
 def _verify_markup(

@@ -1,0 +1,28 @@
+# Reference of the vocabulary version, written by scripts/build_vocab.py right
+# after the build. A changed vocabulary is a new version with a new vocab_id.
+# Check: python scripts/verify_vocab.py --vocab-id <vocab_id>
+
+vocab_id: v1_gemini35fl
+built_at: '2026-10-28'
+hash: sha256:9366b26b60a071492225b4f2ad6bd1c295d275f7404966f9c4126a864cd92fbd
+size: 2776
+source: cmudict_monosyllabic_singular_nouns
+tokenizer_names:
+- gemini_count/gemini-3.5-flash-lite
+build_params:
+  max_syllables: 1
+  ascii_lower_only: true
+code_constants:
+  min_word_length: 3
+  probe_prefix: ' '
+funnel:
+  candidates: 3581
+  intersection: 2776
+per_tokenizer:
+  gemini_count/gemini-3.5-flash-lite: 2776
+provenance:
+  python: 3.11.2
+  nltk: 3.10.0
+  tiktoken: 0.13.0
+  transformers: 4.57.6
+  tokenizers: 0.22.2

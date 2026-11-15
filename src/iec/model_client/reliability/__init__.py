@@ -1,6 +1,8 @@
 """Public names of the reliable provider call layer."""
 
 from iec.model_client.reliability.failures import (
+    ClassifiedFailure,
+    FailurePolicy,
     ModelCallFailure,
     ModelFailureCategory,
     ProviderFailure,
@@ -25,6 +27,8 @@ from iec.model_client.reliability.reliable_client import (
 __all__ = [
     "ActiveCall",
     "CallContext",
+    "ClassifiedFailure",
+    "FailurePolicy",
     "HttpRequest",
     "HttpResponse",
     "HttpTransport",

@@ -1,1 +1,1 @@
-"""The passport document: ``passport.md`` with formulas and the figures of every model."""
+"""The document of the passport and its figures: the text by quantity and the kinds of figures."""
