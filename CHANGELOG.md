@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.3
+
+**Measurements.** The points of `pilot_nemotron3_5_lightning_v43` and `pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45` are
+no longer published, and their passports move to `passports/` next to that of `pilot_nemotron3_ultra_550b_a55b_v60`: the
+answers of the three Nemotron models came from the free endpoints that NVIDIA serves on OpenRouter, whose NVIDIA API Trial
+Terms of Service do not allow the generated content to be distributed. The passports, statistics of the answers, stay.
+The README gives the instruction capacity of `H` of `pilot_nemotron3_ultra_550b_a55b_v60` as its passport does, 17.0
+(15.8–18.1); release 0.2.2 rounded the lower bound twice.
+
 ## 0.2.2
 
 **Measurements.** The measurement `pilot_gpt4_1_mini_v56` of `gpt-4.1-mini-2025-04-14` with the vocabulary

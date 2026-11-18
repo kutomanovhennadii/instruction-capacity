@@ -16,7 +16,7 @@ density, how many times the full density multiplies the odds of an error — for
 of the model under measurement, together with the way the spread of difficulty between requests
 depends on the load.
 
-This repository is the public part of the instrument, version 0.2.2. With it you can
+This repository is the public part of the instrument, version 0.2.3. With it you can
 
 - recompute the passports of the published measurements from their points and check that the
   published files are intact and reproducible;
@@ -30,12 +30,14 @@ neither its design nor its rules for choosing points are published. A passport d
 on it: it is computed from the published points alone, whoever chose them, so every number of a
 published passport can be checked without the closed part.
 
-## Version 0.2.2
+## Version 0.2.3
 
-This is the second version of the instrument, release 0.2.2. The first, 0.1.0, is the version the
+This is the second version of the instrument, release 0.2.3. The first, 0.1.0, is the version the
 article describes; the tag `v0.1.0` of this repository holds it and reproduces the numbers of the
-article. Release 0.2.2 publishes the measurement of GPT-4.1 mini and the passport of Nemotron 3 Ultra
-550B A55B without its points, keeps the fits of a passport in a file so that a change of the laws
+article. Release 0.2.3 removes the points of Nemotron 3.5 Lightning and Nemotron 3 Nano Omni 30B A3B
+Reasoning, whose answers the terms of their endpoints do not allow to distribute, and keeps their
+passports in `passports/`. Release 0.2.2 published the measurement of GPT-4.1 mini and the passport of
+Nemotron 3 Ultra 550B A55B without its points, keeps the fits of a passport in a file so that a change of the laws
 recomputes it in seconds, and checks a published measurement so that a fit at the edge of its
 convergence does not decide the check. Release 0.2.1 corrected how the passport of 0.2.0 chooses and fits its laws: every law takes
 the form with the smallest `QAIC` among its candidates, the slices of the grids choose their form too,
@@ -73,8 +75,8 @@ is read and what the passport describes:
   code of its reason.
 - **Measurements, vocabularies, commands.** The published measurement of GPT-4o mini is new and
   contains the points of the measurement of 0.1.0; the measurements of Gemini 3.5 Flash Lite,
-  Gemini 3.1 Flash Lite, Nemotron 3.5 Lightning, Nemotron 3 Nano Omni 30B A3B Reasoning and GPT-4.1
-  mini are published with it. Three more vocabularies are published with their build configs and
+  Gemini 3.1 Flash Lite and GPT-4.1 mini are published with it, and the passports of Nemotron 3.5
+  Lightning, Nemotron 3 Nano Omni 30B A3B Reasoning and Nemotron 3 Ultra 550B A55B without their points. Three more vocabularies are published with their build configs and
   tokenizers. `build_passport.py` and `verify.py` work with the new `passport_data.json`.
 
 The numbers of a passport of version 0.2 are not those of the article: the answer is read differently and
@@ -87,7 +89,7 @@ Controlled Load.* arXiv:2610.36095, 2026. [arXiv page](https://arxiv.org/abs/261
 [PDF](articles/instruction-capacity.pdf)
 
 The article describes version 0.1.0 of the instrument; the tag `v0.1.0` of this repository
-reproduces its numbers, and [Version 0.2.2](#version-022) above says what this version changes.
+reproduces its numbers, and [Version 0.2.3](#version-023) above says what this version changes.
 
 ## Quick start: recompute a published passport
 
@@ -133,19 +135,21 @@ the capacities and the document from it in seconds, for instance after a change 
 | [`pilot_gpt4o_mini_v55`](artefacts/pilot_gpt4o_mini_v55/passport.md) | `gpt-4o-mini-2024-07-18` | 5,172 | 22,598,814 · 1,155,179 · 10,213,582 | 36.4 (32.8–40.4) · 35.3 |
 | [`pilot_gemini3_5_flash_lite_v58`](artefacts/pilot_gemini3_5_flash_lite_v58/passport.md) | `gemini-3.5-flash-lite` | 3,788 | 48,842,597 · 7,817,448 · 24,081,763 | 14.6 (13.4–15.9) · 13.1 |
 | [`pilot_gemini3_1_flash_lite_v57`](artefacts/pilot_gemini3_1_flash_lite_v57/passport.md) | `gemini-3.1-flash-lite` | 5,336 | 112,208,407 · 4,318,887 · 25,706,292 | 18.8 (15.3–23.2) · 14.8 |
-| [`pilot_nemotron3_5_lightning_v43`](artefacts/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 48,574,151 · 590,039 · 8,872,340 | 10.0 (8.0–12.6) · 7.2 |
-| [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](artefacts/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 43,142,085 · 829,043 · 7,689,136 | 34.3 (29.8–39.4) · 35.0 |
 | [`pilot_gpt4_1_mini_v56`](artefacts/pilot_gpt4_1_mini_v56/passport.md) | `gpt-4.1-mini-2025-04-14` | 6,961 | 85,962,046 · 3,805,051 · 36,982,696 | 23.5 (20.9–26.4) · 20.5 |
 
 Intervals are 95%. The measurement of `gpt-4o-mini-2024-07-18` is the evidence base of the
 [empirical laws](docs/07-empirical-laws.md). The directory of every measurement holds the points, the description,
 the passport (`passport_data.json`, `passport.md`, `figures/`) and `passport.pdf` — the same passport as a PDF.
 
-The passport of `nvidia/nemotron-3-ultra-550b-a55b:free`, `pilot_nemotron3_ultra_550b_a55b_v60` (6,702 answered
-points; instruction capacity of `H` at q = 0.5: 17.0 (15.9–18.1) by law, 16.4 binned), is published without its points
-in [`passports/`](passports/pilot_nemotron3_ultra_550b_a55b_v60/passport.md). Its answers were generated through the free
-endpoint that NVIDIA serves on OpenRouter, and the NVIDIA API Trial Terms of Service of that endpoint do not allow the
-generated content to be distributed, so this passport cannot be recomputed from published points.
+The passports of three Nemotron models are published without their points in `passports/`. Their answers were generated
+through the free endpoints that NVIDIA serves on OpenRouter, and the NVIDIA API Trial Terms of Service of these endpoints
+do not allow the generated content to be distributed, so these passports cannot be recomputed from published points.
+
+| Passport | Model | Points | Trials of `P_sync` · `H` · `F` | Instruction capacity of `H` at q = 0.5, rules: by law · binned |
+|---|---|---|---|---|
+| [`pilot_nemotron3_5_lightning_v43`](passports/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 48,574,151 · 590,039 · 8,872,340 | 10.0 (8.0–12.6) · 7.2 |
+| [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](passports/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 43,142,085 · 829,043 · 7,689,136 | 34.3 (29.8–39.4) · 35.0 |
+| [`pilot_nemotron3_ultra_550b_a55b_v60`](passports/pilot_nemotron3_ultra_550b_a55b_v60/passport.md) | `nvidia/nemotron-3-ultra-550b-a55b:free` | 6,702 | 108,717,543 · 3,583,234 · 41,854,373 | 17.0 (15.8–18.1) · 16.4 |
 
 ## Measure your own model
 
@@ -216,7 +220,7 @@ config/         vocab.yaml and vocab/ - how the vocabularies are built; passport
                 observability.yaml - the telemetry of the bench
 assets/vocab/   the vocabularies and their references
 artefacts/      the published measurements
-passports/      a passport published without its points
+passports/      the passports published without their points
 articles/       the article as a PDF
 docs/           the method
 .github/        the checks of a reader on every push
@@ -241,12 +245,7 @@ operations are marked `speed`; both are excluded by default.
   customers the customer owns the output (OpenAI Services Agreement, section 4.1). Those of
   `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite` were generated through the Gemini API: under
   the Gemini API Additional Terms of Service, Google won't claim ownership over generated content
-  (section "Use of Generated Content"). Those of `nvidia/nemotron-3.5-lightning` were generated
-  through OpenRouter: under the OpenRouter Terms of Service the rights in an output are set by the
-  terms of its model (section 6.1), and the model is released under the OpenMDW License
-  Agreement, version 1.1, which "does not impose any restrictions or obligations with respect to
-  any use, modification, or sharing of any outputs generated by using the Model Materials". Those
-  of `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` were generated through OpenRouter as well:
-  the rights in an output are set by the terms of its model, and the model is governed by the
-  NVIDIA Open Model Agreement, under which "NVIDIA does not claim ownership to any outputs
-  generated using the Works or Derivative Works".
+  (section "Use of Generated Content").
+- The answers of the Nemotron models are not published. They were generated through the free endpoints that NVIDIA serves
+  on OpenRouter, and the NVIDIA API Trial Terms of Service of these endpoints do not allow the generated content to be
+  distributed (section 4.2). Their passports, which hold statistics of the answers and no answer, are in `passports/`.
