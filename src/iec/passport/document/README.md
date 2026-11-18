@@ -24,8 +24,11 @@ nothing is fitted or recomputed here.
 3. **H** - the same with the law of the rule number.
 4. **F** - the same with the laws of the length, of the share of the answer, of the density and of the number of rules.
 
-A capacity is written with its interval; a value beyond the measured area is marked as a continuation of the law. Capacities by the
-bins stand next to those by the law. What a status of a capacity says is a table of `text_cells`, not a chain of branches.
+Every law is written with the form the data chose by the smallest `QAIC`, its formula, parameters and fit; the law of the grid
+names the form of the slices, its shared parameters and the own level `μ` of every slice (`text_cells.slice_sentence`).
+A capacity is written with its interval; a value beyond the measured area is marked as a continuation of the law. A capacity or a
+bound that the passport holds as `null` because a floating-point number does not hold it is written as more than 10³⁰⁸. Capacities
+by the bins stand next to those by the law. What a status of a capacity says is a table of `text_cells`, not a chain of branches.
 
 ## Key signatures
 

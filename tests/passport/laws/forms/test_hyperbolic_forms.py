@@ -80,11 +80,12 @@ def test_the_formulas_name_the_symbol() -> None:
 
 
 def test_the_range_of_the_slanted_hyperbola_lies_inside_its_axis() -> None:
+    # The slope of the slanted asymptote takes either sign.
     lower, upper = SlantedHyperbolicForm().bounds(np.array([0.0, 2.5, 10.0]))
     assert lower.tolist() == [-math.inf, -math.inf, 0.0, 0.001]
-    assert upper.tolist() == [math.inf, 0.0, 10.0, 10.0]
+    assert upper.tolist() == [math.inf, math.inf, 10.0, 10.0]
     _, narrow = SlantedHyperbolicForm().bounds(np.array([0.0, 0.001]))
-    assert narrow.tolist() == [math.inf, 0.0, 0.002, 0.002]
+    assert narrow.tolist() == [math.inf, math.inf, 0.002, 0.002]
 
 
 def test_the_range_of_the_two_slope_hyperbola_frees_both_slopes() -> None:
@@ -108,10 +109,12 @@ def test_the_starts_of_the_two_slope_hyperbola_follow_two_lines_then_the_slanted
     ]
 
 
-def test_the_starts_of_the_slanted_hyperbola_are_those_of_the_density_law() -> None:
+def test_the_starts_of_the_slanted_hyperbola_take_both_signs_of_the_slope() -> None:
     starts = SlantedHyperbolicForm().starts(np.array([0.0, 4.0, 8.0]), np.array([3.0, 2.0, 1.0]))
     assert [start.tolist() for start in starts] == [
-        [3.0, slope, corner, 0.5] for slope in (-1.0, -3.0) for corner in (2.0, 4.0, 6.0)
+        [3.0, slope, corner, 0.5]
+        for slope in (-1.0, -3.0, 1.0, 3.0)
+        for corner in (2.0, 4.0, 6.0)
     ]
 
 

@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.2.1
+
+The passport chooses and fits its laws anew. The points of the published measurements are the same, and their passports are
+recomputed.
+
+**Laws.** Every law takes the form with the smallest `QAIC = χ²/ĉ + 2k` among the candidates of its block, and a replacement no
+longer needs a margin of 10. The established form, the first of the block, wins a tie; an alternative with a parameter held on a
+bound of its range does not replace it. `ĉ` is the smallest `χ²` per degree of freedom among the converged forms, not below one.
+The slices of the grids of `P_sync` and `H` choose their form in the same way among the two-asymptote hyperbola, the slanted
+hyperbola and the binary exponential: the curve is shared by the slices, and every slice has its own level `μ_v`. A point of a law
+weighs `1/(σᵢ² + τ²)`: `σᵢ²` is its own variance and `τ²` the scatter of the points beyond their own variances, by the estimate of
+DerSimonian and Laird around the candidate with the smallest `χ²` per degree of freedom; the errors are still carried by the full
+covariance. The amplitude of the exponential and of the binary exponential and the slope of the slanted hyperbola take either
+sign, so a law can rise along its axis. The simple hyperbola `c + A/x` is no longer a candidate: every law defines the level of
+its block at the zero of its abscissa, and that hyperbola has its pole there.
+
+**Spread.** A quantity fitted with the variance by the load is checked against the median request of the data on the axes
+constant within a request. When the variance turns a bin to the other side of the reference bin beyond the error of the
+comparison, the quantity is fitted with one variance, and the passport names the bins (`SPREAD_AGAINST_DATA`).
+
+**Capacities.** A capacity beyond the largest floating-point number is `null` in `passport_data.json` and "more than 10³⁰⁸" in the
+text. The fatigue capacity of `P_sync` is none when the full law of the grid stays above zero up to 2⁴⁰ words, as when its plateau
+rises with the length faster than its slices fall; before, the end of the search stood in its place.
+
+**Passport data.** `passport_data.json` has `format_version` 2: the law of the slices of a grid is a law with its chosen form, its
+shared parameters and the record of its candidates.
+
+**Checks.** The checks of a reader recompute every published measurement in a job of its own, so that every one fits the time
+limit of a job, and a failed recomputation shows the end of its log.
+
+**Measurements.** The points of the five published measurements are the same; their passports are recomputed by this version.
+
 ## 0.2.0
 
 The instrument now reads an answer by the alignment of places and describes behavior and degradation by three

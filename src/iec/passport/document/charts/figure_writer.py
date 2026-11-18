@@ -3,12 +3,13 @@
 The plan says which figures a quantity gets and in which order; a kind of figure draws an entry with
 the law of its block by the form of the assignment of forms. The names that the document links come
 from the same kinds, so the document and the folder of the figures cannot disagree. A quantity without
-laws gets no figures.
+laws gets no figures. A figure that an earlier build left and the plan no longer gives - the spread of
+a quantity that has one variance now - is removed.
 """
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -55,16 +56,32 @@ def write_passport_figures(
             ``LAW_BLOCK_UNKNOWN`` - the assignment of forms names no such block.
 
     Side effects:
-        Writes PNG files into the subfolders of ``out_dir``, each through a temporary file.
+        Writes PNG files into the subfolders of ``out_dir``, each through a temporary file; removes
+        the PNG files of a subfolder that this build did not write, and the subfolder when it is left
+        empty.
     """
     head = str(passport["model"]["id"])
     written: list[Path] = []
     for quantity, entries in plan.entries.items():
         section = passport[quantity]
-        if section.get("status") != MEASURED:
-            continue
         folder = out_dir / quantity
-        folder.mkdir(parents=True, exist_ok=True)
-        for entry in entries:
-            written += CHART_KINDS[entry.kind].draw(entry, quantity, section, assignment, head, folder)
+        drawn: list[Path] = []
+        if section.get("status") == MEASURED:
+            folder.mkdir(parents=True, exist_ok=True)
+            for entry in entries:
+                drawn += CHART_KINDS[entry.kind].draw(entry, quantity, section, assignment, head, folder)
+        _remove_stale(folder, drawn)
+        written += drawn
     return tuple(written)
+
+
+def _remove_stale(folder: Path, drawn: Sequence[Path]) -> None:
+    """Remove the figures of an earlier build that this build did not draw, and an empty folder."""
+    if not folder.is_dir():
+        return
+    kept = {path.resolve() for path in drawn}
+    for path in folder.glob("*.png"):
+        if path.resolve() not in kept:
+            path.unlink()
+    if not any(folder.iterdir()):
+        folder.rmdir()

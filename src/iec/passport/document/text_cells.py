@@ -2,7 +2,9 @@
 
 The document computes nothing: every number comes from the passport dictionary. A capacity is written
 by the law with its interval, a value beyond the measured area marked as a continuation of the law,
-and next to it by the bins; what a status says is a table, not a chain of branches. The approximations
+and next to it by the bins; what a status says is a table, not a chain of branches. A number that the
+passport holds as ``null`` because a floating-point number does not hold it is written as more than
+10³⁰⁸. The approximations
 of the spread are written by the drawings of ``law_drawings``, which the figures draw too.
 """
 
@@ -40,6 +42,7 @@ HELD_NAMES = {"gamma": "exponent γ"}
 FORM_NAMES = {
     "linear": "a line",
     "slanted_hyperbolic": "a slanted hyperbola",
+    "asymptotic_hyperbolic": "a two-asymptote hyperbola",
     "two_slope_hyperbolic": "a two-slope hyperbola",
     "binary_exponential": "a binary exponential",
     "saturation": "a saturation",
@@ -55,6 +58,8 @@ LAW_MARKS = {
     "extrapolated": ", continuation of the law",
     "conditional": ", conditional: a continuation of the law of the density",
 }
+#: A number of a capacity by the law past the largest floating-point number, about ``1.8·10³⁰⁸``.
+PAST_FLOAT = "more than 10³⁰⁸"
 #: The text of a capacity by the bins that has no value, by its status.
 BINS_TEXTS: Mapping[str, Callable[[Mapping[str, Any]], str]] = {
     "beyond_support": lambda row: (
@@ -79,7 +84,7 @@ def on_bound(law: Mapping[str, Any]) -> str:
     Args:
         law: A law with ``held``.
     """
-    held = ", ".join(HELD_NAMES[name] for name in law["held"])
+    held = ", ".join(HELD_NAMES.get(name, name) for name in law["held"])
     return f"; on the bound of the search: {held}" if held else ""
 
 
@@ -96,7 +101,7 @@ def law_sentence(title: str, law: Mapping[str, Any]) -> str:
     )
     held = ", ".join(law["held"])
     bound = f"; on the bound of the search: {held}" if held else ""
-    chosen = f"chosen by `χ² + 2k` among {len(law['candidates'])} forms"
+    chosen = f"chosen by the smallest `QAIC` among {len(law['candidates'])} forms"
     if law.get("fallback"):
         chosen = "the line: no candidate converged"
     form = FORM_NAMES.get(law["law_form"], law["law_form"])
@@ -106,17 +111,47 @@ def law_sentence(title: str, law: Mapping[str, Any]) -> str:
     )
 
 
+def slice_sentence(law: Mapping[str, Any]) -> str:
+    """Write the law of the slices of the grid: the form the data chose, its shared parameters, the fit.
+
+    Args:
+        law: The published law of the slices (``laws.grid_slices.slice_entry``).
+    """
+    params = ", ".join(
+        f"`{name} = {number(float(value), 3)} ± {number(float(law['half'][name]), 3)}`"
+        for name, value in law["params"].items()
+    )
+    form = FORM_NAMES.get(law["law_form"], law["law_form"])
+    return (
+        f"The law of the grid: a length slice is {form}, `{law['formula']}` over `ℓ = log₂ s`, with an "
+        f"own level `μ` in every slice and the other parameters shared, in the coding of the fit: "
+        f"{params}; `χ² = {number(float(law['chi2']), 1)}` over {law['n_points']} cells"
+        f"{on_bound(law)}; chosen by the smallest `QAIC` among {len(law['candidates'])} forms."
+    )
+
+
+def law_number(value: float | None) -> str:
+    """Write a capacity by the law or a bound of its interval; ``None`` is past the largest float.
+
+    Args:
+        value: The number of the row, ``None`` when a floating-point number does not hold it.
+    """
+    return PAST_FLOAT if value is None else size(float(value))
+
+
 def law_cell(row: Mapping[str, Any]) -> str:
     """Write a capacity by the law: the value, the interval, the mark of its status.
+
+    A law without a root gives a row without a value and without an interval.
 
     Args:
         row: The row of the capacity by the law.
     """
-    if row.get("value") is None:
+    if row.get("value") is None and "interval" not in row:
         return "none: the law gives no root"
     low, high = row["interval"]
     mark = LAW_MARKS.get(row["status"], "")
-    return f"{size(float(row['value']))} ({size(float(low))}–{size(float(high))}){mark}"
+    return f"{law_number(row['value'])} ({law_number(low)}–{law_number(high)}){mark}"
 
 
 def bins_cell(row: Mapping[str, Any] | None) -> str:
@@ -171,13 +206,20 @@ def fit_line(section: Mapping[str, Any]) -> str:
     """
     fit = section["fit"]
     sigma = "none" if fit["sigma2"] is None else number(float(fit["sigma2"]))
-    return (
+    sentence = (
         f"Model {section['model']}, request weights by the cube "
         f"{section['weights'].replace(' x ', ' × ')}. Fit: {FIT_METHODS[fit['method']]}; the variance of "
         f"the request shift `σ² = {sigma}`; {fit['points']:,} requests, {fit['trials']:,} trials, "
         f"{fit['failures']:,} failures, {fit['parameters']} parameters; removed bins: "
         f"{', '.join(fit['dropped']) or 'none'}."
     )
+    against = fit.get("spread_against_data")
+    if against:
+        sentence += (
+            " The variance by the load turned bins against the median request of the data, so the "
+            f"quantity keeps one variance: {'; '.join(against)}."
+        )
+    return sentence
 
 
 def figure_links(folder: str, names: Sequence[str]) -> list[str]:

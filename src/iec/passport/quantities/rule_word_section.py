@@ -1,19 +1,16 @@
 """The section of H in the passport: model VS-PMR, laws, level, capacities.
 
 A trial is a rule word standing on its place, a success - the right replacement. The model is
-``η = VS(v, s) + P(p) + M(m) + R(r) + b``. The grid goes as in the article, section 5.3.1: a slice is
-the exponent ``μ_v − A·2^(γ·x)``, ``x = log₂ s``, with shared ``A, γ``, which dies out to its own
-level ``μ_v`` at ``s → 0``; the levels of the slices lie on the law of the levels over
-``u = log₂(v/20)``. The weights of these two fits are the own variances, without the mutual
-dependence: with the full covariance the curve of a slice runs away from its cells. The other laws
-go by generalised least squares over the full covariance of their bins: the number of rules over
-``log₂ m``, the density over ``log₂(p/2⁻¹⁰)`` and the rule number over ``log₂ r``. The form of the
-law of the levels, of the number of rules, of the density and of the rule number is chosen by the
-data among the candidates of the assignment of forms (``config/passport_laws.yaml``,
-``laws.block_choice``): the line, the slanted hyperbola, the binary exponential and the saturation,
-by the smallest ``χ² + 2k``; the exponent of the slices is a joint fit of the grid and keeps its
-formula here. A bin of an axis with fewer than ten requests with failures stays outside its law; the
-cells of the grid are not selected.
+``η = VS(v, s) + P(p) + M(m) + R(r) + b``. A slice of the grid is the curve of a form chosen among
+the candidates of the slices over ``x = log₂ s`` with an own level ``μ_v`` at ``s → 0``
+(``laws.grid_slices``); the levels of the slices lie on the law of the levels over
+``u = log₂(v/20)``. The weights of these two fits are ``1/(σᵢ² + τ²)`` of the own variances, without
+the mutual dependence: with the full covariance the curve of a slice runs away from its cells. The
+other laws go with the weights ``1/(σᵢ² + τ²)`` of the own variances of their bins: the number of
+rules over ``log₂ m``, the density over ``log₂(p/2⁻¹⁰)`` and the rule number over ``log₂ r``. The
+form of every law is chosen by the data among the candidates of the assignment of forms
+(``config/passport_laws.yaml``, ``laws.block_choice``) by the smallest ``QAIC``. The cells of the
+grid are not selected.
 
 The section goes by the steps of every section: the facts of the fit and the approximations of the
 spread, the laws of the blocks, the level, the capacities by the laws and by the bins, the rows of
@@ -39,25 +36,25 @@ from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
-from scipy.optimize import brentq, minimize_scalar
+from scipy.optimize import brentq
 
 from iec.passport.fitting.chain.fit_paths import METHOD_NONE
 from iec.passport.fitting.load_spread import request_loads
-from iec.passport.fitting.variable_fit import VariableFit, fit_variable
+from iec.passport.fitting.variable_fit import VariableFit
 from iec.passport.laws.block_choice import (
     MIN_POINTS,
     REASON_FEW_POINTS,
     BlockLaw,
     LawStack,
     block_law,
-    choose_law,
+    choose_scattered_law,
     law_entry,
     unit_rows,
 )
 from iec.passport.laws.forms.law_assignment import LawAssignment
-from iec.passport.laws.forms.law_fit import held_parameters
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.gls_tools import STATUS_MEASURED
+from iec.passport.laws.grid_slices import SliceLaw, choose_slice_form, slice_entry, slice_value
 from iec.passport.laws.law_rows import (
     HALF,
     LEVEL,
@@ -66,13 +63,14 @@ from iec.passport.laws.law_rows import (
     fit_summary,
     half_width,
     joint_covariance,
+    own_variances,
 )
-from iec.passport.laws.point_weights import covariance_weights, variance_weights
 from iec.passport.laws.spread_laws import spread_forms, spread_laws
 from iec.passport.quantities.steps.axis_rows import axis_rows
 from iec.passport.quantities.steps.bins_walk import STATUS_BELOW_ONE_RULE, STATUS_BEYOND_SUPPORT
 from iec.passport.quantities.steps.cell_rows import cell_rows
 from iec.passport.quantities.steps.law_capacity import odds_factor_row
+from iec.passport.quantities.steps.median_check import axis_bins, checked_fit, requests_of
 from iec.passport.trials.design.folded_design import AxisBin, GridCell, VariableDesign, build_design
 from iec.passport.trials.layout.bin_layout import REFERENCE_TOTAL_WORDS, BinLayout
 from iec.passport.trials.place_trials import PointTrials
@@ -82,13 +80,11 @@ P_ZERO = 2.0**-10
 _U_AT_ONE = 10.0
 #: The grid of ``log₂ m`` of the cumulative price: from one rule to ``2⁴⁰`` rules.
 _X_GRID = np.linspace(0.0, 40.0, 8001)
-#: The range of the exponent ``γ`` of a slice and the accuracy of its search. The accuracy is below the
-#: tolerance of :func:`iec.passport.laws.forms.law_fit.held_parameters`: a ``γ`` on a bound must be
-#: recognised.
-_GAMMA_RANGE = (0.005, 2.0)
-_GAMMA_ACCURACY = 1e-7
 #: The end of the search of the fatigue root, ``2⁶⁰`` words: past it the law has no root.
 _X_ROOT_TOP = 60.0
+#: The farthest left the search of the fatigue root goes: a curve still above the threshold there
+#: has no root.
+_X_ROOT_FLOOR = 1e4
 STATUS_NO_LAWS = "no_laws"
 STATUS_NO_ROOT = "no_root"
 #: The symbols of the abscissae of the chosen laws in their formulas.
@@ -102,82 +98,27 @@ _SYMBOLS = {
 
 @dataclass(frozen=True, slots=True, eq=False)
 class _GridLaw:
-    """The slices of the grid of H: the exponent with shared ``A, γ`` and an own level each.
+    """The slices of the grid of H: the law of the slices and the levels the law of the levels reads.
 
     ``cells`` - the measured cells; ``cell_index`` - their columns in the fit; ``slices`` - the
-    length bins in order; ``values`` - the levels of the slices, then ``A`` and ``γ``; ``chi2`` - of
-    the slices; ``held`` - ``γ`` lies on a bound of its range; ``operator`` - the derivative of
-    ``values`` over the cells; ``level_variances`` - the own variances of the levels; ``slice_u`` -
-    the centres of the slices in ``log₂(v/20)``.
+    length bins in order; ``law`` - the law of the slices; ``level_variances`` - the own variances of
+    the levels; ``slice_u`` - the centres of the slices in ``log₂(v/20)``.
     """
 
     cells: list[GridCell]
     cell_index: list[int]
     slices: list[int]
-    values: np.ndarray
-    chi2: float
-    held: bool
-    operator: np.ndarray
+    law: SliceLaw
     level_variances: np.ndarray
     slice_u: list[float]
 
-    def rows(self, size: int) -> np.ndarray:
-        """Return the derivative of ``values`` by all the coefficients of the fit."""
-        result = np.zeros((len(self.values), size))
-        result[:, self.cell_index] = self.operator
-        return result
+    def level_rows(self, size: int) -> np.ndarray:
+        """Return the derivative of the levels by all the coefficients of the fit."""
+        return self.law.rows(self.cell_index, size)[self.law.width :]
 
-
-def _fit_slices(
-    x: np.ndarray, levels: np.ndarray, values: np.ndarray, variances: np.ndarray
-) -> tuple[np.ndarray, float, float]:
-    """Fit the exponent of the slices with the weights inverse to the own variances of the cells.
-
-    At a given ``γ`` the law ``μ_v − A·2^(γ·x)`` is linear in the levels and ``A``, so the search runs
-    over ``γ`` alone.
-
-    Args:
-        x: ``log₂ s`` of the cells.
-        levels: The indicator of the slice of every cell.
-        values: The coefficients of the cells.
-        variances: Their own variances.
-
-    Returns:
-        The levels and ``A`` in one vector, ``γ``, ``χ²`` by the own variances.
-    """
-    weight = 1.0 / variances
-
-    def solve(gamma: float) -> tuple[np.ndarray, float]:
-        """Return the levels and ``A`` at a given ``γ`` and their ``χ²``."""
-        design = np.column_stack([levels, -(2.0 ** (gamma * x))])
-        params = np.linalg.solve(design.T @ (weight[:, None] * design), design.T @ (weight * values))
-        residual = values - design @ params
-        return params, float(residual @ (weight * residual))
-
-    found = minimize_scalar(
-        lambda gamma: solve(gamma)[1],
-        bounds=_GAMMA_RANGE,
-        method="bounded",
-        options={"xatol": _GAMMA_ACCURACY},
-    )
-    gamma = float(found.x)
-    params, chi2 = solve(gamma)
-    return params, gamma, chi2
-
-
-def _slices_jacobian(
-    x: np.ndarray, levels: np.ndarray, amplitude: float, gamma: float
-) -> np.ndarray:
-    """Return the derivative of the law of a slice over the levels, ``A`` and ``γ``.
-
-    Args:
-        x: ``log₂ s`` of the cells.
-        levels: The indicator of the slice of every cell.
-        amplitude: ``A``.
-        gamma: ``γ``.
-    """
-    power = 2.0 ** (gamma * x)
-    return np.column_stack([levels, -power, -amplitude * math.log(2.0) * x * power])
+    def shared_rows(self, size: int) -> np.ndarray:
+        """Return the derivative of the shared parameters by all the coefficients of the fit."""
+        return self.law.rows(self.cell_index, size)[: self.law.width]
 
 
 def _axis_items(design: VariableDesign, fit: VariableFit, letter: str) -> list[AxisBin]:
@@ -246,7 +187,8 @@ def _first_crossing(curve: np.ndarray, grid: np.ndarray, level: float) -> float:
 
 
 def log_fatigue(
-    slices: np.ndarray,
+    slice_form: LawForm,
+    shared: np.ndarray,
     plateau: BlockLaw,
     plateau_params: np.ndarray,
     alpha: float,
@@ -255,35 +197,38 @@ def log_fatigue(
     """Return ``log₂ s`` at ``v = s`` by the full law of the grid; ``None`` - the law has no root.
 
     Texts below 20 words add no price of the length, so at ``v = s`` the logit is
-    ``α − A·2^(γ·x) + [L(max(x − log₂ 20, 0)) − L(0)]``, ``L`` the law of the levels of the slices
-    over ``log₂(v/20)``. It falls from its level ``α``, so a level at or below the threshold has no
-    root, and a law that does not fall has none either.
+    ``α + [S(x; L(max(x − log₂ 20, 0))) − L(0)]``: ``S(x; μ)`` the curve of a slice of the level ``μ``
+    at ``x = log₂ s`` and ``L`` the law of the levels of the slices over ``log₂(v/20)``. At ``s → 0``
+    the curve tends to its level and the logit to ``α``, so a level at or below the threshold has no
+    root; a logit still above it at ``2⁶⁰`` words has none either.
 
     Args:
-        slices: ``A`` and ``γ`` of the exponent of the slices.
+        slice_form: The form of the slices.
+        shared: Its shared parameters.
         plateau: The law of the levels of the slices.
         plateau_params: Its parameters.
         alpha: The level.
         threshold: The logit of the median request at the level of the capacity.
     """
-    amplitude, gamma = float(slices[0]), float(slices[1])
     gap = alpha - threshold
-    if amplitude <= 0.0 or gap <= 0.0:
+    if gap <= 0.0:
         return None
     zero = math.log2(REFERENCE_TOTAL_WORDS)
-    below = math.log2(gap / amplitude) / gamma
-    if below <= zero:
-        return below
     start = float(plateau.value(0.0, plateau_params)[0])
 
     def logit(x: float) -> float:
         """Return the logit above the threshold at ``x = log₂ s`` of a text of ``s`` words."""
-        length = float(plateau.value(x - zero, plateau_params)[0]) - start
-        return gap - amplitude * 2.0 ** (gamma * x) + length
+        level = float(plateau.value(max(x - zero, 0.0), plateau_params)[0])
+        return gap + float(slice_value(slice_form, shared, level, np.array([x]))[0]) - start
 
     if logit(_X_ROOT_TOP) > 0.0:
         return None
-    return float(brentq(logit, zero, _X_ROOT_TOP))
+    low = -_X_ROOT_TOP
+    while logit(low) <= 0.0:
+        if low < -_X_ROOT_FLOOR:
+            return None
+        low *= 2.0
+    return float(brentq(logit, low, _X_ROOT_TOP, xtol=1e-12))
 
 
 def capacity_by_bins(
@@ -339,43 +284,42 @@ def capacity_by_bins(
 
 
 def _grid_law(
-    design: VariableDesign, names: list[str], theta_vector: np.ndarray, covariance: np.ndarray
-) -> _GridLaw:
-    """Fit the slices of the grid as in the article, section 5.3.1.
+    design: VariableDesign,
+    names: list[str],
+    theta_vector: np.ndarray,
+    covariance: np.ndarray,
+    forms: Sequence[LawForm],
+) -> _GridLaw | str:
+    """Fit the slices of the grid by the form chosen among the candidates (``laws.grid_slices``).
 
-    The weights are the own variances of the cells, without their mutual dependence. The errors are
-    still carried by the full covariance, through the sensitivity.
+    The weights are ``1/(σᵢ² + τ²)`` of the own variances of the cells, without their mutual
+    dependence. The errors are still carried by the full covariance, through the sensitivity.
 
     Args:
         design: The folded matrix: the cells of the grid and their centres.
         names: The columns of the fit.
         theta_vector: The coefficients in the order of ``names``.
         covariance: Their covariance.
+        forms: The candidate forms of the slices.
+
+    Returns:
+        The slices, or the reason of a grid whose slices no form describes.
     """
     cells = [cell for cell in design.cells if cell.name in names]
     cell_index = [names.index(cell.name) for cell in cells]
     x_cells = np.array([math.log2(design.abscissae[cell.name]["x"]) for cell in cells])
     slices = sorted({cell.v_bin for cell in cells})
-    count = len(slices)
-    levels = np.array([[1.0 if cell.v_bin == v else 0.0 for v in slices] for cell in cells])
+    rows = np.array(
+        [[x, float(slices.index(cell.v_bin))] for x, cell in zip(x_cells, cells, strict=True)]
+    )
     cell_covariance = covariance[np.ix_(cell_index, cell_index)]
-    grid_params, gamma, grid_chi2 = _fit_slices(
-        x_cells, levels, theta_vector[cell_index], np.diag(cell_covariance)
+    law = choose_slice_form(
+        forms, rows, theta_vector[cell_index], np.diag(cell_covariance), len(slices)
     )
-    grid_values = np.append(grid_params, gamma)
-    grid_held = held_parameters(
-        np.array([gamma]), np.array([_GAMMA_RANGE[0]]), np.array([_GAMMA_RANGE[1]]), (0,)
-    )
-    free = count + 1 if grid_held else count + 2
-    grid_jacobian = _slices_jacobian(x_cells, levels, float(grid_params[count]), gamma)[:, :free]
-    cell_weight = np.diag(1.0 / np.diag(cell_covariance))
-    grid_operator = np.zeros((count + 2, len(cells)))
-    grid_operator[:free] = (
-        np.linalg.pinv(grid_jacobian.T @ cell_weight @ grid_jacobian)
-        @ grid_jacobian.T
-        @ cell_weight
-    )
-    level_variances = np.diag(grid_operator[:count] @ cell_covariance @ grid_operator[:count].T)
+    if isinstance(law, str):
+        return law
+    operator = law.fit.sensitivity[law.width :]
+    level_variances = np.diag(operator @ cell_covariance @ operator.T)
     slice_u = []
     for v in slices:
         members = [cell for cell in cells if cell.v_bin == v]
@@ -390,10 +334,7 @@ def _grid_law(
         cells=cells,
         cell_index=cell_index,
         slices=slices,
-        values=grid_values,
-        chi2=grid_chi2,
-        held=bool(grid_held),
-        operator=grid_operator,
+        law=law,
         level_variances=level_variances,
         slice_u=slice_u,
     )
@@ -402,8 +343,8 @@ def _grid_law(
 def _plateau_law(grid: _GridLaw, size: int, forms: Sequence[LawForm]) -> BlockLaw | str:
     """Choose the law of the levels of the slices over ``u = log₂(v/20)``.
 
-    The weights are the own variances of the levels, as for the cells of the slices; the rows of the
-    levels over the coefficients carry the errors.
+    The weights are ``1/(σᵢ² + τ²)`` of the own variances of the levels, as for the cells of the
+    slices; the rows of the levels over the coefficients carry the errors.
 
     Args:
         grid: The slices of the grid.
@@ -417,12 +358,13 @@ def _plateau_law(grid: _GridLaw, size: int, forms: Sequence[LawForm]) -> BlockLa
     if count < MIN_POINTS:
         return REASON_FEW_POINTS
     x = np.array(grid.slice_u)
-    weigh = variance_weights(np.maximum(grid.level_variances, 1e-24))
-    choice = choose_law(forms, x, grid.values[:count], weigh)
+    choice = choose_scattered_law(
+        forms, x, grid.law.levels, np.maximum(grid.level_variances, 1e-24)
+    )
     if isinstance(choice, str):
         return choice
     names = [f"v_bin_{v}" for v in grid.slices]
-    return block_law(choice, grid.rows(size)[:count], names, x, at_infinity=False)
+    return block_law(choice, grid.level_rows(size), names, x, at_infinity=False)
 
 
 def _density_starts(values: np.ndarray, x: np.ndarray) -> list[np.ndarray]:
@@ -466,7 +408,7 @@ def _axis_law(
     at_infinity: bool = False,
     starts: Callable[[np.ndarray, np.ndarray], list[np.ndarray]] | None = None,
 ) -> tuple[BlockLaw | str, list[AxisBin]]:
-    """Choose the law of an axis over the binary logarithm of its load, by generalised least squares.
+    """Choose the law of an axis over the binary logarithm of its load with the weights ``1/(σᵢ² + τ²)``.
 
     The abscissa is ``log₂(p/2⁻¹⁰)`` for the density, ``log₂ m`` and ``log₂ r`` for the rules.
 
@@ -492,9 +434,9 @@ def _axis_law(
     centers = np.array([design.abscissae[item.name][key] for item in items])
     x = np.log2(centers / P_ZERO) if letter == "P" else np.log2(centers)
     values = theta_vector[index]
-    weigh = covariance_weights(covariance[np.ix_(index, index)])
+    own = own_variances(covariance[np.ix_(index, index)], implicit_reference=True)[1:]
     given = None if starts is None else {"slanted_hyperbolic": starts(values, x)}
-    choice = choose_law(forms, x, values, weigh, starts=given)
+    choice = choose_scattered_law(forms, x, values, own, starts=given)
     if isinstance(choice, str):
         return choice, items
     law = block_law(
@@ -506,6 +448,7 @@ def _axis_law(
 def _capacities(
     stack: LawStack,
     laws: Mapping[str, BlockLaw],
+    slice_form: LawForm,
     level: Callable[[np.ndarray], float],
     density_loss: Callable[[np.ndarray], float],
     joint: np.ndarray,
@@ -523,6 +466,7 @@ def _capacities(
     Args:
         stack: The parameters of the laws and their rows.
         laws: The chosen laws by their parts of the stack.
+        slice_form: The form of the slices of the grid.
         level: The level ``α`` from a vector of the stack.
         density_loss: The loss of the density law from ``p → 0`` to ``p = 1`` from a vector.
         joint: The joint covariance of the coefficients and of the variance of the shift.
@@ -550,6 +494,7 @@ def _capacities(
     def fatigue_at(vector: np.ndarray, alpha: float) -> float:
         """Return ``log₂`` of a fatigue capacity at the level ``alpha``; ``nan`` - no root."""
         found = log_fatigue(
+            slice_form,
             stack.part(vector, "slices"),
             plateau,
             stack.part(vector, "plateau"),
@@ -617,12 +562,17 @@ def _slice_rows(grid: _GridLaw, plateau: BlockLaw) -> list[dict[str, Any]]:
                 [cell.lower_words, cell.upper_words] for cell in grid.cells if cell.v_bin == v
             ),
             "u": grid.slice_u[slot],
-            "mu_v": float(grid.values[slot]),
+            "mu_v": float(grid.law.levels[slot]),
             "half": HALF * math.sqrt(max(float(grid.level_variances[slot]), 0.0)),
             "law": float(plateau.value(grid.slice_u[slot])[0]),
         }
         for slot, v in enumerate(grid.slices)
     ]
+
+
+def _rule_outcome(point: PointTrials) -> tuple[float, float]:
+    """Return the trials of a point and its failures of H."""
+    return float(sum(row[2] for row in point.rule)), float(sum(row[3] for row in point.rule))
 
 
 def rule_word_section(
@@ -645,7 +595,13 @@ def rule_word_section(
     """
     design = build_design(points, "H", layout, weights)
     run_weight = np.array([weights[key] for key in design.point_keys], dtype=float)
-    fit = fit_variable(design, run_weight, request_loads(points, layout))
+    fit = checked_fit(
+        design,
+        run_weight,
+        request_loads(points, layout),
+        requests_of(points, layout, _rule_outcome),
+        axis_bins(design, ("P", "M")),
+    )
     return rule_word_laws(
         design, fit, float(max(point.D * point.n for point in points)), assignment
     )
@@ -685,7 +641,12 @@ def rule_word_laws(
     size = len(names)
     covariance = joint[:size, :size]
 
-    grid = _grid_law(design, names, theta_vector, covariance)
+    grid = _grid_law(
+        design, names, theta_vector, covariance, assignment.forms_of("H", "grid_slices")
+    )
+    if isinstance(grid, str):
+        section["law_reasons"] = {"grid_slices": grid}
+        return section
     plateau = _plateau_law(grid, size, assignment.forms_of("H", "grid_plateau"))
     table, m_items = _axis_law(
         design, fit, theta_vector, covariance, "M", assignment.forms_of("H", "table_size")
@@ -721,11 +682,10 @@ def rule_word_laws(
         return section
     assert isinstance(plateau, BlockLaw) and isinstance(table, BlockLaw)
     assert isinstance(density, BlockLaw) and isinstance(rule, BlockLaw)
-    count = len(grid.slices)
     laws = {"plateau": plateau, "table": table, "density": density, "rule": rule}
     stack = LawStack(
         {
-            "slices": (grid.values[count:], grid.rows(size)[count:]),
+            "slices": (grid.law.shared, grid.shared_rows(size)),
             **{key: (law.params, law.rows) for key, law in laws.items()},
         }
     )
@@ -747,25 +707,13 @@ def rule_word_laws(
     alpha = level(stack.vector)
     loss = density_loss(stack.vector)
     capacities = _capacities(
-        stack, laws, level, density_loss, joint, theta, m_items, r_items, support_words
+        stack, laws, grid.law.form, level, density_loss, joint, theta, m_items, r_items, support_words
     )
-    slice_rows = grid.rows(size)[count:]
     section.update(
         {
             "status": STATUS_MEASURED,
             "laws": {
-                "grid": {
-                    "A": float(grid.values[count]),
-                    "gamma": float(grid.values[count + 1]),
-                    "half": {
-                        "A": half_width(slice_rows[0], joint),
-                        "gamma": half_width(slice_rows[1], joint),
-                    },
-                    "held": ["gamma"] if grid.held else [],
-                    "chi2": grid.chi2,
-                    "n_points": len(grid.cells),
-                    "n_parameters": count + 2,
-                },
+                "grid": slice_entry(grid.law, grid.shared_rows(size), joint, "ℓ"),
                 "grid_plateau": law_entry(plateau, joint, _SYMBOLS["grid_plateau"]),
                 "density": {
                     **law_entry(density, joint, _SYMBOLS["density"]),
@@ -791,8 +739,10 @@ def rule_word_laws(
                     shift_rows["plateau"],
                     joint,
                     lambda cell, point: float(
-                        grid.values[grid.slices.index(cell.v_bin)]
-                        - grid.values[count] * 2.0 ** (grid.values[count + 1] * math.log2(point["x"]))
+                        grid.law.curve(
+                            float(grid.law.levels[grid.slices.index(cell.v_bin)]),
+                            np.array([math.log2(point["x"])]),
+                        )[0]
                     ),
                 ),
                 "slices": _slice_rows(grid, plateau),

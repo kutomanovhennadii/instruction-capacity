@@ -5,9 +5,10 @@ the established form first, then the alternatives - the line, the hyperbola, the
 and the exponential. The law goes through every bin of the block with a coefficient, and the
 outliers leave it by the clipping of astropy (``sigma_clipping``): one scale for all the bins,
 three scales from the median of the residuals. The established form is fitted with the clipping
-first; every form of the block is then fitted through the bins it kept, and an alternative replaces
-the established form only beyond the threshold of ``form_threshold``: by more than 10 of
-``QAIC = χ²/ĉ + 2k``. A replacing form is fitted with the clipping again through all the bins. A
+first; every form of the block is then fitted through the bins it kept, and the form with the
+smallest ``QAIC = χ²/ĉ + 2k`` of ``form_threshold`` is taken, the established form on a tie, and an
+alternative with a parameter held on a bound does not replace it. A replacing form is fitted with
+the clipping again through all the bins. A
 form competes only with more kept bins than parameters, and a form that does not converge drops
 out. When no form converges with the clipping the line is the law, as the passport always comes
 out; when the line does not converge either, the block has no law, and the reason is written: too
@@ -31,11 +32,11 @@ from typing import Any
 import numpy as np
 
 from iec.passport.laws.form_threshold import Contender, pick, quasi_criterion
-from iec.passport.laws.forms.law_fit import LawFit, fit_law
+from iec.passport.laws.forms.law_fit import LawFit, fit_law, variance_weighting
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.forms.linear_forms import LinearForm
 from iec.passport.laws.law_rows import half_width
-from iec.passport.laws.point_weights import Weigh
+from iec.passport.laws.point_weights import Weigh, dersimonian_laird, variance_weights
 from iec.passport.laws.sigma_clipping import ClippedFit, clipped_fit, usable
 
 #: Reason of a block without a law: fewer bins than the line needs.
@@ -138,13 +139,14 @@ def choose_law(
         if not usable(found):
             records.append({"form": form.name, "converged": False})
             continue
-        contender = Contender(place, found.chi2, len(form.parameters) - len(found.held))
+        contender = Contender(
+            place, found.chi2, len(form.parameters) - len(found.held), bool(found.held)
+        )
         contenders.append(contender)
         records.append(
             {"form": form.name, "converged": True, "chi2": contender.chi2, "free": contender.free}
         )
-    first = 0 if any(item.position == 0 for item in contenders) else None
-    chosen, c_hat = pick(contenders, kept.size, first)
+    chosen, c_hat = pick(contenders, kept.size)
     for contender in contenders:
         records[contender.position]["criterion"] = quasi_criterion(contender, c_hat)
     final: ClippedFit = base
@@ -162,6 +164,66 @@ def choose_law(
         c_hat=c_hat,
         established=established,
     )
+
+
+def choose_scattered_law(
+    forms: Sequence[LawForm],
+    x: np.ndarray,
+    values: np.ndarray,
+    variances: np.ndarray,
+    *,
+    starts: Mapping[str, Sequence[np.ndarray]] | None = None,
+) -> BlockChoice | str:
+    """Choose the law of a block with the weights ``1/(σᵢ² + τ²)``.
+
+    The forms are chosen first with the weights of the own variances of the bins; ``τ²`` is the
+    scatter of the kept bins beyond their own variances around the converged form with the smallest
+    ``χ²`` per degree of freedom (``point_weights.dersimonian_laird``), and the choice is made again
+    with the weights ``1/(σᵢ² + τ²)``. The scatter is measured around the law that describes the bins
+    best, so the curvature of a law does not count as scatter.
+
+    Args:
+        forms: The forms of the block: the established one first, its alternatives after it.
+        x: The abscissae of the bins.
+        values: Their coefficients.
+        variances: Their own variances, positive.
+        starts: The starts of a form by its name instead of its own.
+
+    Returns:
+        ``BlockChoice``, or the reason of a block without a law.
+    """
+    own = np.asarray(variances, dtype=float)
+    first = choose_law(forms, x, values, variance_weights(own), starts=starts)
+    if isinstance(first, str):
+        return first
+    kept = np.arange(len(own)) if first.kept is None else np.flatnonzero(first.kept)
+    tau2 = _scatter(forms, first, x[kept], values[kept], own[kept], starts or {})
+    return choose_law(forms, x, values, variance_weights(own + tau2), starts=starts)
+
+
+def _scatter(
+    forms: Sequence[LawForm],
+    first: BlockChoice,
+    x: np.ndarray,
+    values: np.ndarray,
+    variances: np.ndarray,
+    starts: Mapping[str, Sequence[np.ndarray]],
+) -> float:
+    """Return ``τ²`` of the kept bins around the converged form with the smallest ``χ²`` per freedom."""
+    free = [
+        entry
+        for entry in first.candidates
+        if entry.get("converged") and values.size > int(entry["free"])
+    ]
+    form = first.form
+    if free:
+        best = min(free, key=lambda entry: float(entry["chi2"]) / (values.size - int(entry["free"])))
+        form = next(item for item in forms if item.name == best["form"])
+    fit = fit_law(form, x, values, variance_weighting(variances), starts=starts.get(form.name))
+    if not usable(fit):
+        return 0.0
+    columns = [column for column in range(len(form.parameters)) if column not in fit.held]
+    return dersimonian_laird(form.jacobian(fit.params, x)[:, columns], fit.chi2, variances)
 
 
 def _base(

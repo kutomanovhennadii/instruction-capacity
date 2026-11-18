@@ -3,8 +3,9 @@
 The figures of the passport. A kind of figure draws one entry of the plan of a quantity: the bins of an axis with its law before and
 after the shift correction, the cells of the grid by length slices with the curve of every slice, the levels of the slices with the
 law of the level, the variance of the request shift by the groups of an axis with its approximation. The curve of a law is the
-value of the form that the assignment of forms (`config/passport_laws.yaml`) gives its block; which figures a quantity gets, and in
-which order, says the plan `config/passport_figures.yaml`.
+value of the form that the law chose among the candidates the assignment of forms (`config/passport_laws.yaml`) gives its block;
+the curve of a slice is the form of the law of the slices with its shared parameters at the level of the slice. Which figures a
+quantity gets, and in which order, says the plan `config/passport_figures.yaml`.
 
 ## What is here
 

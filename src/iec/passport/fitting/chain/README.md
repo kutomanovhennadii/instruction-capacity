@@ -39,6 +39,7 @@ and is it seen in the log and the telemetry. Every row below is one rule for eve
 | every axis of the spread has one group | method `glmm` | `INFO SPREAD_ONE_GROUP` | no event |
 | the fit with the spread by the load gives no usable fit | method `glmm` | `WARNING SPREAD_FAILED` | event `fit_spread` |
 | a group of the spread stops on the lower bound `ln σ = ln 10⁻⁴` | the group is merged with its neighbour on the axis and the spread is fitted again | `INFO SPREAD_MERGED` | no event |
+| the variance by the load turns a bin against the median request of the data (`quantities/steps/median_check`) | method `glmm`: the quantity is fitted with one variance, the note names the bins | `WARNING SPREAD_AGAINST_DATA` | the events of the second fit |
 | the matrix of the second derivatives (the total derivative, the nodes of the quadrature moving with the parameters) is not negative definite at a Newton step | the step takes the moduli of its eigenvalues | the end state is checked by `InformationCheck` | no event |
 | a Newton step lowers the likelihood | the step is halved up to 30 times; then the fit stops unconverged | through the note of its path | no event |
 

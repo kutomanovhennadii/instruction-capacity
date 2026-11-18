@@ -6,13 +6,13 @@ the text length that carry the level, ten equal bins of the share of the answer 
 density and the number of rules (``background_design``).
 
 The laws V, q, P and M go through all the bins of the axis except the poorly determined ones, the
-effective number of requests with failures ``(Σw)²/Σw²`` below ten, by plain least squares; errors
-are by the full covariance of the fit. The forms are chosen by the data among the candidates of the
-assignment of forms (``config/passport_laws.yaml``, ``laws.block_choice``): over ``log₂(v/20)``,
-``log₂(p/2⁻¹⁰)`` and ``log₂ m`` the line, the slanted hyperbola, the binary exponential and the
-saturation, and for the density also the logarithmic law with a line ``a + b·x + c·p``, which
-describes a hill at rare replacements; over ``q`` the line, the hyperbola, the exponential and the
-logarithmic law; by the smallest ``χ² + 2k``.
+effective number of requests with failures ``(Σw)²/Σw²`` below ten, a bin weighing ``1/(σᵢ² + τ²)``;
+errors are by the full covariance of the fit. The forms are chosen by the data among the candidates
+of the assignment of forms (``config/passport_laws.yaml``, ``laws.block_choice``): over
+``log₂(v/20)``, ``log₂(p/2⁻¹⁰)`` and ``log₂ m`` the line, the slanted hyperbola and the binary
+exponential, and for the density also the logarithmic law with a line ``a + b·x + c·p``, which
+describes a hill at rare replacements; over ``q`` the exponential and the line; by the smallest
+``QAIC``.
 
 The section goes by the steps of every section: the facts of the fit and the approximations of the
 spread, the laws of the blocks, the level, the capacities by the laws and by the bins, the rows of
@@ -41,7 +41,7 @@ from scipy.optimize import brentq, minimize_scalar
 
 from iec.passport.fitting.chain.fit_paths import METHOD_NONE
 from iec.passport.fitting.load_spread import request_loads
-from iec.passport.fitting.variable_fit import VariableFit, fit_variable
+from iec.passport.fitting.variable_fit import VariableFit
 from iec.passport.laws.block_choice import (
     MIN_POINTS,
     REASON_FEW_POINTS,
@@ -49,7 +49,7 @@ from iec.passport.laws.block_choice import (
     LawStack,
     block_law,
     block_shift,
-    choose_law,
+    choose_scattered_law,
     law_entry,
     unit_rows,
 )
@@ -65,8 +65,8 @@ from iec.passport.laws.law_rows import (
     joint_covariance,
     own_variances,
 )
-from iec.passport.laws.point_weights import covariance_weights
 from iec.passport.laws.spread_laws import spread_forms, spread_laws
+from iec.passport.quantities.steps.median_check import AxisBins, checked_fit, requests_of
 from iec.passport.quantities.background_design import (
     AnswerShareDesign,
     BackgroundCells,
@@ -85,7 +85,12 @@ _TOP_GRID = np.linspace(0.0, _U_AT_ONE, 2001)
 #: The end of the search of the root of a capacity in binary logarithms.
 _LOG_ROOT_TOP = 1000.0
 #: The starts of the exponential law of the share of the answer.
-_SHARE_STARTS = (np.array([0.0, 1.0, 0.4]), np.array([-0.2, 1.0, 1.0]))
+_SHARE_STARTS = (
+    np.array([0.0, 1.0, 0.4]),
+    np.array([-0.2, 1.0, 1.0]),
+    np.array([0.0, -1.0, 0.4]),
+    np.array([-0.2, -1.0, 1.0]),
+)
 #: The symbols of the abscissae of the laws in their formulas.
 _SYMBOLS = {"V": "log₂(v/20)", "q": "q", "P": "log₂(p/2⁻¹⁰)", "M": "log₂ m"}
 STATUS_NO_LAWS = "no_laws"
@@ -126,10 +131,10 @@ def _axis_law(
     covariance: np.ndarray,
     forms: Sequence[LawForm],
 ) -> BlockLaw | str:
-    """Choose the law of an axis by generalised least squares through its bins with a coefficient.
+    """Choose the law of an axis through its bins with a coefficient.
 
-    The weights are the inverse covariance of the bins, as in the other sections; the outliers leave
-    the law by the clipping of ``block_choice``.
+    The weights are ``1/(σᵢ² + τ²)`` of the own variances of the bins, as in the other sections; the
+    outliers leave the law by the clipping of ``block_choice``.
 
     Args:
         built: The folded matrix with the tallies of its bins.
@@ -149,8 +154,13 @@ def _axis_law(
     values = np.array([float(theta[column]) for column in columns])
     x = _abscissa(letter, np.array([built.centers[letter][name] for name in good]))
     starts = {"exponential": list(_SHARE_STARTS)} if letter == "q" else None
-    weigh = covariance_weights(covariance[np.ix_(columns, columns)])
-    choice = choose_law(forms, x, values, weigh, starts=starts)
+    reference = built.references.get(letter)
+    own = own_variances(
+        covariance[np.ix_(columns, columns)], implicit_reference=reference is not None
+    )
+    choice = choose_scattered_law(
+        forms, x, values, own[1 if reference is not None else 0 :], starts=starts
+    )
     if isinstance(choice, str):
         return choice
     return block_law(choice, unit_rows(columns, len(names)), good, x, at_infinity=False)
@@ -285,9 +295,40 @@ def background_section(
     """
     built = answer_share_design(points, layout, weights)
     run_weight = np.array([weights[key] for key in built.design.point_keys], dtype=float)
-    return background_laws(
-        built, fit_variable(built.design, run_weight, request_loads(points, layout)), assignment
+    fit = checked_fit(
+        built.design,
+        run_weight,
+        request_loads(points, layout),
+        requests_of(points, layout, _background_outcome),
+        _background_axes(built),
     )
+    return background_laws(built, fit, assignment)
+
+
+def _background_outcome(point: BackgroundCells) -> tuple[float, float]:
+    """Return the trials of a point and its misfires of F."""
+    return (
+        float(sum(cell[1] for cell in point.cells)),
+        float(sum(cell[2] for cell in point.cells)),
+    )
+
+
+def _background_axes(built: AnswerShareDesign) -> dict[str, AxisBins]:
+    """Return the bins of the axes of F constant within a request: length, density, rules.
+
+    The number of a bin is the number after the last ``_`` of its name; an axis without a reference
+    bin is not checked.
+    """
+    axes: dict[str, AxisBins] = {}
+    for letter in ("V", "P", "M"):
+        reference = built.references.get(letter)
+        if reference is None:
+            continue
+        axes[letter] = AxisBins(
+            int(reference.rsplit("_", 1)[1]),
+            {int(name.rsplit("_", 1)[1]): name for name in built.bins[letter]},
+        )
+    return axes
 
 
 def background_laws(

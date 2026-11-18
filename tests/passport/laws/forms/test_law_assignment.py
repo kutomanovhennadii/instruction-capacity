@@ -30,8 +30,9 @@ quantities:
       table_size: {forms: [logarithmic]}
     spread: {V: logarithmic}
 """
-#: The forms of a block with the slanted hyperbola established: then its alternatives.
-HYPERBOLA_FIRST = ["slanted_hyperbolic", "linear", "hyperbolic", "binary_exponential"]
+#: The forms of a block with the slanted hyperbola established: then its alternatives. The simple
+#: hyperbola is no candidate: its pole lies at the zero of the abscissa, where a block has its level.
+HYPERBOLA_FIRST = ["slanted_hyperbolic", "linear", "binary_exponential"]
 #: The forms of the density of H: the two-slope hyperbola established, the slanted one among the alternatives.
 TWO_SLOPE_FIRST = ["two_slope_hyperbolic", *HYPERBOLA_FIRST]
 
@@ -55,12 +56,13 @@ def test_the_shipped_assignment_gives_the_forms_of_the_passport() -> None:
     assert [form.name for form in assignment.forms_of("F", "answer_share")] == [
         "exponential",
         "linear",
-        "hyperbolic",
     ]
     assert assignment.form_of("F", "density") == LogLinearLoadForm(2.0**-10)
-    # The saturation is not an alternative of any block.
+    # Neither the saturation nor the simple hyperbola is an alternative of any block.
     assert all(
-        form.name != "saturation" for forms in assignment.blocks.values() for form in forms
+        form.name not in ("saturation", "hyperbolic")
+        for forms in assignment.blocks.values()
+        for form in forms
     )
     assert assignment.spread_form_of("P_sync", "M").name == "fractional_hyperbolic"
     assert assignment.spread_form_of("F", "V").name == "fractional_hyperbolic"

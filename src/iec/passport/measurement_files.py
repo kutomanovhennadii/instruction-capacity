@@ -6,9 +6,10 @@ file larger than the 100 MiB limit of a file on GitHub are kept in numbered part
 ``points-001.jsonl.gz``, ``points-002.jsonl.gz`` and so on, read one after another in the order of
 their numbers; the description lists every part. The passport command adds
 ``passport_data.json``, ``passport.md`` and ``figures/``. ``passport_data.json`` carries
-``format_version``: version 1 is the passport of version 0.2.0, and a file without the field is of
-version 1 by the rule of ``contracts.format_version``; a newer version is refused. The passport file
-is written whole or not at all: through a temporary file and a rename.
+``format_version``: version 2 is the passport of version 0.2.1, whose law of the slices of the grid
+is a law with its chosen form; version 1 is the passport of version 0.2.0, and a file without the
+field is of version 1 by the rule of ``contracts.format_version``; a newer version is refused. The
+passport file is written whole or not at all: through a temporary file and a rename.
 """
 
 from __future__ import annotations
@@ -32,7 +33,7 @@ PASSPORT_DATA_FILENAME = "passport_data.json"
 PASSPORT_FILENAME = "passport.md"
 FIGURES_DIRNAME = "figures"
 #: The version of the format of ``passport_data.json`` that this code writes.
-PASSPORT_DATA_FORMAT_VERSION = 1
+PASSPORT_DATA_FORMAT_VERSION = 2
 #: Error code of a passport data file that is not a passport of a known format.
 PASSPORT_DATA_INVALID = "PASSPORT_DATA_INVALID"
 

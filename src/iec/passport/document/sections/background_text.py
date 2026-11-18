@@ -34,8 +34,9 @@ def background_lines(section: Mapping[str, Any], figures: Sequence[str]) -> list
     return [
         *lines,
         *spread_lines(section),
-        "The laws run through the bins without the poorly determined ones, by ordinary least squares; "
-        "the form of a law is chosen by `χ² + 2k`, the residuals weighed by the covariance of the bins.",
+        "The laws run through the bins without the poorly determined ones; a bin weighs `1/(σᵢ² + τ²)`, "
+        "its own variance and the scatter of the bins around the law, and the errors are carried by the "
+        "full covariance of the bins.",
         "",
         law_sentence("The law of the length", laws["V"]),
         "",

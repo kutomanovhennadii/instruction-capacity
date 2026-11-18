@@ -11,7 +11,7 @@ from iec.passport.document.text_cells import (
     figure_links,
     fit_line,
     law_sentence,
-    on_bound,
+    slice_sentence,
     spread_lines,
     with_half,
 )
@@ -28,16 +28,10 @@ def rule_word_lines(section: Mapping[str, Any], figures: Sequence[str]) -> list[
     if section["status"] != "measured":
         return [*lines, "There are no laws: the fit did not converge.", ""]
     laws = section["laws"]
-    grid = laws["grid"]
     return [
         *lines,
         *spread_lines(section),
-        "The law of the grid: a length slice is the exponent `μ_v − A·2^(γ·log₂ s)`, which dies out to "
-        "its level `μ_v` at `s → 0`, and the law of the levels runs through the levels of the slices. "
-        f"`A = {number(grid['A'], 3)} ± {number(grid['half']['A'], 3)}`, "
-        f"`γ = {number(grid['gamma'], 3)} ± {number(grid['half']['gamma'], 3)}`; "
-        f"by the own variances, `χ² = {number(grid['chi2'], 1)}` over {grid['n_points']} cells"
-        f"{on_bound(grid)}.",
+        f"{slice_sentence(laws['grid'])} The law of the levels runs through the levels of the slices.",
         "",
         law_sentence("The law of the levels of the slices", laws["grid_plateau"]),
         "",

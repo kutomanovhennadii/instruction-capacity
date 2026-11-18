@@ -4,14 +4,13 @@ A trial is a place of the alignment, a success - the answer word stands against 
 word. The model is ``η = VS(v, s) + P(p) + M(m) + b``, the same as the predictor model of the
 purchase, and the weights of the requests equalise the cells of the cube ``V × P × M``, as for the
 other quantities. The law of the grid is the law of the passport: the cells of a length slice lie
-on a hyperbola with shared ``κ_S, λ_S, ω_S`` and an own plateau ``μ_v``, and the law of the plateau
-``μ(u)``, ``u = log₂(v/20)``, goes through the plateaus (``laws.plateau_grid``). The forms of the law
-of the plateau, of the density over ``log₂(p/2⁻¹⁰)`` and of the number of rules over ``log₂ m`` are
-chosen by the data among the candidates of the assignment of forms (``config/passport_laws.yaml``,
-``laws.block_choice``): the line, the slanted hyperbola, the binary exponential and the saturation,
-by the smallest ``χ² + 2k``. The density and the number of rules go by generalised least squares
-over the full covariance of their bins. A bin with fewer than ten requests with failures stays
-outside its law.
+on the curve of a form chosen among the candidates of the slices with an own plateau ``μ_v``
+(``laws.grid_slices``), and the law of the plateau ``μ(u)``, ``u = log₂(v/20)``, goes through the
+plateaus (``laws.plateau_grid``). The forms of the slices, of the law of the plateau, of the density
+over ``log₂(p/2⁻¹⁰)`` and of the number of rules over ``log₂ m`` are chosen by the data among the
+candidates of the assignment of forms (``config/passport_laws.yaml``, ``laws.block_choice``) by the
+smallest ``QAIC``. The density and the number of rules go with the weights ``1/(σᵢ² + τ²)`` of the
+own variances of their bins.
 
 The section goes by the steps of every section: the facts of the fit and the approximations of the
 spread, the laws of the blocks, the level, the capacities by the laws and by the bins, the rows of
@@ -40,34 +39,35 @@ from scipy.optimize import brentq
 
 from iec.passport.fitting.chain.fit_paths import METHOD_NONE
 from iec.passport.fitting.load_spread import request_loads
-from iec.passport.fitting.variable_fit import VariableFit, fit_variable
+from iec.passport.fitting.variable_fit import VariableFit
 from iec.passport.laws.block_choice import (
     MIN_POINTS,
     REASON_FEW_POINTS,
     BlockLaw,
     LawStack,
     block_law,
-    choose_law,
+    choose_scattered_law,
     law_entry,
     unit_rows,
 )
 from iec.passport.laws.forms.law_assignment import LawAssignment
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.gls_tools import STATUS_MEASURED
+from iec.passport.laws.grid_slices import slice_entry
 from iec.passport.laws.law_rows import (
     LEVEL,
     LEVEL_THRESHOLD,
-    capacity_row,
     fit_summary,
     half_width,
     joint_covariance,
+    own_variances,
 )
 from iec.passport.laws.plateau_grid import fit_vs_law, vs_curve
-from iec.passport.laws.point_weights import covariance_weights
 from iec.passport.laws.spread_laws import spread_forms, spread_laws
 from iec.passport.quantities.steps.axis_rows import axis_rows
 from iec.passport.quantities.steps.bins_walk import capacity_by_bin_walk
 from iec.passport.quantities.steps.cell_rows import cell_rows
+from iec.passport.quantities.steps.median_check import axis_bins, checked_fit, requests_of
 from iec.passport.quantities.steps.law_capacity import (
     no_slope_row,
     odds_factor_row,
@@ -110,11 +110,11 @@ def _axis_law(
     letter: str,
     forms: Sequence[LawForm],
 ) -> BlockLaw | str:
-    """Choose the law of the density or of the number of rules by generalised least squares.
+    """Choose the law of the density or of the number of rules with the weights ``1/(σᵢ² + τ²)``.
 
-    The law goes through the bins of the axis other than the reference one with enough requests
-    with failures, over the full covariance of their coefficients; the abscissa is
-    ``log₂(p/2⁻¹⁰)`` for the density, whose zero lies at ``p → 0``, and ``log₂ m`` for the rules.
+    The law goes through the bins of the axis other than the reference one, with the own variances
+    of their coefficients and their scatter around the line; the abscissa is ``log₂(p/2⁻¹⁰)`` for
+    the density, whose zero lies at ``p → 0``, and ``log₂ m`` for the rules.
 
     Args:
         design: The folded matrix: the table of the bins of the axis and their centres.
@@ -140,7 +140,8 @@ def _axis_law(
     centers = np.array([design.abscissae[name][key] for name in bins])
     x = np.log2(centers / P_ZERO) if letter == "P" else np.log2(centers)
     values = np.array([theta[name] for name in bins], dtype=float)
-    choice = choose_law(forms, x, values, covariance_weights(sigma[np.ix_(index, index)]))
+    own = own_variances(sigma[np.ix_(index, index)], implicit_reference=True)[1:]
+    choice = choose_scattered_law(forms, x, values, own)
     if isinstance(choice, str):
         return choice
     return block_law(choice, unit_rows(index, len(names)), bins, x, at_infinity=letter == "P")
@@ -149,14 +150,19 @@ def _axis_law(
 def _log_word_root(word_logit: Callable[[float], float], threshold: float) -> float:
     """Return ``log₂`` of the word at which the full law of the grid reaches the threshold.
 
+    A law that rises with the length faster than its slices fall never reaches it: ``nan``.
+
     Args:
         word_logit: The logit of the median request at ``log₂ s`` of ``v = s`` words.
         threshold: The logit of the median request at the level of the capacity.
+
+    Returns:
+        The root, or ``nan`` when the law stays above the threshold up to ``2⁴⁰`` words.
     """
     if word_logit(0.0) <= threshold:
         return 0.0
     if word_logit(_LOG_WORDS_TOP) >= threshold:
-        return _LOG_WORDS_TOP
+        return math.nan
     return float(brentq(lambda x: word_logit(x) - threshold, 0.0, _LOG_WORDS_TOP, xtol=1e-10))
 
 
@@ -181,6 +187,11 @@ def _rule_count_root(law: BlockLaw, params: np.ndarray, alpha: float) -> float:
     return float(brentq(logit, 0.0, LOG_CAPACITY_CEILING, xtol=1e-12))
 
 
+def _sync_outcome(point: PointTrials) -> tuple[float, float]:
+    """Return the places of a point and its failures of P_sync."""
+    return float(sum(row[1] for row in point.sync)), float(sum(row[2] for row in point.sync))
+
+
 def sync_section(
     points: Sequence[PointTrials],
     layout: BinLayout,
@@ -203,7 +214,13 @@ def sync_section(
     """
     design = sync_design(points, layout, weights)
     run_weight = np.array([weights[key] for key in design.point_keys], dtype=float)
-    fit = fit_variable(design, run_weight, request_loads(points, layout))
+    fit = checked_fit(
+        design,
+        run_weight,
+        request_loads(points, layout),
+        requests_of(points, layout, _sync_outcome),
+        axis_bins(design, ("P", "M")),
+    )
     return sync_laws(
         design, fit, layout, float(max(point.D * point.n for point in points)), assignment
     )
@@ -247,7 +264,13 @@ def sync_laws(
     size = len(names)
     sigma = joint[:size, :size]
     grid = fit_vs_law(
-        theta, sigma, names, design.abscissae, layout, assignment.forms_of("P_sync", "grid_plateau")
+        theta,
+        sigma,
+        names,
+        design.abscissae,
+        layout,
+        assignment.forms_of("P_sync", "grid_slices"),
+        assignment.forms_of("P_sync", "grid_plateau"),
     )
     density = _axis_law(design, names, theta, sigma, "P", assignment.forms_of("P_sync", "density"))
     table = _axis_law(design, names, theta, sigma, "M", assignment.forms_of("P_sync", "table_size"))
@@ -265,6 +288,7 @@ def sync_laws(
         return section
     assert isinstance(density, BlockLaw) and isinstance(table, BlockLaw)
     plateau: BlockLaw = grid["plateau"]
+    slice_law = grid["slice_law"]
     laws = {"plateau": plateau, "density": density, "table": table}
     stack = LawStack(
         {
@@ -292,6 +316,7 @@ def sync_laws(
         """Return the logit of the median request at word ``s`` of ``v = s`` words, one rule."""
         u = max(log_s - math.log2(REFERENCE_TOTAL_WORDS), 0.0)
         surface = vs_curve(
+            slice_law.form,
             stack.part(vector, "slices"),
             plateau.form,
             stack.part(vector, "plateau"),
@@ -349,36 +374,14 @@ def sync_laws(
             "method": "bins",
             **capacity_by_bin_walk(m_rows, table.shift(), alpha - LEVEL_THRESHOLD),
         },
-        capacity_row(
-            "fatigue_capacity_words",
-            LEVEL,
-            fatigue(stack.vector),
-            half_width(stack.gradient(fatigue), joint),
-            support,
-        ),
+        root_capacity_row("fatigue_capacity_words", fatigue, stack, joint, support),
         odds_factor_row(density_change, stack, joint),
     ]
-    slices_rows = grid["slices_rows"]
     section.update(
         {
             "status": STATUS_MEASURED,
             "laws": {
-                "grid": {
-                    "kappa_S": grid["kappa_S"],
-                    "lambda_S": grid["lambda_S"],
-                    "omega_S": grid["omega_S"],
-                    "lambda_S_restored": grid["lambda_S"] - plateau.shift(),
-                    "half": {
-                        "kappa_S": half_width(slices_rows[0], joint),
-                        "lambda_S_restored": half_width(
-                            slices_rows[1] - shift_rows["plateau"], joint
-                        ),
-                        "omega_S": half_width(slices_rows[2], joint),
-                    },
-                    "chi2": float(grid["chi2"]),
-                    "n_points": int(grid["n_points"]),
-                    "n_parameters": int(grid["n_parameters"]),
-                },
+                "grid": slice_entry(slice_law, grid["slices_rows"], joint, "ℓ"),
                 "grid_plateau": law_entry(plateau, joint, _SYMBOLS["grid_plateau"]),
                 "density": {
                     **law_entry(density, joint, _SYMBOLS["density"]),
@@ -408,6 +411,7 @@ def sync_laws(
                     joint,
                     lambda cell, point: float(
                         vs_curve(
+                            slice_law.form,
                             grid["slices_params"],
                             plateau.form,
                             plateau.params,

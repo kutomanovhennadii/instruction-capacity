@@ -28,6 +28,9 @@ SPREAD_ONE_GROUP = "SPREAD_ONE_GROUP"
 SPREAD_FAILED = "SPREAD_FAILED"
 #: The fit with the spread stopped on its floor: the group of the lowest spread joined its neighbour.
 SPREAD_MERGED = "SPREAD_MERGED"
+#: The variance by the load turned bins against the median request of the data: the quantity keeps
+#: one variance.
+SPREAD_AGAINST_DATA = "SPREAD_AGAINST_DATA"
 #: A number of the estimates, of their covariance or of the information is not finite.
 NUMBERS_NOT_FINITE = "NUMBERS_NOT_FINITE"
 #: A variance of the estimates is negative: the passport takes its standard error as zero.
@@ -47,6 +50,7 @@ NOTE_CODES: frozenset[str] = frozenset(
         SPREAD_ONE_GROUP,
         SPREAD_FAILED,
         SPREAD_MERGED,
+        SPREAD_AGAINST_DATA,
         NUMBERS_NOT_FINITE,
         VARIANCE_NEGATIVE,
         INFORMATION_UNSUPPORTED,

@@ -6,7 +6,9 @@ variance of the request shift. The own error of a bin is its quasi-variance (Fir
 ``q_k`` such that ``q_k + q_l`` gives the variance of the difference of bins ``k`` and ``l``. A
 reference bin has an own error too: its zero comes from the coding alone. The module gives also the
 facts of a fit with the spread of the request shift by the load and the row of a capacity by a law;
-the approximations of the spread live in ``spread_laws``.
+the approximations of the spread live in ``spread_laws``. A law continued far past its measured
+region can give a capacity or a bound of its interval past the largest floating-point number, about
+``1.8·10³⁰⁸``: the row holds such a number as ``None``.
 """
 
 from __future__ import annotations
@@ -17,7 +19,7 @@ from typing import Any
 import numpy as np
 from scipy.optimize import least_squares
 
-from iec.passport.fitting.chain.fit_notes import SPREAD_MERGED
+from iec.passport.fitting.chain.fit_notes import SPREAD_AGAINST_DATA, SPREAD_MERGED
 from iec.passport.fitting.variable_fit import VariableFit
 from iec.passport.laws.gls_tools import STATUS_EXTRAPOLATED, STATUS_MEASURED
 
@@ -170,7 +172,40 @@ def fit_summary(fit: VariableFit) -> dict[str, Any]:
         merged = [note.message for note in fit.notes if note.code == SPREAD_MERGED]
         if merged:
             summary["spread"]["merged"] = merged
+    against = [note.message for note in fit.notes if note.code == SPREAD_AGAINST_DATA]
+    if against:
+        summary["spread_against_data"] = against
     return summary
+
+
+def _held(value: float) -> float | None:
+    """Return a number that a floating-point number holds; an infinity gives ``None``."""
+    return value if math.isfinite(value) else None
+
+
+def power_of_two(exponent: float, scale: float = 1.0) -> float | None:
+    """Return ``scale · 2^exponent``, or ``None`` when a floating-point number does not hold it.
+
+    Args:
+        exponent: The binary logarithm of the number divided by ``scale``.
+        scale: The unit of the logarithm.
+    """
+    try:
+        return _held(scale * 2.0**exponent)
+    except OverflowError:
+        return None
+
+
+def exponential(exponent: float) -> float | None:
+    """Return ``e^exponent``, or ``None`` when a floating-point number does not hold it.
+
+    Args:
+        exponent: The natural logarithm of the number.
+    """
+    try:
+        return _held(math.exp(exponent))
+    except OverflowError:
+        return None
 
 
 def capacity_row(
@@ -182,6 +217,9 @@ def capacity_row(
     scale: float = 1.0,
 ) -> dict[str, Any]:
     """Return a capacity by a law from its binary logarithm.
+
+    The capacity, a bound of its interval or its half-width that a floating-point number does not
+    hold is ``None``; a capacity without a value lies past the measured region.
 
     Args:
         key: The name of the capacity.
@@ -196,13 +234,13 @@ def capacity_row(
         units of the capacity, ``status`` - ``measured`` inside the measured region, otherwise
         ``extrapolated`` (the article, section 4.5).
     """
-    value = scale * 2.0**log_value
+    value = power_of_two(log_value, scale)
     return {
         "key": key,
         "level": level,
         "method": "law",
         "value": value,
-        "interval": [scale * 2.0 ** (log_value - half), scale * 2.0 ** (log_value + half)],
-        "plus_minus": math.log(2.0) * value * half,
-        "status": STATUS_MEASURED if value <= support else STATUS_EXTRAPOLATED,
+        "interval": [power_of_two(log_value - half, scale), power_of_two(log_value + half, scale)],
+        "plus_minus": None if value is None else _held(math.log(2.0) * value * half),
+        "status": STATUS_MEASURED if value is not None and value <= support else STATUS_EXTRAPOLATED,
     }

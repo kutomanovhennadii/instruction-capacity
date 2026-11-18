@@ -7,7 +7,9 @@ the load and vanishes with it, so the law tends to ``μ`` at ``x → −∞``; a
 of H. The saturation ``μ − A·(1 − e^(−x/x_c))`` starts at ``μ`` at ``x = 0``, and its loss
 saturates at ``A``, reaching ``1 − e⁻¹`` of it at ``x = x_c``: the density law of the first
 article. The power law ``λ − A·(x^γ − 1)`` is ``λ`` at ``x = 1`` and its loss grows as ``x^γ``: the
-rule-number law of the first article. All four describe a loss, so ``A ≥ 0``.
+rule-number law of the first article. The saturation and the power law describe a loss, so
+``A ≥ 0``; the exponential and the binary exponential take ``A`` of either sign, so the law
+approaches its asymptote from below or from above.
 """
 
 from __future__ import annotations
@@ -42,11 +44,11 @@ def _length_range(x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 @dataclass(frozen=True, slots=True)
 class ExponentialForm:
-    """The exponential law ``c + A·e^(−x/τ)``; ``A`` and ``τ`` may stop on a bound."""
+    """The exponential law ``c + A·e^(−x/τ)``; ``A`` of either sign, ``τ`` may stop on a bound."""
 
     name = "exponential"
     parameters = ("c", "A", "tau")
-    held_candidates = (1, 2)
+    held_candidates = (2,)
 
     def value(self, params: np.ndarray, x: np.ndarray) -> np.ndarray:
         """Return ``c + A·e^(−x/τ)``."""
@@ -68,19 +70,23 @@ class ExponentialForm:
         return f"c + A·e^(−{symbol}/τ)"
 
     def bounds(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Return ``A ≥ 0`` and ``τ`` from a thousandth to 1000 spans of the abscissae."""
-        return _length_range(x)
+        """Return ``A`` of either sign and ``τ`` from a thousandth to 1000 spans of the abscissae."""
+        lower, upper = _length_range(x)
+        lower[1] = -np.inf
+        return lower, upper
 
     def starts(self, x: np.ndarray, values: np.ndarray) -> tuple[np.ndarray, ...]:
-        """Return one start: ``c`` and ``A`` from the ends of the axis, ``τ = span/3``."""
+        """Return two starts: ``c`` and ``A`` from the ends of the axis, ``τ = span/3``, and ``−A``."""
         level = float(values[int(np.argmax(x))])
         fall = float(values[int(np.argmin(x))]) - level
-        return (np.array([level, fall, _span(x) / 3.0]),)
+        length = _span(x) / 3.0
+        return np.array([level, fall, length]), np.array([level, -fall, length])
 
 
 @dataclass(frozen=True, slots=True)
 class BinaryExponentialForm:
-    """The binary exponential ``μ − A·2^(γx)``; ``γ`` may stop on a bound of its range."""
+    """The binary exponential ``μ − A·2^(γx)``; ``A`` of either sign, ``γ`` may stop on a bound of
+    its range."""
 
     name = "binary_exponential"
     parameters = ("mu", "A", "gamma")
@@ -104,12 +110,12 @@ class BinaryExponentialForm:
         return f"μ − A·2^(γ·{symbol})"
 
     def bounds(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Return ``A ≥ 0`` and ``γ`` in ``GAMMA_RANGE``."""
-        return np.array([-np.inf, 0.0, GAMMA_RANGE[0]]), np.array([np.inf, np.inf, GAMMA_RANGE[1]])
+        """Return ``A`` of either sign and ``γ`` in ``GAMMA_RANGE``."""
+        return np.array([-np.inf, -np.inf, GAMMA_RANGE[0]]), np.array([np.inf, np.inf, GAMMA_RANGE[1]])
 
     def starts(self, x: np.ndarray, values: np.ndarray) -> tuple[np.ndarray, ...]:
-        """Return one start: ``μ`` at the largest value, ``A = 1``, ``γ = 0.5``."""
-        return (np.array([float(values.max()), 1.0, 0.5]),)
+        """Return two starts: a falling law from the largest value and a rising one from the smallest."""
+        return np.array([float(values.max()), 1.0, 0.5]), np.array([float(values.min()), -1.0, 0.5])
 
 
 @dataclass(frozen=True, slots=True)

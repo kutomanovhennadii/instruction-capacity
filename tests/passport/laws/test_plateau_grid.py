@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 import pytest
 
-from iec.passport.laws.forms.hyperbolic_forms import SlantedHyperbolicForm
+from iec.passport.laws.forms.hyperbolic_forms import AsymptoticHyperbolicForm, SlantedHyperbolicForm
 from iec.passport.laws.forms.law_assignment import build_law_assignment, load_law_assignment_config
 from iec.passport.laws.plateau_grid import fit_plateau_law, fit_vs_law, vs_curve
 from iec.passport.trials.layout.axis_bins import (
@@ -28,11 +28,14 @@ _HYPERBOLA = SlantedHyperbolicForm()
 _FORMS = build_law_assignment(
     load_law_assignment_config(Path(__file__).resolve().parents[3] / "config" / "passport_laws.yaml")
 ).forms_of("P_sync", "grid_plateau")
+#: The slices of the synthetic surfaces are two-asymptote hyperbolas; the tests of the grid take this
+#: form alone - the choice of the form of the slices is tested in ``test_grid_slices``.
+_SLICES = (AsymptoticHyperbolicForm(),)
 
 
 def _vs_curve(params: np.ndarray, xu: np.ndarray) -> np.ndarray:
     """The surface by the seven numbers of the old coding: the slices, then the plateau hyperbola."""
-    return vs_curve(params[[0, 1, 4]], _HYPERBOLA, params[[2, 3, 5, 6]], xu)
+    return vs_curve(AsymptoticHyperbolicForm(), params[[0, 1, 4]], _HYPERBOLA, params[[2, 3, 5, 6]], xu)
 
 
 def plateau_level(mu_0: float, kappa_v: float, u_star: float, omega_v: float, u: float) -> float:
@@ -115,10 +118,10 @@ def test_the_plateau_by_length_recovers_free_levels() -> None:
     plateaus = {1: 4.0, 2: 3.8, 3: 3.0, 4: 1.0, 5: -0.5, 6: -2.0}
     theta, abscissae = _grid_only(layout, _free_plateaus(plateaus))
     names = list(theta)
-    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _FORMS)
+    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _SLICES, _FORMS)
     assert law["status"] == STATUS_MEASURED
     bias = law["plateau"].shift()
-    assert [law["kappa_S"], law["lambda_S"], law["omega_S"]] == pytest.approx(
+    assert law["slice_law"].shared.tolist() == pytest.approx(
         [-2.0, 6.0, 1.0], abs=1e-5
     )
     assert all(row["determined"] for row in law["slices"])
@@ -137,11 +140,11 @@ def test_a_slice_whose_cells_all_lie_on_the_slope_is_undetermined() -> None:
     plateaus = {1: 40.0, 2: 3.8, 3: 3.0, 4: 1.0, 5: -0.5, 6: -2.0}
     theta, abscissae = _grid_only(layout, _free_plateaus(plateaus))
     names = list(theta)
-    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _FORMS)
+    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _SLICES, _FORMS)
     assert law["status"] == STATUS_MEASURED
     first, *rest = law["slices"]
     assert first["determined"] is False
-    assert "the plateau is not seen" in first["reason"]
+    assert "the level of the slice is not seen" in first["reason"]
     assert all(row["determined"] for row in rest)
     bias = law["plateau"].shift()
     assert [row["mu_v"] + bias for row in rest] == pytest.approx([3.8, 3.0, 1.0, -0.5, -2.0], abs=1e-4)
@@ -151,7 +154,7 @@ def test_fewer_than_three_determined_slices_give_no_plateau() -> None:
     layout = _layout()
     theta, abscissae = _synthetic(layout, drop=("vs_1_1", "vs_1_2"))
     names = list(theta)
-    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _FORMS)
+    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _SLICES, _FORMS)
     assert law["status"] == STATUS_INSUFFICIENT
     assert [row["determined"] for row in law["slices"]] == [False, False]
 
@@ -163,7 +166,7 @@ def test_four_determined_slices_draw_a_law_of_at_most_three_parameters() -> None
     plateaus = {1: 4.0, 2: 3.0, 3: 1.0, 4: 0.5}
     theta, abscissae = _grid_only(layout, _free_plateaus(plateaus))
     names = list(theta)
-    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _FORMS)
+    law = fit_vs_law(theta, 0.01 * np.eye(len(names)), names, abscissae, layout, _SLICES, _FORMS)
     assert law["status"] == STATUS_MEASURED
     assert all(row["determined"] for row in law["slices"])
     assert len(law["plateau"].form.parameters) <= 3
@@ -176,12 +179,12 @@ def test_on_a_hyperbolic_plateau_the_levels_lie_on_the_law() -> None:
     theta, abscissae = _grid_only(layout, _hyperbolic_surface)
     names = list(theta)
     covariance = 0.01 * np.eye(len(names))
-    law = fit_vs_law(theta, covariance, names, abscissae, layout, _FORMS)
+    law = fit_vs_law(theta, covariance, names, abscissae, layout, _SLICES, _FORMS)
     assert law["status"] == STATUS_MEASURED
     plateau = law["plateau"]
     assert plateau.form.name == "slanted_hyperbolic"
     assert plateau.shift() == pytest.approx(4.0, abs=1e-5)
-    assert law["lambda_S"] == pytest.approx(6.0, abs=1e-5)
+    assert law["slice_law"].shared[1] == pytest.approx(6.0, abs=1e-5)
     assert plateau.params[1:] == pytest.approx([-1.5, 1.5, 0.5], abs=1e-4)
     for row in law["slices"]:
         assert row["determined"]
@@ -202,11 +205,11 @@ def test_the_grid_law_sensitivity_is_the_first_order_response() -> None:
     theta, abscissae = _grid_only(layout, _hyperbolic_surface)
     names = list(theta)
     covariance = 0.01 * np.eye(len(names))
-    base = fit_vs_law(theta, covariance, names, abscissae, layout, _FORMS)
+    base = fit_vs_law(theta, covariance, names, abscissae, layout, _SLICES, _FORMS)
     delta = 1e-3
     moved = dict(theta)
     moved[names[5]] += delta
-    shifted = fit_vs_law(moved, covariance, names, abscissae, layout, _FORMS)
+    shifted = fit_vs_law(moved, covariance, names, abscissae, layout, _SLICES, _FORMS)
     change = np.concatenate(
         [
             shifted["slices_params"] - base["slices_params"],

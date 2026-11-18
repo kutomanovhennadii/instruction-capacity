@@ -13,7 +13,7 @@ from iec.passport.fitting.chain.fit_paths import METHOD_GLMM, METHOD_NONE
 from iec.passport.fitting.glmm_fit import marginal_threshold
 from iec.passport.fitting.load_spread import LoadSpread, SpreadAxis
 from iec.passport.fitting.variable_fit import VariableFit
-from iec.passport.laws.forms.hyperbolic_forms import SlantedHyperbolicForm
+from iec.passport.laws.forms.hyperbolic_forms import AsymptoticHyperbolicForm, SlantedHyperbolicForm
 from iec.passport.laws.forms.law_assignment import build_law_assignment, load_law_assignment_config
 from iec.passport.laws.plateau_grid import vs_curve
 from iec.passport.quantities.sync_section import (
@@ -83,7 +83,13 @@ def _known_fit() -> tuple[VariableDesign, VariableFit]:
             cells.append(GridCell(v_bin, s_bin, name, lower, upper, 100, 10, 20))
             abscissae[name] = {"x": x, "u": u}
             names.append(name)
-            theta.append(float(vs_curve(SLICES, HYPERBOLA, PLATEAU, np.array([[math.log2(x), u]]))[0]))
+            theta.append(
+                float(
+                    vs_curve(
+                        AsymptoticHyperbolicForm(), SLICES, HYPERBOLA, PLATEAU, np.array([[math.log2(x), u]])
+                    )[0]
+                )
+            )
     reference = 8
     bins = []
     for number in range(1, 11):
@@ -155,10 +161,10 @@ def test_the_laws_take_the_forms_of_their_data() -> None:
     assert laws["grid_plateau"]["law_form"] == "slanted_hyperbolic"
     assert laws["table_size"]["law_form"] == "linear"
     assert density["established_form"] == "slanted_hyperbolic"
+    # The simple hyperbola is no candidate: its pole lies at the zero of the abscissa.
     assert {entry["form"] for entry in density["candidates"]} == {
         "slanted_hyperbolic",
         "linear",
-        "hyperbolic",
         "binary_exponential",
     }
 
@@ -169,7 +175,8 @@ def test_laws_level_and_capacities_on_known_laws() -> None:
     assert section["status"] == "measured"
     grid = section["laws"]["grid"]
     plateau = section["laws"]["grid_plateau"]["params"]
-    assert grid["kappa_S"] == pytest.approx(-3.0, abs=0.02)
+    assert grid["law_form"] == "asymptotic_hyperbolic"
+    assert grid["params"]["kappa"] == pytest.approx(-3.0, abs=0.02)
     assert plateau["mu"] == pytest.approx(20.0, abs=0.05)
     assert plateau["kappa"] == pytest.approx(-3.0, abs=0.02)
     assert section["shifts"]["delta_VS"]["value"] == pytest.approx(20.0, abs=0.05)
@@ -185,14 +192,14 @@ def test_laws_level_and_capacities_on_known_laws() -> None:
     # At the level 0.5 the threshold of the logit of the median request is zero at any variance.
     threshold = 0.0
     # The fatigue capacity: the full law of the grid at p → 0 and v = s reaches the threshold.
-    slices = np.array([grid[name] for name in ("kappa_S", "lambda_S", "omega_S")])
+    slices = np.array([grid["params"][name] for name in ("kappa", "lambda", "omega")])
     plateau_params = np.array([plateau[name] for name in HYPERBOLA.parameters])
     mu_p = section["shifts"]["delta_P"]["value"]
     lambda_m = section["shifts"]["delta_M"]["value"]
     fatigue = by_key[("fatigue_capacity_words", 0.5)]["value"]
     log_s = math.log2(fatigue)
     point = np.array([[log_s, max(log_s - math.log2(20.0), 0.0)]])
-    value = vs_curve(slices, HYPERBOLA, plateau_params, point)[0]
+    value = vs_curve(AsymptoticHyperbolicForm(), slices, HYPERBOLA, plateau_params, point)[0]
     assert value + mu_p + lambda_m == pytest.approx(threshold, abs=1e-6)
     assert by_key[("fatigue_capacity_words", 0.5)]["interval"][0] < fatigue
     # Full density multiplies the odds of an error by e^(−(P(1) − δ_P)): the factor keeps the sign.
@@ -245,6 +252,12 @@ def test_a_fit_that_gave_nothing_gives_no_laws() -> None:
 
 def test_fatigue_capacity_is_one_word_when_the_first_word_is_below_the_threshold() -> None:
     assert _log_word_root(lambda x: -100.0 - x, marginal_threshold(0.95, SIGMA2)[0]) == 0.0
+
+
+def test_a_law_that_rises_with_the_length_has_no_fatigue_capacity() -> None:
+    # The plateau rises with the length faster than the slices fall: the law never reaches zero.
+    assert math.isnan(_log_word_root(lambda x: 1.0 + 0.3 * x, 0.0))
+    assert _log_word_root(lambda x: 5.0 - x, 0.0) == pytest.approx(5.0)
 
 
 def _with_rules_spread(fit: VariableFit) -> VariableFit:

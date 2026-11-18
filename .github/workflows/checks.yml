@@ -1,5 +1,6 @@
 # The checks of a reader on every push: the pinned environment, the tests of the package, the
-# vocabularies against their references and every published measurement recomputed and verified.
+# vocabularies against their references and every published measurement recomputed and verified,
+# one job per measurement, so that every one fits the time limit of a job.
 name: checks
 
 on:
@@ -9,7 +10,7 @@ on:
 jobs:
   reader:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -28,8 +29,39 @@ jobs:
         run: python -m pytest -q
       - name: Vocabularies
         run: python scripts/verify_vocab.py
-      - name: Published measurements
+
+  measurements:
+    runs-on: ubuntu-latest
+    outputs:
+      names: ${{ steps.list.outputs.names }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        run: echo "names=$(ls artefacts | jq -R . | jq -cs .)" >> "$GITHUB_OUTPUT"
+
+  measurement:
+    needs: measurements
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        name: ${{ fromJSON(needs.measurements.outputs.names) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install the pinned environment and the package
         run: |
-          for measurement in artefacts/*/; do
-            python scripts/verify.py "$measurement"
-          done
+          python -m pip install -r requirements.txt
+          python -m pip install --no-deps .
+      - name: Recompute and verify
+        run: |
+          set -o pipefail
+          python scripts/verify.py "artefacts/${{ matrix.name }}" 2>&1 | tee verify.log
+      - name: Show the end of a failed check
+        if: failure()
+        run: tail -n 10 verify.log | while IFS= read -r line; do echo "::error::${line//%/%25}"; done

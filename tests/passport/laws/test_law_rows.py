@@ -92,6 +92,22 @@ def test_capacity_row_marks_a_value_past_the_measured_region() -> None:
     assert capacity_row("x", 0.95, 1.0, 1.0, 100.0, scale=20.0)["value"] == 40.0
 
 
+def test_capacity_row_holds_a_number_past_the_largest_float_as_none() -> None:
+    # A nearly flat law: the capacity holds in a float, the upper bound of its interval does not.
+    wide = capacity_row("x", 0.5, 30.0, 1000.0, 10.0)
+    assert wide["value"] == 2.0**30
+    assert wide["interval"] == [2.0**-970, None]
+    assert wide["plus_minus"] == pytest.approx(math.log(2.0) * 2.0**30 * 1000.0)
+    assert wide["status"] == "extrapolated"
+    # The capacity itself past the largest float, by the power and by its unit.
+    past = capacity_row("x", 0.5, 1100.0, 1.0, 10.0)
+    assert past["value"] is None
+    assert past["interval"] == [None, None]
+    assert past["plus_minus"] is None
+    assert past["status"] == "extrapolated"
+    assert capacity_row("x", 0.5, 1023.0, 0.0, 10.0, scale=20.0)["value"] is None
+
+
 @pytest.mark.parametrize("sigma2", [0.0, 0.5, 4.0, 16.0, 64.0])
 def test_the_threshold_of_the_level_of_the_capacities_is_zero_at_any_variance(sigma2: float) -> None:
     assert LEVEL == 0.5

@@ -129,9 +129,21 @@ than the parameters of its form has no approximation. A hyperbola whose $x_0$ st
 degenerated into the inverse law $c + A/x$: its $A$ and $x_0$ mean nothing apart, so the section fits the inverse law anew and
 gives it in place of the hyperbola.
 
+**The check against the median request.** A bin is the logit of the median request of the model, and where the
+variance changes along an axis, the bin can lie on the other side of the reference bin than the requests themselves.
+Every bin of an axis constant within a request — the density, the number of rules and, for `F`, the text length — is
+therefore compared with the median request of the data. The requests with at least 50 trials of the quantity are grouped
+into the cells of the other two axes. In every cell the median shares of failures $s$ of the requests of the bin and of
+the reference bin go to the logit of the odds of a success, $\ln\big((1 - s)/s\big)$ with $s$ kept inside
+$[0.005, 0.995]$, and their difference is averaged over the cells with the weight of the number of the requests of the
+reference bin. Its error comes from 200 resamplings of the requests with a fixed seed. When a bin of the passport and
+its comparison lie on the two sides of the reference bin and the comparison lies beyond the half-width of its 95%
+interval, the variance by the load has turned the bin against the data: the quantity is fitted with one variance, and
+the passport names the bins (`SPREAD_AGAINST_DATA`).
+
 The section of a quantity names its fit method. `glmm_heterogeneous` is the
 GLMM with heterogeneous random-intercept variance, the fit with the spread by the load. `glmm` means that it did
-not converge, and the section gives the fit with one variance. `logit` means that the shift did not converge and the plain
+not converge or turned bins against the median request, and the section gives the fit with one variance. `logit` means that the shift did not converge and the plain
 logit is given: its numbers are not comparable with other measurements. `none` means that nothing converged: the quantity
 has no laws and no capacities.
 
@@ -143,10 +155,14 @@ an own error too: its zero comes from the coding alone.
 
 The bins of every axis are summarized by a law. Intervals are half-widths of 95%, by the delta method
 over the covariance of the coefficients and of $\sigma^2$. All laws below use $\ell = \log_2 s$ and
-$u = \log_2(v/20)$.
+$u = \log_2(v/20)$. The formulas are those of the established forms; the data can give a block one of its
+alternatives (*Which form a law takes*, below).
 
-**`P_sync`.** The cells of a length slice lie on a hyperbola with shared $\kappa_S$, $\lambda_S$,
-$\omega_S$ and an own plateau $\mu_v$, and a slanted hyperbola runs through the plateaus:
+**`P_sync`.** A length slice of the grid is a curve over $\ell$ whose parameters are shared by all the slices, while
+every slice has its own level $\mu_v$, the horizontal asymptote of the slice at $s \to 0$. The established curve is the
+hyperbola on two asymptotes, the horizontal $\mu_v$ and the slanted $\lambda_S + \kappa_S\ell$, with the corner width
+$\omega_S$; the slanted hyperbola and the binary exponential are its alternatives. A slanted hyperbola runs through the
+levels of the slices:
 
 $$VS(v, s) = \tfrac{1}{2}\Big[(\lambda_S + \kappa_S\ell) + \mu(u) - \sqrt{(\lambda_S + \kappa_S\ell - \mu(u))^2 + \kappa_S^2\omega_S^2}\Big],$$
 
@@ -158,8 +174,9 @@ $$P(p) = \mu_P + \tfrac{\kappa_P}{2}\Big[(x - x_*) + \sqrt{(x - x_*)^2 + \omega_
 
 The number of rules is the line $M(m) = \lambda_M + \kappa_M \log_2 m$, as for `H` and `F`.
 
-**`H`.** A slice of the grid is an exponent with shared $A$ and $\gamma$ and an own level $\mu_v$, and the
-levels of the slices lie on a line:
+**`H`.** A slice of the grid is a curve with shared parameters and an own level $\mu_v$. The established curve is
+the binary exponential with shared $A$ and $\gamma$; the two-asymptote hyperbola and the slanted hyperbola are its
+alternatives. The levels of the slices lie on a line:
 
 $$VS(v, s) = \mu_v - A \cdot 2^{\gamma\ell}, \qquad \mu_v = \mu_0 + \kappa_V u.$$
 
@@ -179,12 +196,21 @@ is an exponent, and the density is a logarithm plus a line:
 $$V(v) = V(20) + \kappa_V u, \quad Q(q) = c_q + A_q e^{-q/\tau}, \quad P(p) = a + b\log_2(p/2^{-10}) + cp, \quad M(m) = \lambda_M + \kappa_M \log_2 m.$$
 
 **Which bins enter and with which weights.** The grids of `P_sync` and `H` go in two steps, as in section 5.3.1
-of the article: the curve of the slices with the weights inverse to the own variances of the cells, then the
-law of the slices with the weights inverse to their own variances. The mutual dependence of the cells stays out
-of the weights, because with it the curve of a slice runs away from its cells; the errors are still carried by
-the full covariance, through the sensitivity of the estimates to the coefficients. The other laws of `P_sync`,
-`H` and `F` are drawn by generalised least squares over the full covariance of their bins. Every bin with a
-coefficient enters its law; a bin leaves it only as an outlier, by the procedure of astropy
+of the article: the curve of the slices through all the cells at once, with the parameters of the curve shared and
+the level of every slice its own, then the law of the levels through the levels of the slices. Every law weighs a
+point by $1/(\sigma_i^2 + \tau^2)$. Here $\sigma_i^2$ is the own variance of the point — a cell, a level or a bin — and
+$\tau^2$ the scatter of the points around their law beyond their own variances, by the estimate of DerSimonian and
+Laird for a regression [DerSimonian, Laird 1986; Viechtbauer, Cheung 2010]:
+
+$$\tau^2 = \max\Big(0,\ \frac{\chi^2 - (k - p)}{\operatorname{tr} P}\Big), \qquad P = W - WJ\,(J^\top W J)^{+} J^\top W, \qquad W = \operatorname{diag}(1/\sigma_i^2),$$
+
+where $J$ holds the derivatives of the law by its free parameters in place of the design of a linear model, $k$ is
+the number of the points, $p$ the rank of $J$ and $\chi^2$ the weighted sum of the squared residuals with the weights
+$W$. $\tau^2$ is measured around the candidate form with the smallest $\chi^2$ per degree of freedom, so the curvature
+of a law does not count as scatter, and every candidate of the block is then fitted with the same weights. The mutual
+dependence of the points stays out of the weights, because with it the curve of a slice runs away from its cells;
+the errors are still carried by the full covariance, through the sensitivity of the estimates to the coefficients.
+Every bin with a coefficient enters its law; a bin leaves it only as an outlier, by the procedure of astropy
 (`FittingWithOutlierRemoval` with `sigma_clip`): the residuals of the bins not yet clipped give their median and
 their standard deviation, a bin farther than three standard deviations from the median is clipped, the law is
 fitted again through the rest, and the procedure repeats until the number of the clipped bins stops changing.
@@ -192,15 +218,22 @@ The scale is one for all the bins, so a poorly determined bin gets no wider tole
 push to a bound of its range stays there, and the law names it in `held`.
 
 **Which form a law takes.** Every block has its established form, the first of the block in
-`config/passport_laws.yaml`, and alternatives after it: the line, the hyperbola $c + A/x$, the slanted hyperbola
-and the exponential. The density of `H` has the two-slope hyperbola established and the slanted hyperbola among its
-alternatives. The established form is fitted first; every form is then fitted through the bins it kept,
-and an alternative replaces the established form only when it is better by more than 10 of the criterion
-$\mathrm{QAIC} = \chi^2/\hat c + 2k$, where $k$ is the number of free parameters and $\hat c$ the overdispersion,
-$\chi^2$ per degree of freedom of the most flexible converged form, not below one (Burnham and Anderson 2002: a
-model behind the best by more than 10 has essentially no support). The bins scatter around any law more than
-their own errors allow, and $\hat c$ brings the residuals to their real scatter. The law publishes its form, the
-established form, $\hat c$ and the clipped bins.
+`config/passport_laws.yaml`, and alternatives after it, taken from the line, the slanted hyperbola and the binary
+exponential. The density of `H` has the two-slope hyperbola established and the slanted hyperbola among its
+alternatives, the density of `F` the logarithm plus a line, and the share of the answer of `F` the exponential with
+the line as its only alternative; the slices of the grids choose among the forms named above. The simple hyperbola
+$c + A/x$ is no candidate: every law defines the level of its block at the zero of its abscissa — one rule, the first
+rule of the list, 20 words, the density $2^{-10}$, the start of the answer — and that hyperbola has its pole there.
+The amplitude of the exponential and of the binary exponential and the slope of the slanted hyperbola take either
+sign, so a law can rise along its axis as well as fall. The established form is fitted first; every form is then
+fitted through the bins it kept with the same weights, and the form with the smallest criterion
+$\mathrm{QAIC} = \chi^2/\hat c + 2k$ is taken [Burnham, Anderson 2002]. Here $k$ is the number of free parameters and
+$\hat c$ the overdispersion: the smallest $\chi^2$ per degree of freedom among the converged forms, not below one, so
+that a flexible form that lies badly does not inflate it. The bins scatter around any law more than their own errors
+allow, and $\hat c$ brings the residuals to their real scatter. The established form wins a tie. An alternative with a
+parameter held on a bound of its range does not replace the established form: the data push it to the edge of its
+family, and its criterion says little of its shape. The law publishes its form, the established form, $\hat c$, the
+record of every candidate and the clipped bins.
 
 ## 7. The level
 
@@ -247,7 +280,7 @@ capacities only through the laws, which it keeps unbiased.
 | `H` | instruction | the root of $-\kappa_M\log_2 m + \int_1^m [R(1) - R(r)]\,dr = \alpha$ | rules |
 | `H` | fatigue | the word number at which the full law of the grid reaches zero at the shortest text holding the word, $v = s$ | words |
 | `P_sync` | instruction | $-\kappa_M\log_2 m = \alpha$, as for `F`; none when the 95% interval of $\kappa_M$ reaches zero | rules |
-| `P_sync` | fatigue | the word at which the full law of the grid at $p \to 0$ reaches zero, $v = s$: the root of the same curve as the other capacities of the grid, not its slanted asymptote | words |
+| `P_sync` | fatigue | the word at which the full law of the grid at $p \to 0$ reaches zero, $v = s$: the root of the same curve as the other capacities of the grid, not its slanted asymptote; none when the law stays above zero up to $2^{40}$ words, as when the plateau rises with the length faster than the slices fall | words |
 | `F` | instruction | $-\kappa_M\log_2 m = \alpha$; a background word has no rule number | rules |
 | `F` | fatigue | the number of the last word of a text of the same length: the root of $\alpha - [Q(0) - Q(1)] + [V(s) - V(20)] = 0$ | words |
 | every quantity | measure of the density | $e^{-\hat P(1)}$, where $\hat P(1)$ is the change of the law of the density from its zero point to $p = 1$: how many times the full density multiplies the odds of an error, written as the factor with its interval. A factor below one means that the full density lowers the odds of an error, as the rising law of the density of `H` can give. For `F` a conditional quantity: a text has no background words at $p = 1$, so it continues the law of the density | times |

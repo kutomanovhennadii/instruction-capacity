@@ -80,3 +80,13 @@ def test_the_measure_of_the_density_keeps_the_sign_of_the_change() -> None:
     assert rising["value"] < 1.0
     assert rising["interval"] == pytest.approx([math.exp(-0.75 - half), math.exp(-0.75 + half)])
     assert rising["status"] == "measured"
+
+
+def test_a_measure_of_the_density_past_the_largest_float_is_none() -> None:
+    # The logit drops by 800 to full density: e^800 does not hold in a float.
+    steep = odds_factor_row(
+        lambda vector: 800.0 * float(STACK.part(vector, "law")[1]), STACK, np.zeros((3, 3))
+    )
+    assert steep["value"] is None
+    assert steep["interval"] == [None, None]
+    assert steep["change"] == pytest.approx(-800.0)

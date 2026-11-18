@@ -5,12 +5,12 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from iec.passport.document.number_text import number
 from iec.passport.document.text_cells import (
     capacity_rows,
     figure_links,
     fit_line,
     law_sentence,
+    slice_sentence,
     spread_lines,
     with_half,
 )
@@ -27,16 +27,10 @@ def sync_lines(section: Mapping[str, Any], figures: Sequence[str]) -> list[str]:
     if section["status"] != "measured":
         return [*lines, "There are no laws: the fit or a law did not converge.", ""]
     laws = section["laws"]
-    grid, half = laws["grid"], laws["grid"]["half"]
     return [
         *lines,
         *spread_lines(section),
-        "The law of the grid: a length slice is a hyperbola with a shared slope and corner width and "
-        "its own plateau, and the law of the plateau runs through the plateaus. "
-        f"`κ_S = {number(grid['kappa_S'])} ± {number(half['kappa_S'])}`, "
-        f"`λ̃_S = {number(grid['lambda_S_restored'])} ± {number(half['lambda_S_restored'])}`, "
-        f"`ω_S = {number(grid['omega_S'])} ± {number(half['omega_S'])}`; "
-        f"`χ² = {number(grid['chi2'], 1)}` over {grid['n_points']} cells.",
+        f"{slice_sentence(laws['grid'])} The law of the plateau runs through the levels of the slices.",
         "",
         law_sentence("The law of the plateau", laws["grid_plateau"]),
         "",

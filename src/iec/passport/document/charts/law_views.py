@@ -22,6 +22,7 @@ from iec.passport.document.number_text import number
 from iec.passport.laws.block_choice import form_parameters
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.forms.linear_forms import LinearForm
+from iec.passport.laws.grid_slices import published_shared, slice_value
 
 #: Error code of a block of the plan of the figures that no view draws.
 FIGURE_VIEW_UNKNOWN = "FIGURE_VIEW_UNKNOWN"
@@ -33,6 +34,7 @@ REFERENCE_WORDS = 20.0
 FORM_LABELS = {
     "linear": "line",
     "slanted_hyperbolic": "slanted hyperbola",
+    "asymptotic_hyperbolic": "two-asymptote hyperbola",
     "two_slope_hyperbolic": "two-slope hyperbola",
     "binary_exponential": "binary exponential",
     "saturation": "saturation",
@@ -233,49 +235,45 @@ def background_rules(section: Mapping[str, Any], forms: Sequence[LawForm]) -> Ax
     )
 
 
-def sync_slices(section: Mapping[str, Any], forms: Sequence[LawForm]) -> SliceView:
-    """Return the slices of P_sync: the two-asymptote hyperbola over ``log₂ s``, its own plateau each."""
-    form = forms[0]
-    grid_law = section["laws"]["grid"]
-    shift = float(section["shifts"]["delta_VS"]["value"])
-    kappa_s, lambda_s, omega_s = (float(grid_law[key]) for key in ("kappa_S", "lambda_S", "omega_S"))
+def _slices(
+    section: Mapping[str, Any],
+    forms: Sequence[LawForm],
+    rows: Sequence[Mapping[str, Any]],
+    level_of: Callable[[Mapping[str, Any]], float],
+    shift: float,
+) -> SliceView:
+    """Return the slices of a grid by the form the law of the slices chose, every slice at its level."""
+    law = section["laws"]["grid"]
+    form = next(item for item in forms if item.name == law["law_form"])
+    shared = published_shared(law, form)
 
-    def slice_curve(plateau: float) -> Curve:
-        """Return the curve of a slice with its plateau."""
-        params = np.array([kappa_s, lambda_s, omega_s, plateau])
-        return lambda s: form.value(params, np.log2(s))
+    def slice_curve(level: float) -> Curve:
+        """Return the curve of a slice of a level."""
+        return lambda s: slice_value(form, shared, level, np.log2(s))
 
-    determined = [row for row in section["bins"]["slices"] if row.get("determined")]
+    params = ", ".join(f"{name} = {number(float(value), digits=3)}" for name, value in law["params"].items())
     return SliceView(
-        slices={int(row["v_bin"]): slice_curve(float(row["mu_v"]) + shift) for row in determined},
-        label=(
-            f"hyperbola of a slice: κ_S = {number(kappa_s)}, ω_S = {number(omega_s)}, "
-            "every slice has its own plateau"
-        ),
+        slices={int(row["v_bin"]): slice_curve(level_of(row)) for row in rows},
+        label=f"{FORM_LABELS.get(form.name, form.name)} of a slice: {params}, every slice its own level μ",
         shift=shift,
     )
 
 
+def sync_slices(section: Mapping[str, Any], forms: Sequence[LawForm]) -> SliceView:
+    """Return the determined slices of P_sync, every one at its level in the coding of the fit."""
+    shift = float(section["shifts"]["delta_VS"]["value"])
+    determined = [row for row in section["bins"]["slices"] if row.get("determined")]
+    return _slices(section, forms, determined, lambda row: float(row["mu_v"]) + shift, shift)
+
+
 def rule_slices(section: Mapping[str, Any], forms: Sequence[LawForm]) -> SliceView:
-    """Return the slices of H: the binary exponential over ``log₂ s``, its own level each."""
-    form = forms[0]
-    grid_law = section["laws"]["grid"]
-    amplitude, gamma = float(grid_law["A"]), float(grid_law["gamma"])
-
-    def slice_curve(level: float) -> Curve:
-        """Return the curve of a slice with its level."""
-        params = np.array([level, amplitude, gamma])
-        return lambda s: form.value(params, np.log2(s))
-
-    return SliceView(
-        slices={
-            int(row["v_bin"]): slice_curve(float(row["mu_v"])) for row in section["bins"]["slices"]
-        },
-        label=(
-            f"exponent of a slice: μ_v − A·2^(γ·log₂s), A = {number(amplitude, digits=3)}, "
-            f"γ = {number(gamma, digits=3)}"
-        ),
-        shift=float(section["shifts"]["mu_0"]["value"]),
+    """Return the slices of H, every one at its level."""
+    return _slices(
+        section,
+        forms,
+        section["bins"]["slices"],
+        lambda row: float(row["mu_v"]),
+        float(section["shifts"]["mu_0"]["value"]),
     )
 
 

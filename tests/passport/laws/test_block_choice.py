@@ -22,6 +22,8 @@ from iec.passport.laws.point_weights import variance_weights
 
 #: The forms of a block: the line established, the hyperbolas and the exponential as alternatives.
 FORMS = (LinearForm(), HyperbolicForm(), SlantedHyperbolicForm(), BinaryExponentialForm())
+#: A block of the line alone, for the tests of the clipping and of the rows.
+LINE_ONLY = (LinearForm(),)
 X = np.linspace(0.5, 9.5, 10)
 WEIGH = variance_weights(np.full(10, 1e-4))
 #: A small even scatter, so that the residuals of a fit are not rounding noise.
@@ -34,9 +36,11 @@ def _chosen(values: np.ndarray) -> BlockChoice:
     return choice
 
 
-def test_the_established_form_stays_on_data_it_describes() -> None:
+def test_the_form_with_the_smallest_criterion_is_chosen() -> None:
+    # The smallest QAIC wins, the established line only on a tie.
     choice = _chosen(2.0 - 0.5 * X + SCATTER)
-    assert choice.form.name == "linear"
+    converged = [entry for entry in choice.candidates if entry["converged"]]
+    assert choice.form.name == min(converged, key=lambda entry: entry["criterion"])["form"]
     assert choice.record()["established_form"] == "linear"
     assert choice.kept is not None and choice.kept.all()
 
@@ -54,13 +58,15 @@ def test_every_form_is_recorded_with_its_quasi_criterion() -> None:
     line = choice.candidates[0]
     assert line["criterion"] == pytest.approx(line["chi2"] / choice.c_hat + 2.0 * line["free"])
     assert choice.c_hat >= 1.0
-    assert choice.record()["law_form"] == "linear"
+    assert choice.record()["law_form"] == choice.form.name
 
 
 def test_an_outlier_leaves_the_law_and_is_written() -> None:
+    # The block of the line alone: the test is of the clipping, not of the choice of the form.
     values = 2.0 - 0.5 * X + SCATTER
     values[6] += 5.0
-    choice = _chosen(values)
+    choice = choose_law(LINE_ONLY, X, values, WEIGH)
+    assert isinstance(choice, BlockChoice)
     assert choice.form.name == "linear"
     assert choice.kept is not None
     assert np.flatnonzero(~choice.kept).tolist() == [6]
@@ -105,7 +111,9 @@ def test_the_shift_is_the_asymptote_or_the_law_at_zero() -> None:
 
 
 def test_the_rows_of_a_law_carry_its_sensitivity_to_the_coefficients() -> None:
-    choice = _chosen(2.0 - 0.5 * X + SCATTER)
+    # The block of the line alone: the test is of the rows, not of the choice of the form.
+    choice = choose_law(LINE_ONLY, X, 2.0 - 0.5 * X + SCATTER, WEIGH)
+    assert isinstance(choice, BlockChoice)
     columns = [3, 1, 4, 0, 5, 9, 2, 6, 8, 7]
     law = block_law(choice, unit_rows(columns, 10), [f"b{k}" for k in range(10)], X, False)
     assert law.rows[:, columns] == pytest.approx(choice.fit.sensitivity)

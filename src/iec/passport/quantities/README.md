@@ -8,19 +8,19 @@ the common steps in `steps/`.
 | Module | Role |
 |---|---|
 | `sync_section` | the section of `P_sync`: model VS-PM, the grid with a plateau, the density and the number of rules, three capacities by the laws and the instruction capacity by the bins |
-| `rule_word_section` | the section of `H`: model VS-PMR, the exponent grid, the density, the number of rules and the rule number, the capacities by the laws and by the bins |
+| `rule_word_section` | the section of `H`: model VS-PMR, the grid with the levels of its slices, the density, the number of rules and the rule number, the capacities by the laws and by the bins |
 | `background_design` | the trials of `F` by the share of the answer and the folded matrix of model V-(s/v)-PM |
-| `background_section` | the section of `F`: model V-(s/v)-PM, four laws by plain least squares, three capacities by the laws and the instruction capacity by the bins |
+| `background_section` | the section of `F`: model V-(s/v)-PM, four laws through the well determined bins, three capacities by the laws and the instruction capacity by the bins |
 | `steps/` | the common steps of a section |
 
 ## The steps of a section
 
-Every section goes by the same steps in the same order: the facts of the fit and the approximations of the spread; the laws of the
-blocks, each with the form the assignment of forms gives it (`config/passport_laws.yaml`); the level - the sum of the shifts of the
-blocks; the capacities by the laws and by the bins; the rows of the bins. A section draws a block only with the forms its fit is
-written for; another form is the error `LAW_FORM_UNSUPPORTED`. The way a section fits its laws - generalised least squares over the
-full covariance, over residuals whitened by the Cholesky factor, plain least squares - stays with the section: it sets the numbers
-of the passport.
+Every section goes by the same steps in the same order: the fit with the variance by the load, checked against the median request
+of the data (`steps/median_check`), and the approximations of the spread; the laws of the blocks, each chosen among the candidates
+the assignment of forms gives it (`config/passport_laws.yaml`) by the smallest `QAIC`, with the weights `1/(σᵢ² + τ²)`
+(`laws.block_choice`); the slices of a grid by the same rule (`laws.grid_slices`); the level - the sum of the shifts of the blocks;
+the capacities by the laws and by the bins; the rows of the bins. The errors of every law are carried by the full covariance of
+the fit, through the sensitivity of its parameters to the coefficients.
 
 ## Key signatures
 

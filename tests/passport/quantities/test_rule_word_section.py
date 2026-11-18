@@ -11,7 +11,7 @@ import pytest
 
 from iec.passport.fitting.load_spread import LoadSpread, SpreadAxis
 from iec.passport.laws.block_choice import BlockChoice, BlockLaw
-from iec.passport.laws.forms.growth_forms import SaturationForm
+from iec.passport.laws.forms.growth_forms import BinaryExponentialForm, SaturationForm
 from iec.passport.laws.forms.law_fit import LawFit
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.forms.linear_forms import LinearForm
@@ -171,7 +171,7 @@ def _fatigue(
     amplitude: float, gamma: float, kappa_v: float, alpha: float, threshold: float
 ) -> float | None:
     plateau = _law(LINE, np.array([0.0, kappa_v]))
-    return log_fatigue(np.array([amplitude, gamma]), plateau, plateau.params, alpha, threshold)
+    return log_fatigue(BinaryExponentialForm(), np.array([amplitude, gamma]), plateau, plateau.params, alpha, threshold)
 
 
 def test_fatigue_below_twenty_words_is_the_root_of_the_exponent() -> None:
@@ -219,27 +219,27 @@ def test_laws_level_and_capacities_on_known_laws() -> None:
     section = rule_word_laws(design, fit, 10240.0, ASSIGNMENT)
     assert section["status"] == "measured"
     laws = section["laws"]
-    assert laws["grid"]["A"] == pytest.approx(A, abs=1e-4)
-    assert laws["grid"]["gamma"] == pytest.approx(GAMMA, abs=1e-4)
+    assert laws["grid"]["params"]["A"] == pytest.approx(A, abs=1e-4)
+    assert laws["grid"]["params"]["gamma"] == pytest.approx(GAMMA, abs=1e-4)
     assert laws["grid"]["held"] == []
     # The data choose the forms they were drawn from: the line, the line, the slanted hyperbola of
-    # the rule number; the density keeps its established two-slope hyperbola, which with no left
-    # slope is the slanted hyperbola of the data.
+    # the rule number and of the density - the established two-slope hyperbola describes the density
+    # as exactly with one parameter more, so the smallest QAIC takes the slanted hyperbola.
     assert laws["grid_plateau"]["law_form"] == "linear"
     assert laws["grid_plateau"]["params"]["a"] == pytest.approx(MU_0, abs=1e-4)
     assert laws["grid_plateau"]["params"]["b"] == pytest.approx(KAPPA_V, abs=1e-4)
     assert laws["table_size"]["law_form"] == "linear"
     assert laws["table_size"]["params"]["b"] == pytest.approx(KAPPA_M, abs=1e-6)
-    assert laws["density"]["law_form"] == "two_slope_hyperbolic"
+    assert laws["density"]["law_form"] == "slanted_hyperbolic"
+    assert laws["density"]["established_form"] == "two_slope_hyperbolic"
     assert laws["density"]["params"]["mu"] == pytest.approx(P_LAW[0], abs=1e-3)
-    assert laws["density"]["params"]["beta"] == pytest.approx(0.0, abs=1e-3)
     assert laws["rule_position"]["law_form"] == "slanted_hyperbolic"
     assert laws["rule_position"]["params"]["kappa"] == pytest.approx(R_LAW[1], abs=1e-3)
-    assert len(laws["density"]["candidates"]) == 5
+    # Four candidates: the simple hyperbola is none, its pole lies at the zero of the abscissa.
+    assert len(laws["density"]["candidates"]) == 4
     lambda_r = _hyperbola(R_LAW, 0.0)
-    # The two-slope hyperbola has no horizontal asymptote: the shift of the density is its law at
-    # p = 2⁻¹⁰, the zero of the abscissa.
-    expected = MU_0 + _hyperbola(P_LAW, 0.0) + LAMBDA_M + lambda_r
+    # The slanted hyperbola has the horizontal asymptote μ at p → 0: it is the shift of the density.
+    expected = MU_0 + P_LAW[0] + LAMBDA_M + lambda_r
     assert section["alpha"]["value"] == pytest.approx(expected, abs=1e-3)
     by_key = {(row["key"], row["level"], row["method"]): row for row in section["capacities"]}
     # At the level 0.5 the threshold of the logit of the median request is zero at any variance.
@@ -263,8 +263,9 @@ def test_full_density_multiplies_the_odds_of_an_error_by_the_loss_of_its_law() -
     section = rule_word_laws(design, fit, 10240.0, ASSIGNMENT)
     odds = next(row for row in section["capacities"] if row["key"] == "density_odds_factor")
     loss = section["density_loss_at_one"]
-    # The loss goes from the shift of the density, its law at p = 2⁻¹⁰, to the law at p = 1.
-    expected = _hyperbola(P_LAW, 10.0) - _hyperbola(P_LAW, 0.0)
+    # The loss goes from the shift of the density, the asymptote μ of its slanted hyperbola at
+    # p → 0, to the law at p = 1.
+    expected = _hyperbola(P_LAW, 10.0) - P_LAW[0]
     assert -loss == pytest.approx(expected, abs=1e-3)
     # The factor keeps the sign: e^(−P̂(1)) with P̂(1) = −loss.
     assert odds["value"] == pytest.approx(math.exp(loss))
@@ -309,9 +310,9 @@ def test_the_curve_takes_the_variances_and_the_errors_take_the_full_covariance()
     plain = rule_word_laws(*_known_fit(), 10240.0, ASSIGNMENT)
     common = rule_word_laws(*_known_fit(common_error=0.01), 10240.0, ASSIGNMENT)
     # A common error of all the cells does not move the curve: the weights stay equal.
-    assert common["laws"]["grid"]["A"] == pytest.approx(plain["laws"]["grid"]["A"], abs=1e-4)
-    assert common["laws"]["grid"]["gamma"] == pytest.approx(
-        plain["laws"]["grid"]["gamma"], abs=1e-4
+    assert common["laws"]["grid"]["params"]["A"] == pytest.approx(plain["laws"]["grid"]["params"]["A"], abs=1e-4)
+    assert common["laws"]["grid"]["params"]["gamma"] == pytest.approx(
+        plain["laws"]["grid"]["params"]["gamma"], abs=1e-4
     )
     # It goes into the error of the level whole: the row of mu_0 sums to one, 1.96 × 0.1.
     assert common["shifts"]["mu_0"]["half"] >= 0.19 > plain["shifts"]["mu_0"]["half"]
@@ -327,7 +328,7 @@ def test_gamma_on_a_bound_is_named_and_has_no_error() -> None:
         theta[names.index(cell.name)] = MU_0 + KAPPA_V * design.abscissae[cell.name]["u"] - 0.5 * x
     grid = rule_word_laws(design, replace(fit, theta=tuple(theta)), 10240.0, ASSIGNMENT)["laws"]["grid"]
     assert grid["held"] == ["gamma"]
-    assert grid["gamma"] == pytest.approx(0.005, abs=1e-5)
+    assert grid["params"]["gamma"] == pytest.approx(0.005, abs=1e-5)
     assert grid["half"]["gamma"] == 0.0
 
 

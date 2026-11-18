@@ -9,6 +9,7 @@ from typing import Any
 from iec.passport.document.charts.figure_plan import load_figure_plan
 from iec.passport.document.charts.figure_writer import write_passport_figures
 from iec.passport.document.renderer import render_passport, write_documents
+from iec.passport.document.text_cells import law_cell
 from iec.passport.laws.forms.law_assignment import build_law_assignment, load_law_assignment_config
 
 CONFIG = Path(__file__).resolve().parents[3] / "config"
@@ -139,14 +140,15 @@ def _sync() -> dict[str, Any]:
         "fit": _fit(),
         "status": "measured",
         "laws": {
+            # The law of the slices is a law with its chosen form: the shared parameters of the curve.
             "grid": {
-                "kappa_S": -3.0,
-                "lambda_S": 40.0,
-                "lambda_S_restored": 20.0,
-                "omega_S": 1.5,
-                "half": dict.fromkeys(("kappa_S", "lambda_S_restored", "omega_S"), 0.1),
-                "chi2": 10.0,
-                "n_points": 6,
+                **_law(
+                    "asymptotic_hyperbolic",
+                    "[(κ·ℓ + λ) + μ − √((κ·ℓ + λ − μ)² + κ²·ω²)]/2",
+                    {"kappa": -3.0, "lambda": 40.0, "omega": 1.5},
+                    10.0,
+                    6,
+                ),
                 "n_parameters": 5,
             },
             "grid_plateau": _law(
@@ -182,7 +184,6 @@ def _sync() -> dict[str, Any]:
 
 
 def _rule_word() -> dict[str, Any]:
-    half = {"A": 0.1, "gamma": 0.01}
     return {
         "model": "VS-PMR",
         "weights": "V x P x M",
@@ -190,12 +191,7 @@ def _rule_word() -> dict[str, Any]:
         "status": "measured",
         "laws": {
             "grid": {
-                "A": 0.5,
-                "gamma": 0.3,
-                "half": half,
-                "held": [],
-                "chi2": 300.0,
-                "n_points": 6,
+                **_law("binary_exponential", "μ − A·2^(γ·ℓ)", {"A": 0.5, "gamma": 0.3}, 300.0, 6),
                 "n_parameters": 4,
             },
             "grid_plateau": _law("linear", "a + b·log₂(v/20)", {"a": 13.0, "b": -0.9}, 6.0, 2),
@@ -318,6 +314,17 @@ def test_all_figures_are_written(tmp_path: Path) -> None:
     assert (tmp_path / "P_sync" / "plateau-before-correction.png").is_file()
 
 
+def test_the_figures_of_an_earlier_build_are_removed(tmp_path: Path) -> None:
+    stale = tmp_path / "H" / "spread-M.png"
+    stale.parent.mkdir(parents=True)
+    stale.write_bytes(b"an earlier build")
+    written = write_passport_figures(_passport(), tmp_path, ASSIGNMENT, PLAN)
+    assert not stale.exists()
+    assert sorted(path.resolve() for path in tmp_path.rglob("*.png")) == sorted(
+        path.resolve() for path in written
+    )
+
+
 def test_quantity_without_laws_gets_no_figures(tmp_path: Path) -> None:
     passport = _passport()
     passport["H"] = {"status": "no_laws"}
@@ -385,7 +392,8 @@ def test_document_names_a_parameter_of_h_on_a_bound() -> None:
 
 def test_document_writes_the_exponent_of_a_slice() -> None:
     text = render_passport(_passport(), PLAN)
-    assert "`μ_v − A·2^(γ·log₂ s)`" in text
+    # The slices choose their form: the text writes the formula of the chosen form over ℓ = log₂ s.
+    assert "`μ − A·2^(γ·ℓ)`" in text
     assert "`A = 0.500 ± 0.100`" in text
     assert "parabola" not in text
 
@@ -442,6 +450,22 @@ def test_the_table_of_the_capacities_has_no_threshold() -> None:
     ) in text
 
 
+def test_a_bound_past_the_largest_float_is_written_as_more_than_its_limit() -> None:
+    row = {
+        "key": "fatigue_capacity_words",
+        "level": 0.5,
+        "method": "law",
+        "value": 2.0e9,
+        "interval": [1.0e-290, None],
+        "plus_minus": 1.4e12,
+        "status": "extrapolated",
+    }
+    assert law_cell(row) == "2.0·10⁹ (0.0–more than 10³⁰⁸), continuation of the law"
+    assert law_cell({**row, "value": None, "interval": [None, None]}) == (
+        "more than 10³⁰⁸ (more than 10³⁰⁸–more than 10³⁰⁸), continuation of the law"
+    )
+
+
 def _spread_laws() -> dict[str, Any]:
     return {
         "V": {"form": "line", "params": {"a": 2.2, "b": -0.054}, "chi2": 2.5, "n_points": 7},
@@ -490,7 +514,8 @@ def test_p_sync_has_the_law_and_the_figures_of_the_number_of_rules(tmp_path: Pat
     passport = _passport()
     text = render_passport(passport, PLAN)
     assert "The law of the number of rules is a line, `a + b·log₂ m`" in text
-    assert "chosen by `χ² + 2k` among 4 forms" in text
+    # The form with the smallest QAIC is chosen.
+    assert "chosen by the smallest `QAIC` among 4 forms" in text
     assert "`α = δ_VS + δ_P + δ_M =" in text
     write_passport_figures(passport, tmp_path, ASSIGNMENT, PLAN)
     assert (tmp_path / "P_sync" / "M-before-correction.png").is_file()

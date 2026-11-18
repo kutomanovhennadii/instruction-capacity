@@ -60,6 +60,7 @@ The top keys of `passport_data.json`:
 
 | Key | Meaning |
 |---|---|
+| `format_version` | the version of the format of the passport; `2`, where the law of the slices of a grid is a law with its chosen form. A file of version 1 is a passport of version 0.2.0, a file without the field is of version 1, and a newer version is refused |
 | `model` | `id`, the model id; `experiment_id`, the name of the measurement |
 | `points` | the number of answered points |
 | `formula` | the formula that combines the three quantities |
@@ -75,7 +76,7 @@ A section of a quantity:
 | `spread_laws` | for `glmm_heterogeneous`: the approximations of the variance by the groups of the axes, below |
 | `status` | `measured` if the quantity has laws; otherwise it says why it has none |
 | `bins` | the rows of the axes (`grid`, `slices`, `P`, `M`, `R`, `V`, `q`, by the model) |
-| `laws` | the parameters of the laws, with `half` for the half-widths of their 95% intervals and `held` for the parameters on a bound of their range; a law of a block has `law_form` (its form), `established_form` (the form of the block it replaced or kept), `c_hat` (the overdispersion of the criterion of the choice), `candidates` (every form with `converged`, `chi2`, `free` and `criterion`, the QAIC), `outliers` (the bins clipped from the law) and `n_points` (the bins it goes through) |
+| `laws` | the parameters of the laws, with `half` for the half-widths of their 95% intervals and `held` for the parameters on a bound of their range; a law of a block has `law_form` (its form), `established_form` (the form of the block it replaced or kept), `c_hat` (the overdispersion of the criterion of the choice), `candidates` (every form with `converged`, `chi2`, `free` and `criterion`, the QAIC), `outliers` (the bins clipped from the law) and `n_points` (the bins it goes through). The law of the slices of a grid, `grid`, has the same keys without `outliers`: its `params` are the parameters of the curve shared by the slices, `n_points` the cells and `n_parameters` the shared parameters with the levels of the slices, which stand in `bins.slices` as `mu_v` |
 | `shifts`, `alpha` | the shifts of the blocks and the level, each with `value` and `half` |
 | `capacities` | the capacity rows |
 | `density_loss_at_one` | for `H`: the loss of the density at `p = 1` |

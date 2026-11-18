@@ -14,6 +14,12 @@ form the block takes.
 | `linear_forms.py` | `LinearForm` `a + b·x`, `LogarithmicForm` `a + b·log₂(x/x₀)`, `LogLinearForm` `a + b·log₂(x/x₀) + c·x` |
 | `hyperbolic_forms.py` | `HyperbolicForm` `c + A/x`, `FractionalHyperbolicForm` `c + A/(1 + x/x₀)`, `SlantedHyperbolicForm` `μ + (κ/2)·[(x − x*) + √((x − x*)² + ω²)]`, `TwoSlopeHyperbolicForm` `μ + β·(x − x*) + (κ/2)·[(x − x*) + √((x − x*)² + ω²)]` - two slanted asymptotes, the slopes `β` and `β + κ` of any sign, no horizontal asymptote, `AsymptoticHyperbolicForm` - the slanted hyperbola written by its slanted asymptote `κx + λ` |
 | `growth_forms.py` | `ExponentialForm` `c + A·e^(−x/τ)`, `BinaryExponentialForm` `μ − A·2^(γx)`, `SaturationForm` `μ − A·(1 − e^(−x/x_c))`, `PowerForm` `λ − A·(x^γ − 1)` |
+
+The amplitude `A` of the exponential and of the binary exponential and the slope `κ` of the slanted hyperbola take either sign:
+such a law rises along its axis as well as falls. The exponential keeps `τ > 0`, so that it reaches its asymptote `c`, and holds
+`τ` on a bound of its range when the data push it there. The two-asymptote hyperbola keeps `κ ≤ 0`. The simple hyperbola `c + A/x`
+stays in the collection for the approximations of the spread; no block of the passport takes it, because its pole lies at the
+zero of the abscissa, where a block has its level.
 | `law_fit.py` | `fit_law()` - the fit of a form through points over their weight matrix; the weightings `covariance_weighting()`, `variance_weighting()`, `plain_weighting()`; the result `LawFit` |
 | `form_registry.py` | `LAW_FORMS` - every form by its name and the options it takes; `build_form()` |
 | `law_assignment.py` | the assignment file `config/passport_laws.yaml`: its model, `load_law_assignment_config()`, `build_law_assignment()`, `LawAssignment` |
@@ -39,8 +45,9 @@ LawAssignment.spread_form_of(quantity, axis) -> LawForm
 The residuals `Lᵀ·(β − f(x))` are whitened by the root of the weight matrix; the starts are tried in order, and the smallest
 `χ²` wins. A parameter that the data push to a bound of its range is held there: its value is the bound, and its row of the
 sensitivity `(JᵀPJ)⁻¹JᵀP` is zero. A form with such parameters is fitted by `dogbox`, which stops on a bound, the others by
-`trf`. Singular normal equations - a law that its points do not determine - give a fit without convergence. With the covariance
-weighting and the default starts of the slanted hyperbola this is the procedure of the density law of P_sync.
+`trf`. Singular normal equations - a law that its points do not determine - give a fit without convergence. The laws of the
+passport weigh their points by their own variances plus the scatter `τ²` (`variance_weighting`); the covariance weighting stays
+for a fit over a full matrix.
 
 ## The abscissa and the formulas
 

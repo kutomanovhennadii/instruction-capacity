@@ -1,15 +1,14 @@
 """The law of the length × word-number grid of a quantity with a plateau.
 
-The law is fitted in two steps: the cells of every length slice lie on a hyperbola with two
-asymptotes ``[(κ_S·log₂s + λ_S) + μ_v − √((κ_S·log₂s + λ_S − μ_v)² + κ_S²·ω_S²)]/2`` with
-shared ``κ_S``, ``λ_S``, ``ω_S`` and an own plateau ``μ_v``; then the law of the plateau ``μ(u)``,
-``u = log₂(v/20)``, is drawn through the plateaus of the slices. Its form is chosen by the data among
-the candidates of the assignment (``laws.block_choice``): the line, the slanted hyperbola
+The law is fitted in two steps: the cells of every length slice lie on the curve of a form chosen
+among the candidates of the slices (``laws.grid_slices``), with shared parameters and an own level
+``μ_v``, the plateau of the slice; then the law of the plateau ``μ(u)``, ``u = log₂(v/20)``, is drawn
+through the plateaus of the slices. Its form is chosen by the data among the candidates of the
+assignment (``laws.block_choice``): the line, the slanted hyperbola
 ``μ₀ + (κ_V/2)·[(u − u_*) + √((u − u_*)² + ω_V²)]``, the binary exponential and the saturation. At
 vanishing load - the start of the answer (``s → 0``) of short texts (``v → 0``) - the surface tends
 to the horizontal asymptote of its plateau, so the shift of the grid is that asymptote; a law of the
-plateau without one has its shift at 20 words, ``u = 0``. The slices with their own plateaus are a
-joint fit of the grid and keep their formula here.
+plateau without one has its shift at 20 words, ``u = 0``.
 """
 
 from __future__ import annotations
@@ -20,116 +19,60 @@ from typing import Any
 
 import numpy as np
 
-from iec.passport.laws.block_choice import BlockLaw, block_law, choose_law
-from iec.passport.laws.point_weights import variance_weights
+from iec.passport.laws.block_choice import BlockLaw, block_law, choose_scattered_law
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.gls_tools import (
     STATUS_INSUFFICIENT,
     STATUS_MEASURED,
     STATUS_NOT_CONVERGED,
     delta_se,
-    gls_least_squares,
-    gls_sensitivity,
+)
+from iec.passport.laws.grid_slices import (
+    MIN_LEVEL_SHARE,
+    SLICE_UNSEEN,
+    SliceLaw,
+    choose_slice_form,
+    slice_value,
 )
 from iec.passport.trials.layout.bin_layout import BinLayout
 
-#: Lower bound of the transition width of a slice.
+#: Lower bound of the transition width of the plateau law.
 _W_MIN = 0.001
 
 
 def vs_curve(
-    slices: np.ndarray, plateau_form: LawForm, plateau_params: np.ndarray, xu: np.ndarray
+    slice_form: LawForm,
+    shared: np.ndarray,
+    plateau_form: LawForm,
+    plateau_params: np.ndarray,
+    xu: np.ndarray,
 ) -> np.ndarray:
-    """Shape of the surface: ``[(κ_S·ℓ + λ_S) + μ(u) − √((κ_S·ℓ + λ_S − μ(u))² + κ_S²·ω_S²)]/2``.
+    """Return the surface: the curve of a slice whose level is the law of the plateau ``μ(u)``.
 
     Args:
-        slices: ``(κ_S, λ_S, ω_S)`` of the slices.
+        slice_form: The form of the slices.
+        shared: Its shared parameters (``laws.grid_slices``).
         plateau_form: The form of the law of the plateau ``μ(u)``.
         plateau_params: Its parameters.
         xu: Rows ``(ℓ, u)``, where ``ℓ = log₂ s`` is the logarithm of the word position (zero for
             the first word), ``u = log₂(v/20)``.
     """
-    kappa_s, lambda_s, omega_s = (float(value) for value in slices)
-    line = kappa_s * xu[:, 0] + lambda_s
-    flat = plateau_form.value(plateau_params, xu[:, 1])
-    gap = line - flat
-    result: np.ndarray = 0.5 * (
-        line + flat - np.sqrt(gap * gap + kappa_s * kappa_s * omega_s * omega_s)
+    levels = plateau_form.value(plateau_params, xu[:, 1])
+    return np.array(
+        [
+            float(slice_value(slice_form, shared, float(level), np.array([ell]))[0])
+            for ell, level in zip(xu[:, 0], levels, strict=True)
+        ]
     )
-    return result
 
 
 #: Fewer cells in a slice - its plateau is not computable from the points, the slice does not
 #: enter the fit.
 _MIN_CELLS_PER_SLICE = 2
-#: The smallest plateau share in the derivative of at least one cell of a slice: below it all
-#: cells of the slice lie on the slanted part, and the plateau is not set by the data.
-_MIN_PLATEAU_WEIGHT = 0.05
 #: Fewer determined slices - there is nothing to draw the ``C(V)`` plot from.
 _MIN_SLICES = 3
 #: Reason of a determined slice when the zero of the surface is undefined: no law of the plateau.
 _NO_ZERO = "the plateau law is not drawn: the zero of the surface is undefined"
-
-
-def _plateau_curve(params: np.ndarray, data: np.ndarray) -> np.ndarray:
-    """A slice with its own plateau: ``[(κ_S·ℓ + λ_S) + μ_v − √((κ_S·ℓ + λ_S − μ_v)² + κ_S²ω_S²)]/2``.
-
-    Args:
-        params: ``(κ_S, λ_S, ω_S, μ_0…μ_{K−1})``.
-        data: Rows ``(ℓ = log₂ s, slice number 0…K−1)``.
-    """
-    kappa_s, lambda_s, omega_s = params[:3]
-    plateau = params[3:][data[:, 1].astype(int)]
-    line = kappa_s * data[:, 0] + lambda_s
-    gap = line - plateau
-    result: np.ndarray = 0.5 * (
-        line + plateau - np.sqrt(gap * gap + kappa_s * kappa_s * omega_s * omega_s)
-    )
-    return result
-
-
-def _plateau_jacobian(params: np.ndarray, data: np.ndarray) -> np.ndarray:
-    """Return ``∂VS/∂(κ_S, λ_S, ω_S, μ_0…μ_{K−1})``: for ``μ_v`` - ``(1 + d/Q)/2`` in its cells.
-
-    Args:
-        params: The parameters of :func:`_plateau_curve`.
-        data: Its rows.
-    """
-    kappa_s, lambda_s, omega_s = params[:3]
-    slices = data[:, 1].astype(int)
-    log_x = data[:, 0]
-    d = kappa_s * log_x + lambda_s - params[3:][slices]
-    q = np.sqrt(d * d + kappa_s * kappa_s * omega_s * omega_s)
-    jacobian = np.zeros((len(log_x), len(params)))
-    jacobian[:, 0] = 0.5 * (log_x - (d * log_x + kappa_s * omega_s * omega_s) / q)
-    jacobian[:, 1] = 0.5 * (1.0 - d / q)
-    jacobian[:, 2] = -0.5 * kappa_s * kappa_s * omega_s / q
-    jacobian[np.arange(len(log_x)), 3 + slices] = 0.5 * (1.0 + d / q)
-    return jacobian
-
-
-def _fit_plateaus(
-    data: np.ndarray, beta: np.ndarray, root: np.ndarray, count: int
-) -> tuple[Any, float]:
-    """Fit the slices with shared ``κ_S``, ``λ_S``, ``ω_S`` and own ``μ_v``; return the solution, ``χ²``.
-
-    The start: ``κ_S = −2``, ``λ_S = 0``, ``ω_S = 1``, ``μ_v`` - the top cell of the slice.
-    Bounds: ``κ_S ≤ 0``, ``0.001 ≤ ω_S ≤`` the span of ``log₂ s``.
-
-    Args:
-        data: The rows of the cells (:func:`_plateau_curve`).
-        beta: The coefficients of the cells.
-        root: The root of the weights of the cells.
-        count: The number of slices.
-    """
-    span = max(float(data[:, 0].max() - data[:, 0].min()), 2.0 * _W_MIN)
-    top = [float(beta[data[:, 1] == slot].max()) for slot in range(count)]
-    lower = np.array([-np.inf, -np.inf, _W_MIN, *([-np.inf] * count)])
-    upper = np.array([0.0, np.inf, span, *([np.inf] * count)])
-    start = np.array([-2.0, 0.0, 1.0, *top])
-    return gls_least_squares(
-        _plateau_curve, _plateau_jacobian, start, lower, upper, data, beta, root
-    )
 
 
 def _plateau_starts(u_values: np.ndarray, c_values: np.ndarray) -> list[np.ndarray]:
@@ -151,11 +94,12 @@ def fit_plateau_law(
 ) -> BlockLaw | str:
     """Choose the law of the plateau through the slice plateaus ``μ_v``.
 
-    Weighted least squares with the weights ``1/SE(μ_v)²`` - the own variances of the plateaus,
-    as the cells of the slice fit (the full covariance pulls the law to one slice with a tiny
-    error). The hyperbola starts from the largest plateau, ``κ_V ∈ {−0.5, −1.5}`` and
-    ``u_* ∈ {u_max/4, u_max/2, 3·u_max/4}``; a corner parameter on a bound is held. The rows of the
-    law over the raw coefficients are its sensitivity applied to the rows of the plateaus ``c_rows``.
+    Weighted least squares with the weights ``1/(SE(μ_v)² + τ²)`` - the own variances of the plateaus
+    and their scatter around the law (``block_choice.choose_scattered_law``), as the cells of the
+    slice fit (the full covariance pulls the law to one slice with a tiny error). The hyperbola starts from the largest plateau,
+    ``κ_V ∈ {−0.5, −1.5}`` and ``u_* ∈ {u_max/4, u_max/2, 3·u_max/4}``; a corner parameter on a bound
+    is held. The rows of the law over the raw coefficients are its sensitivity applied to the rows
+    of the plateaus ``c_rows``.
 
     Args:
         u_values: The centres of the determined slices in ``log₂(v/20)``.
@@ -168,11 +112,11 @@ def fit_plateau_law(
         The law, or the reason of a plateau without a law.
     """
     variances = np.array([max(delta_se(row, covariance), 1e-12) ** 2 for row in c_rows])
-    choice = choose_law(
+    choice = choose_scattered_law(
         forms,
         u_values,
         c_values,
-        variance_weights(variances),
+        variances,
         starts={"slanted_hyperbolic": _plateau_starts(u_values, c_values)},
     )
     if isinstance(choice, str):
@@ -187,28 +131,28 @@ def fit_vs_law(
     names: Sequence[str],
     abscissae: Mapping[str, Mapping[str, float]],
     layout: BinLayout,
+    slice_forms: Sequence[LawForm],
     plateau_forms: Sequence[LawForm],
 ) -> dict[str, Any]:
     """Fit the grid law in two steps: the length slices, then the law of their plateaus.
 
-    **Step 1.** The cells of a length slice lie on the slice hyperbola
-    ``[(κ_S·ℓ + λ_S) + μ_v − √((κ_S·ℓ + λ_S − μ_v)² + κ_S²·ω_S²)]/2``, ``ℓ = log₂ s``: the slope
-    ``κ_S``, the level ``λ_S`` of the slanted asymptote and the width ``ω_S`` are shared, the
-    plateau ``μ_v`` is the own one of the slice. The weights are the own variances of the cells,
-    without their mutual dependence; the errors are carried by the full covariance through the
-    sensitivity. **A slice enters only if its plateau is computable from its points**: at least
-    ``_MIN_CELLS_PER_SLICE`` measured cells, at least one of them with the plateau share
-    ``(1 + d/Q)/2`` of its derivative not below ``_MIN_PLATEAU_WEIGHT``. The share is known only
-    after a fit, so the fit is made twice: over all slices with enough cells, then without the
-    slices whose plateau is not seen. With fewer than ``_MIN_SLICES`` determined slices the
-    status is ``insufficient_support``.
+    **Step 1.** The cells of a length slice lie on the curve of a form chosen among ``slice_forms``
+    (``laws.grid_slices``) over ``ℓ = log₂ s``: the parameters of the curve are shared, the plateau
+    ``μ_v`` is the own level of the slice. The weights are ``1/(σᵢ² + τ²)`` of the own variances of
+    the cells, without their mutual dependence; the errors are carried by the full covariance
+    through the sensitivity. **A slice enters only if its plateau is computable from its points**:
+    at least ``_MIN_CELLS_PER_SLICE`` measured cells, at least one of them with the share of the
+    level in its derivative not below ``MIN_LEVEL_SHARE``. The share is known only after a fit, so
+    the slices are chosen twice: over all slices with enough cells, then without the slices whose
+    plateau is not seen. With fewer than ``_MIN_SLICES`` determined slices the status is
+    ``insufficient_support``.
 
     **Step 2.** The law of the plateau ``μ(u)``, ``u = log₂(v/20)``, is chosen through the plateaus
     of all determined slices (:func:`fit_plateau_law`). Without it the shift of the grid is
     undefined, and the status is ``insufficient_support``.
 
-    The law of the surface is the slice hyperbola with the plateau ``μ(u)``; its shift ``δ_VS`` is
-    the shift of the law of the plateau.
+    The law of the surface is the curve of the slices with the plateau ``μ(u)``; its shift ``δ_VS``
+    is the shift of the law of the plateau.
 
     Args:
         theta: The coefficients by name.
@@ -216,18 +160,20 @@ def fit_vs_law(
         names: The columns of the fit.
         abscissae: The centres of the cells: ``x`` - the word number, ``u`` - ``log₂(v/20)``.
         layout: The bin layout of the passport.
+        slice_forms: The candidate forms of the slices.
         plateau_forms: The candidate forms of the law of the plateau.
 
     Returns:
-        ``status``; ``n_points`` - the cells of step 1; ``n_parameters`` - ``3 + K``; ``chi2`` - of
-        step 1 by the own variances; ``slices_params`` - ``(κ_S, λ_S, ω_S)`` and ``slices_rows`` -
-        their rows over the raw coefficients; ``plateau`` - the law of the plateau; ``slices`` - per
-        length slice, already in the published coding (minus ``δ_VS``): ``v_bin``, ``words``, ``u``
-        (the mean of the centres of its cells), ``cells``, ``determined``; a determined slice has
-        ``plateau_weight``, ``mu_v``, ``se``, ``se_fit`` (the own error of the plateau in the coding
-        of the fit, without the error of ``δ_VS``), ``law`` (the law of the plateau at ``u`` minus
-        ``δ_VS``), the others ``reason``. Without a law - ``status``, ``n_points``, ``slices`` and,
-        if the fit failed, ``optimizer_message`` or the ``plateau_reason`` of the law of the plateau.
+        ``status``; ``n_points`` - the cells of step 1; ``n_parameters``; ``chi2`` - of step 1;
+        ``slice_law`` - the law of the slices; ``slices_params`` - its shared parameters and
+        ``slices_rows`` - their rows over the raw coefficients; ``plateau`` - the law of the plateau;
+        ``slices`` - per length slice, already in the published coding (minus ``δ_VS``): ``v_bin``,
+        ``words``, ``u`` (the mean of the centres of its cells), ``cells``, ``determined``; a
+        determined slice has ``plateau_weight``, ``mu_v``, ``se``, ``se_fit`` (the own error of the
+        plateau in the coding of the fit, without the error of ``δ_VS``), ``law`` (the law of the
+        plateau at ``u`` minus ``δ_VS``), the others ``reason``. Without a law - ``status``,
+        ``n_points``, ``slices`` and, if the fit failed, ``optimizer_message`` or the
+        ``plateau_reason`` of the law of the plateau.
     """
     order = list(names)
     measured = [
@@ -267,7 +213,7 @@ def fit_vs_law(
 
     too_few = f"fewer than {_MIN_SLICES} determined slices"
 
-    # Step 1, two fits: the plateau share is known only after the first one.
+    # Step 1, two choices: the share of the level is known only after the first one.
     for _ in range(2):
         active = [v for v in volumes if v not in reasons]
         if len(active) < _MIN_SLICES:
@@ -281,48 +227,44 @@ def fit_vs_law(
         )
         beta = np.array([float(theta[n]) for n in selected], dtype=float)
         idx = [order.index(n) for n in selected]
-        # Weights are the own variances of the cells, without their mutual dependence: the
-        # cells of one slice are strongly correlated, and generalised least squares with the
-        # full covariance drove the free plateau of a slice along the common error above all
-        # its cells. Errors are still carried by the full covariance - through the
+        # The weights are the own variances of the cells with their scatter τ², without their
+        # mutual dependence: the cells of one slice are strongly correlated, and generalised least
+        # squares with the full covariance drove the free plateau of a slice along the common error
+        # above all its cells. Errors are still carried by the full covariance - through the
         # sensitivity of the estimates to the coefficients.
-        variances = np.diag(covariance)[idx]
-        precision = np.diag(1.0 / variances)
-        root = np.diag(1.0 / np.sqrt(variances))
-        result, chi2 = _fit_plateaus(data, beta, root, len(active))
-        if not result.success:
-            return undetermined(STATUS_NOT_CONVERGED, optimizer_message=str(result.message))
-        jacobian = _plateau_jacobian(result.x, data)
+        law = choose_slice_form(slice_forms, data, beta, np.diag(covariance)[idx], len(active))
+        if isinstance(law, str):
+            return undetermined(
+                STATUS_NOT_CONVERGED, optimizer_message="no form of the slices converged"
+            )
+        shares = law.level_shares(data)
         invisible = {
-            v: "all cells on the slope: the plateau is not seen"
+            v: SLICE_UNSEEN
             for v in active
-            if float(jacobian[data[:, 1] == slot[v], 3 + slot[v]].max()) < _MIN_PLATEAU_WEIGHT
+            if float(shares[data[:, 1] == slot[v]].max()) < MIN_LEVEL_SHARE
         }
         if not invisible:
             break
         reasons.update(invisible)
     else:
-        # After the second fit the plateau vanished at another slice: no third fit is made;
+        # After the second choice the plateau vanished at another slice: no third fit is made;
         # slices without a visible plateau leave the result, the others are published by the
         # second fit.
         active = [v for v in volumes if v not in reasons]
         if len(active) < _MIN_SLICES:
             reasons.update({v: too_few for v in active})
             return undetermined(STATUS_INSUFFICIENT)
-    try:
-        sensitivity = gls_sensitivity(jacobian, precision, idx, len(order))
-    except np.linalg.LinAlgError:
-        return undetermined(
-            STATUS_NOT_CONVERGED,
-            optimizer_message="singular normal equations of the slice fit",
-        )
+    assert isinstance(law, SliceLaw)
+    sensitivity = law.rows(idx, len(order))
+    width = law.width
     # Step 2: the law of the plateau through the plateaus of all determined slices; weights are
-    # the own variances of the plateaus. The shift of the grid is the shift of that law.
+    # the own variances of the plateaus with their scatter. The shift of the grid is the shift of
+    # that law.
     determined_volumes = [v for v in volumes if v not in reasons]
     plateau = fit_plateau_law(
         np.array([u_mean[v] for v in determined_volumes]),
-        np.array([float(result.x[3 + slot[v]]) for v in determined_volumes]),
-        np.array([sensitivity[3 + slot[v]] for v in determined_volumes]),
+        np.array([float(law.levels[slot[v]]) for v in determined_volumes]),
+        np.array([sensitivity[width + slot[v]] for v in determined_volumes]),
         covariance,
         plateau_forms,
     )
@@ -337,13 +279,13 @@ def fit_vs_law(
         if volume in reasons:
             slices.append({**describe(volume), "determined": False, "reason": reasons[volume]})
             continue
-        column = 3 + slot[volume]
+        column = width + slot[volume]
         slices.append(
             {
                 **describe(volume),
                 "determined": True,
-                "plateau_weight": float(jacobian[data[:, 1] == slot[volume], column].max()),
-                "mu_v": float(result.x[column]) - shift,
+                "plateau_weight": float(shares[data[:, 1] == slot[volume]].max()),
+                "mu_v": float(law.levels[slot[volume]]) - shift,
                 "se": delta_se(sensitivity[column] - shift_gradient, covariance),
                 # The own error of the plateau in the coding of the fit, without the shift.
                 "se_fit": delta_se(sensitivity[column], covariance),
@@ -353,13 +295,11 @@ def fit_vs_law(
     return {
         "status": STATUS_MEASURED,
         "n_points": len(selected),
-        "n_parameters": len(result.x),
-        "chi2": chi2,
-        "kappa_S": float(result.x[0]),
-        "lambda_S": float(result.x[1]),
-        "omega_S": float(result.x[2]),
-        "slices_params": np.array(result.x[:3], dtype=float),
-        "slices_rows": np.vstack([sensitivity[0], sensitivity[1], sensitivity[2]]),
+        "n_parameters": len(law.fit.params),
+        "chi2": float(law.fit.chi2),
+        "slice_law": law,
+        "slices_params": law.shared,
+        "slices_rows": sensitivity[:width],
         "plateau": plateau,
         "slices": slices,
     }

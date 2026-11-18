@@ -17,7 +17,7 @@ import numpy as np
 
 from iec.passport.laws.block_choice import LawStack
 from iec.passport.laws.gls_tools import STATUS_MEASURED
-from iec.passport.laws.law_rows import LEVEL, capacity_row, half_width
+from iec.passport.laws.law_rows import LEVEL, capacity_row, exponential, half_width
 
 #: A capacity whose law does not fall: no root.
 STATUS_NO_SLOPE = "no_slope"
@@ -100,7 +100,8 @@ def odds_factor_row(
 
     Returns:
         The row ``density_odds_factor`` with ``value``, ``interval``, ``status`` and the change of
-        the logit itself, ``change`` and ``change_half``.
+        the logit itself, ``change`` and ``change_half``; a factor or a bound that a floating-point
+        number does not hold is ``None``.
     """
     value = change(stack.vector)
     half = half_width(stack.gradient(change), joint)
@@ -108,8 +109,8 @@ def odds_factor_row(
         "key": DENSITY_ODDS_FACTOR,
         "level": None,
         "method": "law",
-        "value": math.exp(-value),
-        "interval": [math.exp(-value - half), math.exp(-value + half)],
+        "value": exponential(-value),
+        "interval": [exponential(-value - half), exponential(-value + half)],
         "status": STATUS_CONDITIONAL if conditional else STATUS_MEASURED,
         "change": value,
         "change_half": half,

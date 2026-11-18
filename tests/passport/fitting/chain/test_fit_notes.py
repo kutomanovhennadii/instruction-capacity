@@ -13,7 +13,8 @@ def test_every_code_is_its_own_name_and_the_catalog_lists_it() -> None:
 
     assert all(getattr(fit_notes, name) == name for name in names)
     assert NOTE_CODES == frozenset(names)
-    assert len(NOTE_CODES) == 12
+    # Twelve codes and the variance by the load turned against the median request of the data.
+    assert len(NOTE_CODES) == 13
 
 
 def test_a_note_is_a_warning_unless_told_otherwise() -> None:

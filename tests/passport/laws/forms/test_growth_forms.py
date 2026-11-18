@@ -62,10 +62,15 @@ def test_the_formulas_name_the_symbol() -> None:
 def test_the_ranges() -> None:
     x = np.array([0.0, 1.0])
     lengths = [[-math.inf, 0.0, 0.001], [math.inf, math.inf, 1000.0]]
-    assert [side.tolist() for side in ExponentialForm().bounds(x)] == lengths
+    # The exponential and the binary exponential take A of either sign: the law approaches its
+    # asymptote from below or from above.
+    assert [side.tolist() for side in ExponentialForm().bounds(x)] == [
+        [-math.inf, -math.inf, 0.001],
+        [math.inf, math.inf, 1000.0],
+    ]
     assert [side.tolist() for side in SaturationForm().bounds(x)] == lengths
     assert [side.tolist() for side in BinaryExponentialForm().bounds(x)] == [
-        [-math.inf, 0.0, 0.005],
+        [-math.inf, -math.inf, 0.005],
         [math.inf, math.inf, 2.0],
     ]
     assert [side.tolist() for side in PowerForm().bounds(x)] == [
@@ -86,8 +91,9 @@ def test_the_starts() -> None:
     binary = BinaryExponentialForm().starts(x, np.array([4.0, 3.0, 1.0]))
     saturation = SaturationForm().starts(x, np.array([1.0, 0.75, 0.5]))
     power = PowerForm().starts(np.array([1.0, 2.0, 5.0]), np.array([2.0, 1.0, 0.0]))
-    assert [start.tolist() for start in exponential] == [[1.5, 1.5, 1.0 / 3.0]]
-    assert [start.tolist() for start in binary] == [[4.0, 1.0, 0.5]]
+    # A free sign brings the start of the other sign.
+    assert [start.tolist() for start in exponential] == [[1.5, 1.5, 1.0 / 3.0], [1.5, -1.5, 1.0 / 3.0]]
+    assert [start.tolist() for start in binary] == [[4.0, 1.0, 0.5], [1.0, -1.0, 0.5]]
     assert [start.tolist() for start in saturation] == [[1.0, 0.5, 0.5]]
     assert [start.tolist() for start in power] == [[2.0, 0.5, 1.0]]
 
@@ -117,7 +123,8 @@ def test_the_derivatives_are_those_of_the_value(
 
 
 def test_the_parameters_that_may_be_held_and_their_names() -> None:
-    assert ExponentialForm().held_candidates == (1, 2)
+    # A has no bound any more, so only the length may be held.
+    assert ExponentialForm().held_candidates == (2,)
     assert BinaryExponentialForm().held_candidates == (2,)
     assert SaturationForm().held_candidates == (2,)
     assert PowerForm().held_candidates == (2,)

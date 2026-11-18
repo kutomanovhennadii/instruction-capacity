@@ -259,17 +259,14 @@ def test_rows_keep_the_reference_bin_with_an_own_error() -> None:
     assert set(section["bins"]) == {"V", "q", "P", "M"}
 
 
-def test_a_share_law_that_does_not_fall_takes_another_form_and_the_section_lives() -> None:
+def test_a_rising_share_law_is_the_exponential_of_a_negative_amplitude() -> None:
+    # The exponential takes A of either sign: the rising law of the data is its own form.
     built, fit, _ = _known_fit(share_sign=-1.0)
     section = background_laws(built, fit, ASSIGNMENT)
     assert section["status"] == "measured"
     share = section["laws"]["q"]
-    exponential = next(entry for entry in share["candidates"] if entry["form"] == "exponential")
-    # The falling exponential cannot rise: another form describes the bins better.
-    assert share["law_form"] != "exponential"
-    assert exponential.get("criterion", math.inf) > next(
-        entry["criterion"] for entry in share["candidates"] if entry["form"] == share["law_form"]
-    )
+    assert share["law_form"] == "exponential"
+    assert share["params"]["A"] < 0.0
     assert share["at_1"] > share["at_0"]
 
 

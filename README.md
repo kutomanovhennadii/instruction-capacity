@@ -16,7 +16,7 @@ density, how many times the full density multiplies the odds of an error — for
 of the model under measurement, together with the way the spread of difficulty between requests
 depends on the load.
 
-This repository is the public part of the instrument, version 0.2.0. With it you can
+This repository is the public part of the instrument, version 0.2.1. With it you can
 
 - recompute the passports of the published measurements from their points and check that the
   published files are intact and reproducible;
@@ -30,34 +30,42 @@ neither its design nor its rules for choosing points are published. A passport d
 on it: it is computed from the published points alone, whoever chose them, so every number of a
 published passport can be checked without the closed part.
 
-## Version 0.2.0
+## Version 0.2.1
 
-This is the second version of the instrument. The first, 0.1.0, is the version the article
-describes; the tag `v0.1.0` of this repository holds it and reproduces the numbers of the article.
-Version 0.2.0 keeps the task: the prompt, the text, the vocabulary `v1_intersection` and the format
+This is the second version of the instrument, release 0.2.1. The first, 0.1.0, is the version the
+article describes; the tag `v0.1.0` of this repository holds it and reproduces the numbers of the
+article. Release 0.2.1 corrects how the passport of 0.2.0 chooses and fits its laws: every law takes
+the form with the smallest `QAIC` among its candidates, the slices of the grids choose their form too,
+a point of a law weighs `1/(σᵢ² + τ²)`, the amplitudes and slopes of the curves take either sign, a
+quantity whose variance by the load turns a bin against the median request of the data is fitted with
+one variance, and a capacity beyond the largest floating-point number is written as such. The points of
+the published measurements are those of 0.2.0, and their passports are recomputed.
+
+Version 0.2 keeps the task: the prompt, the text, the vocabulary `v1_intersection` and the format
 of the point records are those of 0.1.0, and the protocol version is `0.2`. It changes how an answer
 is read and what the passport describes:
 
-- **Reading of an answer.** Version 0.1.0 matched an answer with the reference line by line; 0.2.0
-  aligns it by places, so skipped pieces of text, returns, repeats, glued and split lines are seen
+- **Reading of an answer.** Version 0.1.0 matched an answer with the reference line by line; version
+  0.2 aligns it by places, so skipped pieces of text, returns, repeats, glued and split lines are seen
   and counted in words ([answer validation](docs/04-answer-validation.md)).
-- **Quantities.** Version 0.1.0 counted one outcome, a right replacement on a rule word; 0.2.0
+- **Quantities.** Version 0.1.0 counted one outcome, a right replacement on a rule word; version 0.2
   counts three, `P_sync`, `H` and `F`, which combine as `P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`.
 - **Models and laws.** Every quantity has its own model, laws, level and capacities
   ([passport model](docs/05-passport-model.md), [empirical laws](docs/07-empirical-laws.md)). The
   loss of the place in the text is `P_sync`, so the laws of the collapse of the answer are gone.
 - **Spread of request difficulty.** Version 0.1.0 had one variance of the shift of a request. In
-  0.2.0 the model is a GLMM with heterogeneous random-intercept variance: the variance depends on
+  version 0.2 the model is a GLMM with heterogeneous random-intercept variance: the variance depends on
   the load of the request, its text length, density and number of rules, and its groups are a part
   of the passport.
 - **Capacities.** The measure of the density, `e^(−P̂(1))`, replaces the guaranteed capacities. All
   three quantities have the instruction and the fatigue capacities and the measure of the density.
   All capacities are taken at the level 0.5, where they do not depend on the spread of request
   difficulty.
-- **One standard of the passport.** Every law goes through every bin with a coefficient; a bin
-  leaves a law only as an outlier beyond three standard deviations of the residuals (the procedure
-  of astropy). Every block has its established form, and an alternative replaces it only when it is
-  better by more than 10 of `QAIC = χ²/ĉ + 2k`. A call that does not fit the time limit is retried
+- **One standard of the passport.** Every law goes through every bin with a coefficient, each bin
+  weighing `1/(σᵢ² + τ²)`; a bin leaves a law only as an outlier beyond three standard deviations of
+  the residuals (the procedure of astropy). Every law takes the form with the smallest
+  `QAIC = χ²/ĉ + 2k` among the candidates of its block, and the established form of the block wins a
+  tie ([passport model](docs/05-passport-model.md)). A call that does not fit the time limit is retried
   once with twice the limit, an answer without a word once; a second failure is `api_error` with the
   code of its reason.
 - **Measurements, vocabularies, commands.** The published measurement of GPT-4o mini is new and
@@ -66,7 +74,7 @@ is read and what the passport describes:
   published with it. Three more vocabularies are published with their build configs and
   tokenizers. `build_passport.py` and `verify.py` work with the new `passport_data.json`.
 
-The numbers of a 0.2.0 passport are not those of the article: the answer is read differently and
+The numbers of a passport of version 0.2 are not those of the article: the answer is read differently and
 the quantities are others. The full list of changes is in the [CHANGELOG](CHANGELOG.md).
 
 ## Article
@@ -76,7 +84,7 @@ Controlled Load.* arXiv:2610.36095, 2026. [arXiv page](https://arxiv.org/abs/261
 [PDF](articles/instruction-capacity.pdf)
 
 The article describes version 0.1.0 of the instrument; the tag `v0.1.0` of this repository
-reproduces its numbers, and [Version 0.2.0](#version-020) above says what this version changes.
+reproduces its numbers, and [Version 0.2.1](#version-021) above says what this version changes.
 
 ## Quick start: recompute a published passport
 
@@ -116,11 +124,11 @@ which `--workers` changes; the result is the same with any number of processes.
 
 | Measurement | Model | Points | Trials of `P_sync` · `H` · `F` | Instruction capacity of `H` at q = 0.5, rules: by law · binned |
 |---|---|---|---|---|
-| [`pilot_gpt4o_mini_v55`](artefacts/pilot_gpt4o_mini_v55/passport.md) | `gpt-4o-mini-2024-07-18` | 5,172 | 22,598,814 · 1,155,179 · 10,213,582 | 32.3 (29.1–36.0) · 30.7 |
-| [`pilot_gemini3_5_flash_lite_v58`](artefacts/pilot_gemini3_5_flash_lite_v58/passport.md) | `gemini-3.5-flash-lite` | 3,788 | 48,842,597 · 7,817,448 · 24,081,763 | 22.4 (20.5–24.4) · 20.8 |
-| [`pilot_gemini3_1_flash_lite_v57`](artefacts/pilot_gemini3_1_flash_lite_v57/passport.md) | `gemini-3.1-flash-lite` | 5,336 | 112,208,407 · 4,318,887 · 25,706,292 | 27.3 (24.0–31.0) · 22.1 |
-| [`pilot_nemotron3_5_lightning_v43`](artefacts/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 48,574,151 · 590,039 · 8,872,340 | 8.0 (6.7–9.7) · 3.3 |
-| [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](artefacts/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 43,142,085 · 829,043 · 7,689,136 | 24.2 (20.2–28.9) · 23.9 |
+| [`pilot_gpt4o_mini_v55`](artefacts/pilot_gpt4o_mini_v55/passport.md) | `gpt-4o-mini-2024-07-18` | 5,172 | 22,598,814 · 1,155,179 · 10,213,582 | 36.4 (32.8–40.4) · 35.3 |
+| [`pilot_gemini3_5_flash_lite_v58`](artefacts/pilot_gemini3_5_flash_lite_v58/passport.md) | `gemini-3.5-flash-lite` | 3,788 | 48,842,597 · 7,817,448 · 24,081,763 | 14.6 (13.4–15.9) · 13.1 |
+| [`pilot_gemini3_1_flash_lite_v57`](artefacts/pilot_gemini3_1_flash_lite_v57/passport.md) | `gemini-3.1-flash-lite` | 5,336 | 112,208,407 · 4,318,887 · 25,706,292 | 18.8 (15.3–23.2) · 14.8 |
+| [`pilot_nemotron3_5_lightning_v43`](artefacts/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 48,574,151 · 590,039 · 8,872,340 | 10.0 (8.0–12.6) · 7.2 |
+| [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](artefacts/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 43,142,085 · 829,043 · 7,689,136 | 34.3 (29.8–39.4) · 35.0 |
 
 Intervals are 95%. The measurement of `gpt-4o-mini-2024-07-18` is the evidence base of the
 [empirical laws](docs/07-empirical-laws.md). The directory of every measurement holds the points, the description,

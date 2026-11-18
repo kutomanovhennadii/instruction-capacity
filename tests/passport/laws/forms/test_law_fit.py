@@ -132,4 +132,5 @@ def test_the_optimizer_follows_the_held_candidates(monkeypatch: pytest.MonkeyPat
     fit_law(LinearForm(), x, 1.0 + x, plain_weighting(11))
     fit_law(SlantedHyperbolicForm(), x, 5.0 - 2.0 * x, plain_weighting(11))
     assert (FREE_METHOD, HELD_METHOD) == ("trf", "dogbox")
-    assert methods == [FREE_METHOD] + [HELD_METHOD] * 6
+    # The slanted hyperbola has twelve starts: slopes of both signs.
+    assert methods == [FREE_METHOD] + [HELD_METHOD] * 12

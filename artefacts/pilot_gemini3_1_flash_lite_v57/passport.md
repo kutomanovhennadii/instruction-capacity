@@ -54,21 +54,21 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 | density | `a + b·log₂ p` | `a = 27.83`, `b = −0.783` | 28.0 over 12 groups |
 | number of rules | `c + A/m` | `c = 30.47`, `A = 0.00` | 5.7 over 10 groups |
 
-The law of the grid: a length slice is a hyperbola with a shared slope and corner width and its own plateau, and the law of the plateau runs through the plateaus. `κ_S = −4.20 ± 0.27`, `λ̃_S = 32.48 ± 5.01`, `ω_S = 2.95 ± 0.39`; `χ² = 373.8` over 67 cells.
+The law of the grid: a length slice is a two-asymptote hyperbola, `[(κ·ℓ + λ) + μ − √((κ·ℓ + λ − μ)² + κ²·ω²)]/2` over `ℓ = log₂ s`, with an own level `μ` in every slice and the other parameters shared, in the coding of the fit: `kappa = −4.451 ± 0.353`, `lambda = 55.547 ± 4.397`, `omega = 3.106 ± 0.521`; `χ² = 60.3` over 61 cells; chosen by the smallest `QAIC` among 3 forms. The law of the plateau runs through the levels of the slices.
 
-The law of the plateau is a binary exponential, `μ − A·2^(γ·log₂(v/20))`: `mu = 19.19 ± 3.85`, `A = 0.36 ± 0.48`, `gamma = 0.57 ± 0.16`; `χ² = 47.2` over 8 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the plateau is a binary exponential, `μ − A·2^(γ·log₂(v/20))`: `A = 0.52 ± 0.83`, `gamma = 0.54 ± 0.19`, `mu = 22.82 ± 5.92`; `χ² = 8.7` over 7 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the density is a slanted hyperbola, `μ + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `mu = 20.40 ± 7.35`, `kappa = −2.55 ± 0.42`, `corner = 0.59 ± 1.15`, `omega = 3.79 ± 4.58`; `χ² = 11.6` over 11 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the density is a slanted hyperbola, `μ + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `corner = 0.59 ± 1.20`, `kappa = −2.60 ± 0.51`, `mu = 21.13 ± 8.70`, `omega = 4.30 ± 5.39`; `χ² = 6.5` over 11 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the number of rules is a line, `a + b·log₂ m`: `a = 1.95 ± 0.73`, `b = 0.04 ± 0.08`; `χ² = 67.6` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the number of rules is a line, `a + b·log₂ m`: `a = 2.18 ± 0.74`, `b = −0.00 ± 0.09`; `χ² = 8.2` over 9 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The level `α = δ_VS + δ_P + δ_M = 41.55 ± 8.66` is the logit at the density going to zero and one rule, and that density is itself a continuation of the law.
+The level `α = δ_VS + δ_P + δ_M = 46.13 ± 11.28` is the logit at the density going to zero and one rule, and that density is itself a continuation of the law.
 
 | Capacity | q | By the law | By the bins |
 |---|---|---|---|
-| instruction capacity, rules | 0.5 | none: the law gives no root | at least 512, reserve left 39.60 |
-| fatigue capacity, words | 0.5 | 65,625 (37,710–1.1·10⁵), continuation of the law | - |
-| how many times full density multiplies the odds of an error | - | 7.1·10¹⁰ (3.9·10⁷–1.3·10¹⁴) | - |
+| instruction capacity, rules | 0.5 | none: the law gives no root | at least 512, reserve left 43.95 |
+| fatigue capacity, words | 0.5 | 61,997 (33,785–1.1·10⁵), continuation of the law | - |
+| how many times full density multiplies the odds of an error | - | 1.5·10¹¹ (2.1·10⁷–1.0·10¹⁵) | - |
 
 The instruction capacity is the number of rules at which the law of the number of rules brings the logit to zero, and next to it the walk along the bins of that axis; by the law it is none when the fall of that law over its bins does not differ from zero. The fatigue capacity is the word at which the full law of the grid at the density going to zero and one rule reaches zero, on a text of the same length: by the curve of the law, as for `H`. Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − δ_P` the change of the law of the density from the density going to zero to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
 
@@ -138,22 +138,22 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 | density | `a + b·log₂ p` | `a = 7.22`, `b = 0.660` | 305.2 over 12 groups |
 | number of rules | `c + A/(1 + m/m₀)` | `c = 0.98`, `A = 38.17`, `m₀ = 0.74` | 30.2 over 10 groups |
 
-The law of the grid: a length slice is the exponent `μ_v − A·2^(γ·log₂ s)`, which dies out to its level `μ_v` at `s → 0`, and the law of the levels runs through the levels of the slices. `A = 0.873 ± 0.185`, `γ = 0.296 ± 0.019`; by the own variances, `χ² = 426.2` over 68 cells.
+The law of the grid: a length slice is a two-asymptote hyperbola, `[(κ·ℓ + λ) + μ − √((κ·ℓ + λ − μ)² + κ²·ω²)]/2` over `ℓ = log₂ s`, with an own level `μ` in every slice and the other parameters shared, in the coding of the fit: `kappa = −2.002 ± 0.082`, `lambda = 33.247 ± 1.129`, `omega = 0.264 ± 0.267`; `χ² = 80.6` over 68 cells; chosen by the smallest `QAIC` among 3 forms. The law of the levels runs through the levels of the slices.
 
-The law of the levels of the slices is a line, `a + b·log₂(v/20)`: `a = 23.18 ± 1.46`, `b = −0.34 ± 0.14`; `χ² = 16.3` over 8 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the levels of the slices is a line, `a + b·log₂(v/20)`: `a = 18.16 ± 2.15`, `b = −0.02 ± 0.27`; `χ² = 6.4` over 7 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the density is a two-slope hyperbola, `μ + β·(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `mu = 4.89 ± 0.95`, `kappa = −8.74 ± 1.50`, `corner = 10.00 ± 0.00`, `omega = 1.67 ± 0.40`, `beta = 1.10 ± 0.09`; `χ² = 14.0` over 11 bins; on the bound of the search: corner; chosen by `χ² + 2k` among 5 forms.
+The law of the density is a two-slope hyperbola, `μ + β·(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `beta = 1.13 ± 0.10`, `corner = 10.00 ± 0.00`, `kappa = −8.37 ± 1.56`, `mu = 5.31 ± 1.16`, `omega = 1.83 ± 0.51`; `χ² = 6.1` over 11 bins; on the bound of the search: corner; chosen by the smallest `QAIC` among 4 forms.
 
-The law of the number of rules is a line, `a + b·log₂ m`: `a = −2.15 ± 0.54`, `b = −0.79 ± 0.05`; `χ² = 184.6` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the number of rules is a line, `a + b·log₂ m`: `a = −1.96 ± 0.54`, `b = −0.88 ± 0.05`; `χ² = 7.5` over 9 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the rule number is a slanted hyperbola, `μ + (κ/2)·[(log₂ r − log₂ r*) + √((log₂ r − log₂ r*)² + ω²)]`: `mu = 0.25 ± 0.32`, `kappa = −1.25 ± 0.45`, `corner = 7.27 ± 1.24`, `omega = 3.50 ± 0.53`; `χ² = 7.7` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the rule number is a binary exponential, `μ − A·2^(γ·log₂ r)`: `A = 0.16 ± 0.05`, `gamma = 0.48 ± 0.05`, `mu = −0.10 ± 0.17`; `χ² = 5.6` over 9 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The level `α = μ₀ + μ_P + λ_M + λ_R = 14.06 ± 1.33`. The loss of the density at `p = 1` is −4.32 logits.
+The level `α = μ₀ + μ_P + λ_M + λ_R = 9.24 ± 2.07`. The loss of the density at `p = 1` is −4.36 logits.
 
 | Capacity | q | By the law | By the bins |
 |---|---|---|---|
-| instruction capacity, rules | 0.5 | 27.3 (24.0–31.0) | 22.1 |
-| fatigue capacity, words | 0.5 | 5,592 (5,123–6,105) | - |
+| instruction capacity, rules | 0.5 | 18.8 (15.3–23.2) | 14.8 |
+| fatigue capacity, words | 0.5 | 4,524 (4,150–4,931) | - |
 | how many times full density multiplies the odds of an error | - | 0.0 (0.0–0.0) | - |
 
 Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − μ_P` the change of the law of the density from its zero point, `p = 2⁻¹⁰` for the two-slope hyperbola, to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
@@ -226,23 +226,23 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 | density | `a + b·log₂ p` | `a = 3.50`, `b = 0.310` | 146.9 over 11 groups |
 | number of rules | `c + A/(1 + m/m₀)` | `c = 0.05`, `A = 11.80`, `m₀ = 2.91` | 26.0 over 10 groups |
 
-The laws run through the bins without the poorly determined ones, by ordinary least squares; the form of a law is chosen by `χ² + 2k`, the residuals weighed by the covariance of the bins.
+The laws run through the bins without the poorly determined ones; a bin weighs `1/(σᵢ² + τ²)`, its own variance and the scatter of the bins around the law, and the errors are carried by the full covariance of the bins.
 
-The law of the length is a line, `a + b·log₂(v/20)`: `a = 7.43 ± 0.50`, `b = 0.36 ± 0.05`; `χ² = 111.2` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the length is a line, `a + b·log₂(v/20)`: `a = 12.44 ± 1.27`, `b = −0.21 ± 0.14`; `χ² = 39.6` over 9 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the share of the answer is a hyperbola, `c + A/q`: `c = 0.06 ± 0.07`, `A = −0.05 ± 0.00`; `χ² = 246.1` over 9 bins; chosen by `χ² + 2k` among 3 forms. A fall of −0.98 over the whole answer.
+The law of the share of the answer is an exponential, `c + A·e^(−q/τ)`: `A = −2.08 ± 0.15`, `c = 0.09 ± 0.09`, `tau = 0.24 ± 0.03`; `χ² = 5.2` over 9 bins; chosen by the smallest `QAIC` among 2 forms. A fall of −2.05 over the whole answer.
 
-The law of the density is a logarithm plus a line, `a + b·log₂(p/2⁻¹⁰) + c·0.0009765625·2^(log₂(p/2⁻¹⁰))`: `a = −0.29 ± 0.32`, `b = 0.14 ± 0.05`, `c = −2.21 ± 0.54`; `χ² = 41.9` over 10 bins; chosen by `χ² + 2k` among 5 forms.
+The law of the density is a logarithm plus a line, `a + b·log₂(p/2⁻¹⁰) + c·0.0009765625·2^(log₂(p/2⁻¹⁰))`: `a = −0.39 ± 0.34`, `b = 0.18 ± 0.05`, `c = −2.54 ± 0.57`; `χ² = 8.8` over 10 bins; chosen by the smallest `QAIC` among 4 forms.
 
-The law of the number of rules is a line, `a + b·log₂ m`: `a = −1.48 ± 0.38`, `b = −0.56 ± 0.03`; `χ² = 204.9` over 9 bins; chosen by `χ² + 2k` among 4 forms.
+The law of the number of rules is a line, `a + b·log₂ m`: `a = −0.80 ± 0.40`, `b = −0.69 ± 0.04`; `χ² = 10.1` over 9 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The level `α_F = V(20) + q(0) + δ_P + M(1) = 5.42 ± 0.41`, where `δ_P` is the maximum of the law of the density, at `p = 0.0934`; `V(20)` = 7.43 ± 0.50, `q(0)` = −0.97 ± 0.09, `δ_P` = 0.44 ± 0.13, `M(1)` = −1.48 ± 0.38. The edge of the measured area: 512 rules and 40,960 words.
+The level `α_F = V(20) + q(0) + δ_P + M(1) = 10.22 ± 1.23`, where `δ_P` is the maximum of the law of the density, at `p = 0.1047`; `M(1)` = −0.80 ± 0.40, `V(20)` = 12.44 ± 1.27, `δ_P` = 0.58 ± 0.14, `q(0)` = −2.00 ± 0.17. The edge of the measured area: 512 rules and 40,960 words.
 
 | Capacity | q | By the law | By the bins |
 |---|---|---|---|
-| instruction capacity, rules | 0.5 | 773 (441–1,354), continuation of the law | at least 512, reserve left 0.84 |
-| fatigue capacity, words | 0.5 | none: the law gives no root | - |
-| how many times full density multiplies the odds of an error | - | 2.2 (1.4–3.3), conditional: a continuation of the law of the density | - |
+| instruction capacity, rules | 0.5 | 27,292 (7,014–1.1·10⁵), continuation of the law | at least 512, reserve left 4.96 |
+| fatigue capacity, words | 0.5 | 1.6·10¹⁹ (9.0·10⁸–3.0·10²⁹), continuation of the law | - |
+| how many times full density multiplies the odds of an error | - | 2.0 (1.3–3.0), conditional: a continuation of the law of the density | - |
 
 The instruction capacity is the number of rules at the zero point. The fatigue capacity is the number of the last word of a text of the same length at the zero point. Full density multiplies the odds of a misfire by `e^(−P̂(1))`, `P̂(1) = P(1) − P(p → 0)`; a factor below one would mean that full density lowers them. It is a conditional quantity: a text has no background words at `p = 1`, so it always continues the law of the density, and it allows comparing the effect of the density on `P_sync`, `H` and `F`.
 

@@ -109,8 +109,8 @@ class FractionalHyperbolicForm:
 class SlantedHyperbolicForm:
     """The slanted hyperbola ``μ + (κ/2)·[(x − x*) + √((x − x*)² + ω²)]``.
 
-    The range: a falling slanted asymptote ``κ ≤ 0``, the corner ``x*`` and its width ``ω``
-    inside the axis; the corner and the width may stop on a bound of the range.
+    The range: a slanted asymptote of either sign, the corner ``x*`` and its width ``ω`` inside
+    the axis; the corner and the width may stop on a bound of the range.
     """
 
     name = "slanted_hyperbolic"
@@ -144,21 +144,20 @@ class SlantedHyperbolicForm:
         return f"μ + (κ/2)·[({symbol} − {symbol}*) + √(({symbol} − {symbol}*)² + ω²)]"
 
     def bounds(self, x: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Return ``κ ≤ 0``, ``0 ≤ x* ≤ top``, ``0.001 ≤ ω ≤ top``; ``top`` - the largest ``x``."""
+        """Return ``κ`` of either sign, ``0 ≤ x* ≤ top``, ``0.001 ≤ ω ≤ top``; ``top`` - the largest ``x``."""
         top = _top(x)
-        return np.array([-np.inf, -np.inf, 0.0, WIDTH_FLOOR]), np.array([np.inf, 0.0, top, top])
+        return np.array([-np.inf, -np.inf, 0.0, WIDTH_FLOOR]), np.array([np.inf, np.inf, top, top])
 
     def starts(self, x: np.ndarray, values: np.ndarray) -> tuple[np.ndarray, ...]:
-        """Return six starts: the level at the smallest abscissa, slopes −1 and −3, three corners.
+        """Return twelve starts: the level at the smallest abscissa, slopes ±1 and ±3, three corners.
 
         The corners stand at a quarter, a half and three quarters of ``top``; the width is 0.5.
-        These are the starts of the density law of P_sync.
         """
         top = _top(x)
         level = float(values[int(np.argmin(x))])
         return tuple(
             np.array([level, slope, corner, 0.5])
-            for slope in (-1.0, -3.0)
+            for slope in (-1.0, -3.0, 1.0, 3.0)
             for corner in (0.25 * top, 0.5 * top, 0.75 * top)
         )
 
