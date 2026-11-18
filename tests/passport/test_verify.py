@@ -74,6 +74,19 @@ def test_a_number_near_zero_is_compared_by_the_floor() -> None:
     assert compare_passports({"thresholds": {"q": 0.0}}, {"thresholds": {"q": 2 * ABSOLUTE_FLOOR}}) != []
 
 
+def test_a_candidate_the_law_did_not_choose_is_compared_by_its_name() -> None:
+    def law(chi2: float, second: dict[str, object]) -> dict[str, object]:
+        candidates = [{"form": "linear", "converged": True, "chi2": chi2}, second]
+        return {"F": {"laws": {"M": {"law_form": "linear", "candidates": candidates}}}}
+
+    unconverged = {"form": "slanted_hyperbolic", "converged": False}
+    converged = {"form": "slanted_hyperbolic", "converged": True, "chi2": 5.0, "free": 4}
+    # An alternative at the edge of its convergence: the chosen law and its numbers are the same.
+    assert compare_passports(law(6.5, unconverged), law(6.5, converged)) == []
+    assert compare_passports(law(6.5, unconverged), law(7.5, unconverged)) != []
+    assert compare_passports(law(6.5, unconverged), law(6.5, {"form": "binary_exponential"})) != []
+
+
 def test_a_file_with_another_checksum_stops_the_checks(tmp_path: Path) -> None:
     (tmp_path / POINTS_FILENAME).write_bytes(b"points")
     description = _description({POINTS_FILENAME: "0" * 64})

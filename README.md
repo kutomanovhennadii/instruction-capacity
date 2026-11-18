@@ -16,7 +16,7 @@ density, how many times the full density multiplies the odds of an error — for
 of the model under measurement, together with the way the spread of difficulty between requests
 depends on the load.
 
-This repository is the public part of the instrument, version 0.2.1. With it you can
+This repository is the public part of the instrument, version 0.2.2. With it you can
 
 - recompute the passports of the published measurements from their points and check that the
   published files are intact and reproducible;
@@ -30,11 +30,14 @@ neither its design nor its rules for choosing points are published. A passport d
 on it: it is computed from the published points alone, whoever chose them, so every number of a
 published passport can be checked without the closed part.
 
-## Version 0.2.1
+## Version 0.2.2
 
-This is the second version of the instrument, release 0.2.1. The first, 0.1.0, is the version the
+This is the second version of the instrument, release 0.2.2. The first, 0.1.0, is the version the
 article describes; the tag `v0.1.0` of this repository holds it and reproduces the numbers of the
-article. Release 0.2.1 corrects how the passport of 0.2.0 chooses and fits its laws: every law takes
+article. Release 0.2.2 publishes the measurement of GPT-4.1 mini and the passport of Nemotron 3 Ultra
+550B A55B without its points, keeps the fits of a passport in a file so that a change of the laws
+recomputes it in seconds, and checks a published measurement so that a fit at the edge of its
+convergence does not decide the check. Release 0.2.1 corrected how the passport of 0.2.0 chooses and fits its laws: every law takes
 the form with the smallest `QAIC` among its candidates, the slices of the grids choose their form too,
 a point of a law weighs `1/(σᵢ² + τ²)`, the amplitudes and slopes of the curves take either sign, a
 quantity whose variance by the load turns a bin against the median request of the data is fitted with
@@ -70,8 +73,8 @@ is read and what the passport describes:
   code of its reason.
 - **Measurements, vocabularies, commands.** The published measurement of GPT-4o mini is new and
   contains the points of the measurement of 0.1.0; the measurements of Gemini 3.5 Flash Lite,
-  Gemini 3.1 Flash Lite, Nemotron 3.5 Lightning and Nemotron 3 Nano Omni 30B A3B Reasoning are
-  published with it. Three more vocabularies are published with their build configs and
+  Gemini 3.1 Flash Lite, Nemotron 3.5 Lightning, Nemotron 3 Nano Omni 30B A3B Reasoning and GPT-4.1
+  mini are published with it. Three more vocabularies are published with their build configs and
   tokenizers. `build_passport.py` and `verify.py` work with the new `passport_data.json`.
 
 The numbers of a passport of version 0.2 are not those of the article: the answer is read differently and
@@ -84,7 +87,7 @@ Controlled Load.* arXiv:2610.36095, 2026. [arXiv page](https://arxiv.org/abs/261
 [PDF](articles/instruction-capacity.pdf)
 
 The article describes version 0.1.0 of the instrument; the tag `v0.1.0` of this repository
-reproduces its numbers, and [Version 0.2.1](#version-021) above says what this version changes.
+reproduces its numbers, and [Version 0.2.2](#version-022) above says what this version changes.
 
 ## Quick start: recompute a published passport
 
@@ -118,7 +121,10 @@ the files listed in `measurement.json`; the vocabulary against its reference; th
 source text of every point rebuilt from its seeds; the passport recomputed from the points against
 the published one, within the [tolerance of computation](docs/05-passport-model.md#9-verification).
 The model is not called; a recomputation takes a few minutes and runs a process per processor,
-which `--workers` changes; the result is the same with any number of processes.
+which `--workers` changes; the result is the same with any number of processes. `--save-fits fits.json`
+also keeps the fits of the three quantities in a file, and `--from-fits fits.json` recomputes the laws,
+the capacities and the document from it in seconds, for instance after a change of
+`config/passport_laws.yaml` ([data format](docs/06-data-format.md#saved-fit)).
 
 ## Published measurements
 
@@ -129,10 +135,17 @@ which `--workers` changes; the result is the same with any number of processes.
 | [`pilot_gemini3_1_flash_lite_v57`](artefacts/pilot_gemini3_1_flash_lite_v57/passport.md) | `gemini-3.1-flash-lite` | 5,336 | 112,208,407 · 4,318,887 · 25,706,292 | 18.8 (15.3–23.2) · 14.8 |
 | [`pilot_nemotron3_5_lightning_v43`](artefacts/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 48,574,151 · 590,039 · 8,872,340 | 10.0 (8.0–12.6) · 7.2 |
 | [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](artefacts/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 43,142,085 · 829,043 · 7,689,136 | 34.3 (29.8–39.4) · 35.0 |
+| [`pilot_gpt4_1_mini_v56`](artefacts/pilot_gpt4_1_mini_v56/passport.md) | `gpt-4.1-mini-2025-04-14` | 6,961 | 85,962,046 · 3,805,051 · 36,982,696 | 23.5 (20.9–26.4) · 20.5 |
 
 Intervals are 95%. The measurement of `gpt-4o-mini-2024-07-18` is the evidence base of the
 [empirical laws](docs/07-empirical-laws.md). The directory of every measurement holds the points, the description,
 the passport (`passport_data.json`, `passport.md`, `figures/`) and `passport.pdf` — the same passport as a PDF.
+
+The passport of `nvidia/nemotron-3-ultra-550b-a55b:free`, `pilot_nemotron3_ultra_550b_a55b_v60` (6,702 answered
+points; instruction capacity of `H` at q = 0.5: 17.0 (15.9–18.1) by law, 16.4 binned), is published without its points
+in [`passports/`](passports/pilot_nemotron3_ultra_550b_a55b_v60/passport.md). Its answers were generated through the free
+endpoint that NVIDIA serves on OpenRouter, and the NVIDIA API Trial Terms of Service of that endpoint do not allow the
+generated content to be distributed, so this passport cannot be recomputed from published points.
 
 ## Measure your own model
 
@@ -203,6 +216,7 @@ config/         vocab.yaml and vocab/ - how the vocabularies are built; passport
                 observability.yaml - the telemetry of the bench
 assets/vocab/   the vocabularies and their references
 artefacts/      the published measurements
+passports/      a passport published without its points
 articles/       the article as a PDF
 docs/           the method
 .github/        the checks of a reader on every push
@@ -217,13 +231,13 @@ operations are marked `speed`; both are excluded by default.
 
 - Code — `src/`, `scripts/`, `tests/`, `config/`, `pyproject.toml`: MIT License, see
   [LICENSE](LICENSE).
-- Data and documents — `artefacts/`, `articles/`, `assets/vocab/`, `docs/`, this README: Creative
+- Data and documents — `artefacts/`, `passports/`, `articles/`, `assets/vocab/`, `docs/`, this README: Creative
   Commons Attribution 4.0 International, see [LICENSE-CC-BY-4.0.txt](LICENSE-CC-BY-4.0.txt).
 - The vocabulary is derived from the CMU Pronouncing Dictionary and WordNet; their notices are
   in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The corpora are not redistributed: the
   build code downloads them through NLTK.
 - The model answers in `artefacts/` are published here as part of the data. Those of
-  `gpt-4o-mini-2024-07-18` were generated through the OpenAI API: under OpenAI's terms for API
+  `gpt-4o-mini-2024-07-18` and `gpt-4.1-mini-2025-04-14` were generated through the OpenAI API: under OpenAI's terms for API
   customers the customer owns the output (OpenAI Services Agreement, section 4.1). Those of
   `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite` were generated through the Gemini API: under
   the Gemini API Additional Terms of Service, Google won't claim ownership over generated content

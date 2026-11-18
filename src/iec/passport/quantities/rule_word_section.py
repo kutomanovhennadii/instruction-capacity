@@ -71,6 +71,7 @@ from iec.passport.quantities.steps.bins_walk import STATUS_BELOW_ONE_RULE, STATU
 from iec.passport.quantities.steps.cell_rows import cell_rows
 from iec.passport.quantities.steps.law_capacity import odds_factor_row
 from iec.passport.quantities.steps.median_check import axis_bins, checked_fit, requests_of
+from iec.passport.quantities.steps.section_fit import SectionFit, light_design
 from iec.passport.trials.design.folded_design import AxisBin, GridCell, VariableDesign, build_design
 from iec.passport.trials.layout.bin_layout import REFERENCE_TOTAL_WORDS, BinLayout
 from iec.passport.trials.place_trials import PointTrials
@@ -575,6 +576,37 @@ def _rule_outcome(point: PointTrials) -> tuple[float, float]:
     return float(sum(row[2] for row in point.rule)), float(sum(row[3] for row in point.rule))
 
 
+def rule_word_fit(
+    points: Sequence[PointTrials], layout: BinLayout, weights: Mapping[str, float]
+) -> SectionFit:
+    """Fit H over the trials of the answered points: the first stage of its section.
+
+    Args:
+        points: The trials of the points.
+        layout: The bin layout of the passport.
+        weights: The request weights by the cube ``V × P × M``.
+    """
+    design = build_design(points, "H", layout, weights)
+    run_weight = np.array([weights[key] for key in design.point_keys], dtype=float)
+    fit = checked_fit(
+        design,
+        run_weight,
+        request_loads(points, layout),
+        requests_of(points, layout, _rule_outcome),
+        axis_bins(design, ("P", "M")),
+    )
+    return SectionFit(light_design(design), fit, float(max(point.D * point.n for point in points)))
+
+
+def rule_word_from_fit(
+    section: SectionFit, layout: BinLayout, assignment: LawAssignment
+) -> dict[str, Any]:
+    """Compute the section of H over its first stage: the laws, the level, the capacities."""
+    del layout
+    assert isinstance(section.design, VariableDesign) and section.support is not None
+    return rule_word_laws(section.design, section.fit, section.support, assignment)
+
+
 def rule_word_section(
     points: Sequence[PointTrials],
     layout: BinLayout,
@@ -593,18 +625,7 @@ def rule_word_section(
         The section: ``model``, ``weights``, ``fit``, ``status``, ``laws``, ``shifts``, ``alpha``,
         ``capacities``, ``bins``. Without a fit ``status`` is ``no_laws``.
     """
-    design = build_design(points, "H", layout, weights)
-    run_weight = np.array([weights[key] for key in design.point_keys], dtype=float)
-    fit = checked_fit(
-        design,
-        run_weight,
-        request_loads(points, layout),
-        requests_of(points, layout, _rule_outcome),
-        axis_bins(design, ("P", "M")),
-    )
-    return rule_word_laws(
-        design, fit, float(max(point.D * point.n for point in points)), assignment
-    )
+    return rule_word_from_fit(rule_word_fit(points, layout, weights), layout, assignment)
 
 
 def rule_word_laws(

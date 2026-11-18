@@ -55,9 +55,9 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 
 The law of the grid: a length slice is a two-asymptote hyperbola, `[(κ·ℓ + λ) + μ − √((κ·ℓ + λ − μ)² + κ²·ω²)]/2` over `ℓ = log₂ s`, with an own level `μ` in every slice and the other parameters shared, in the coding of the fit: `kappa = −1.669 ± 0.169`, `lambda = 16.553 ± 2.133`, `omega = 2.850 ± 0.708`; `χ² = 67.2` over 77 cells; chosen by the smallest `QAIC` among 3 forms. The law of the plateau runs through the levels of the slices.
 
-The law of the plateau is a slanted hyperbola, `μ + (κ/2)·[(log₂(v/20) − log₂(v/20)*) + √((log₂(v/20) − log₂(v/20)*)² + ω²)]`: `corner = 8.18 ± 0.49`, `kappa = −5.28 ± 2.09`, `mu = 4.39 ± 0.68`, `omega = 0.00 ± 0.00`; `χ² = 7.9` over 11 bins; on the bound of the search: omega; chosen by the smallest `QAIC` among 3 forms.
+The law of the plateau is a slanted hyperbola, `μ + (κ/2)·[(log₂(v/20) − log₂(v/20)*) + √((log₂(v/20) − log₂(v/20)*)² + ω²)]`: `mu = 4.39 ± 0.68`, `kappa = −5.28 ± 2.09`, `corner = 8.18 ± 0.49`, `omega = 0.00 ± 0.00`; `χ² = 7.9` over 11 bins; on the bound of the search: omega; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the density is a slanted hyperbola, `μ + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `corner = 6.57 ± 0.90`, `kappa = −2.61 ± 0.71`, `mu = 5.26 ± 1.13`, `omega = 2.09 ± 1.10`; `χ² = 6.1` over 10 bins; chosen by the smallest `QAIC` among 3 forms.
+The law of the density is a slanted hyperbola, `μ + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `mu = 5.26 ± 1.13`, `kappa = −2.61 ± 0.71`, `corner = 6.57 ± 0.90`, `omega = 2.09 ± 1.10`; `χ² = 6.1` over 10 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The law of the number of rules is a line, `a + b·log₂ m`: `a = 0.82 ± 0.43`, `b = 0.18 ± 0.11`; `χ² = 2.9` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
 
@@ -95,15 +95,15 @@ The instruction capacity is the number of rules at which the law of the number o
 
 Model VS-PMR, request weights by the cube V × P × M. Fit: with the shift of a request; the variance of the request shift `σ² = 1.38`; 4,680 requests, 590,039 trials, 448,568 failures, 97 parameters; removed bins: none. The variance by the load turned bins against the median request of the data, so the quantity keeps one variance: the variance by the load turns bins against the median request: p_bin_5: passport +0.22, median request -1.22 ± 1.01.
 
-The law of the grid: a length slice is a slanted hyperbola, `μ + (κ/2)·[(ℓ − ℓ*) + √((ℓ − ℓ*)² + ω²)]` over `ℓ = log₂ s`, with an own level `μ` in every slice and the other parameters shared, in the coding of the fit: `corner = 7.422 ± 0.871`, `kappa = −1.166 ± 0.193`, `omega = 4.247 ± 0.783`; `χ² = 106.6` over 77 cells; chosen by the smallest `QAIC` among 3 forms. The law of the levels runs through the levels of the slices.
+The law of the grid: a length slice is a slanted hyperbola, `μ + (κ/2)·[(ℓ − ℓ*) + √((ℓ − ℓ*)² + ω²)]` over `ℓ = log₂ s`, with an own level `μ` in every slice and the other parameters shared, in the coding of the fit: `kappa = −1.166 ± 0.193`, `corner = 7.422 ± 0.871`, `omega = 4.247 ± 0.783`; `χ² = 106.6` over 77 cells; chosen by the smallest `QAIC` among 3 forms. The law of the levels runs through the levels of the slices.
 
 The law of the levels of the slices is a line, `a + b·log₂(v/20)`: `a = 6.01 ± 0.46`, `b = −0.33 ± 0.04`; `χ² = 6.6` over 11 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the density is a two-slope hyperbola, `μ + β·(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `beta = 0.29 ± 0.10`, `corner = 6.51 ± 0.35`, `kappa = −0.85 ± 0.19`, `mu = 0.94 ± 0.40`, `omega = 0.67 ± 0.98`; `χ² = 4.7` over 10 bins; chosen by the smallest `QAIC` among 4 forms.
+The law of the density is a two-slope hyperbola, `μ + β·(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `mu = 0.94 ± 0.40`, `kappa = −0.85 ± 0.19`, `corner = 6.51 ± 0.35`, `omega = 0.67 ± 0.98`, `beta = 0.29 ± 0.10`; `χ² = 4.7` over 10 bins; chosen by the smallest `QAIC` among 4 forms.
 
 The law of the number of rules is a line, `a + b·log₂ m`: `a = −1.26 ± 0.25`, `b = −0.07 ± 0.05`; `χ² = 4.4` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The law of the rule number is a binary exponential, `μ − A·2^(γ·log₂ r)`: `A = 0.54 ± 0.99`, `gamma = 0.33 ± 0.35`, `mu = 0.46 ± 1.16`; `χ² = 0.2` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
+The law of the rule number is a binary exponential, `μ − A·2^(γ·log₂ r)`: `mu = 0.46 ± 1.16`, `A = 0.54 ± 0.99`, `gamma = 0.33 ± 0.35`; `χ² = 0.2` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The level `α = μ₀ + μ_P + λ_M + λ_R = 3.67 ± 0.61`. The loss of the density at `p = 1` is 0.02 logits.
 
@@ -178,7 +178,7 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 
 The laws run through the bins without the poorly determined ones; a bin weighs `1/(σᵢ² + τ²)`, its own variance and the scatter of the bins around the law, and the errors are carried by the full covariance of the bins.
 
-The law of the length is a binary exponential, `μ − A·2^(γ·log₂(v/20))`: `A = −0.00 ± 0.00`, `gamma = 1.23 ± 0.37`, `mu = 3.25 ± 0.33`; `χ² = 10.9` over 10 bins; chosen by the smallest `QAIC` among 3 forms.
+The law of the length is a binary exponential, `μ − A·2^(γ·log₂(v/20))`: `mu = 3.25 ± 0.33`, `A = −0.00 ± 0.00`, `gamma = 1.23 ± 0.37`; `χ² = 10.9` over 10 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The law of the share of the answer is a line, `a + b·q`: `a = 0.52 ± 0.12`, `b = −0.44 ± 0.16`; `χ² = 10.4` over 9 bins; chosen by the smallest `QAIC` among 2 forms. A fall of 0.44 over the whole answer.
 
@@ -186,7 +186,7 @@ The law of the density is a logarithm plus a line, `a + b·log₂(p/2⁻¹⁰) +
 
 The law of the number of rules is a line, `a + b·log₂ m`: `a = 0.19 ± 0.32`, `b = 0.27 ± 0.07`; `χ² = 2.6` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The level `α_F = V(20) + q(0) + δ_P + M(1) = 8.44 ± 0.50`, where `δ_P` is the maximum of the law of the density, at `p = 0.0010`; `M(1)` = 0.19 ± 0.32, `V(20)` = 3.25 ± 0.33, `δ_P` = 4.47 ± 0.51, `q(0)` = 0.52 ± 0.12. The edge of the measured area: 32 rules and 20,480 words.
+The level `α_F = V(20) + q(0) + δ_P + M(1) = 8.44 ± 0.50`, where `δ_P` is the maximum of the law of the density, at `p = 0.0010`; `V(20)` = 3.25 ± 0.33, `q(0)` = 0.52 ± 0.12, `δ_P` = 4.47 ± 0.51, `M(1)` = 0.19 ± 0.32. The edge of the measured area: 32 rules and 20,480 words.
 
 | Capacity | q | By the law | By the bins |
 |---|---|---|---|

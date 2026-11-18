@@ -5,6 +5,8 @@ Usage (from the repository of the public part, with the package installed):
     python scripts/build_passport.py artefacts/<measurement>
     python scripts/build_passport.py artefacts/<measurement> --out-dir my_passport
     python scripts/build_passport.py artefacts/<measurement> --laws config/passport_laws.yaml --figures config/passport_figures.yaml --workers 8
+    python scripts/build_passport.py artefacts/<measurement> --save-fits fits.json
+    python scripts/build_passport.py artefacts/<measurement> --from-fits fits.json
 
 The command reads ``measurement.json`` and the points of the measurement directory, ``points.jsonl.gz``
 or its numbered parts ``points-001.jsonl.gz``, ``points-002.jsonl.gz`` and so on, aligns
@@ -12,8 +14,12 @@ every answer with its reference, fits the three quantities with the forms of the
 and writes ``passport_data.json``, ``passport.md`` and ``figures/`` by the plan of ``--figures`` into
 ``--out-dir`` (by default the measurement directory itself). The points and the quantities are
 computed in a pool of ``--workers`` processes (by default one per processor; 1 - without a pool);
-the passport is the same either way. Progress lines go to the standard output. The model is not
-called. Exit code: 0 - the passport is written; 1 - an error of the bench, printed to stderr.
+the passport is the same either way. With ``--save-fits`` the command also writes the saved fit of
+the passport, the first stage of its three quantities (``iec.passport.fit_store``); with
+``--from-fits`` it reads one instead of the points and recomputes only the laws, the levels, the
+capacities and the document, in seconds, the same passport to the last digit. Progress lines go to
+the standard output. The model is not called. Exit code: 0 - the passport is written; 1 - an error of
+the bench, printed to stderr.
 """
 
 from __future__ import annotations
@@ -30,9 +36,15 @@ from typing import Any
 from iec.infrastructure.exceptions import IECError
 from iec.passport.document.charts.figure_plan import load_figure_plan
 from iec.passport.document.renderer import write_documents
+from iec.passport.fit_store import read_passport_fits, write_passport_fits
 from iec.passport.laws.forms.law_assignment import build_law_assignment, load_law_assignment_config
 from iec.passport.measurement_files import read_description, read_points, write_passport_data
-from iec.passport.passport_data import build_passport_data, calculation_pool, measurement_trials
+from iec.passport.passport_data import (
+    calculation_pool,
+    measurement_trials,
+    passport_fits,
+    passport_from_fits,
+)
 
 DEFAULT_LAWS = Path(__file__).resolve().parents[1] / "config" / "passport_laws.yaml"
 DEFAULT_FIGURES = Path(__file__).resolve().parents[1] / "config" / "passport_figures.yaml"
@@ -66,6 +78,18 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
         type=int,
         default=DEFAULT_WORKERS,
         help=f"worker processes of the calculation, 1 - without a pool (default {DEFAULT_WORKERS})",
+    )
+    parser.add_argument(
+        "--save-fits",
+        type=Path,
+        default=None,
+        help="also write the saved fit of the passport, the first stage of its three quantities, to this JSON file",
+    )
+    parser.add_argument(
+        "--from-fits",
+        type=Path,
+        default=None,
+        help="compute the passport from a saved fit instead of the points: the laws, the capacities, the document",
     )
     return parser.parse_args(argv)
 
@@ -105,13 +129,19 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         assignment = build_law_assignment(load_law_assignment_config(args.laws.resolve()))
         plan = load_figure_plan(args.figures.resolve())
-        description = read_description(directory)
-        records = read_points(directory)
-        with calculation_pool(args.workers) as executor:
-            trials = measurement_trials(description, records, progress, executor=executor)
-            passport = build_passport_data(
-                description, records, trials, directory.name, assignment, progress, executor=executor
-            )
+        if args.from_fits is not None:
+            fits = read_passport_fits(args.from_fits.resolve())
+        else:
+            description = read_description(directory)
+            records = read_points(directory)
+            with calculation_pool(args.workers) as executor:
+                trials = measurement_trials(description, records, progress, executor=executor)
+                fits = passport_fits(
+                    description, records, trials, directory.name, progress, executor=executor
+                )
+            if args.save_fits is not None:
+                write_passport_fits(fits, args.save_fits.resolve())
+        passport = passport_from_fits(fits, assignment, progress)
         out_dir.mkdir(parents=True, exist_ok=True)
         data_path = write_passport_data(passport, out_dir)
         passport_md, figures = write_documents(passport, out_dir, assignment, plan)

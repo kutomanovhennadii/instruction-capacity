@@ -100,6 +100,21 @@ A capacity row has `key`, `level` (0.5 for every capacity), `method` (`law` or `
 for a capacity by the law `interval` and `plus_minus`, for a capacity by the bins beyond the measured area
 `lower_bound` and `reserve_left`. The meaning of every quantity: [passport model](05-passport-model.md).
 
+## Saved fit
+
+`build_passport.py --save-fits <file>` also writes the first stage of the passport: the fits of the three quantities and what the
+laws read of them. `build_passport.py --from-fits <file>` computes the passport from that file without the points: the laws, the
+levels, the capacities and the document, in seconds, to the last digit the passport of the full build. The file is not part of a
+published measurement. Its top keys:
+
+| Key | Meaning |
+|---|---|
+| `format_version` | the version of the format of the file; `1`. A newer version is refused |
+| `model_id`, `name` | the model id and the name of the measurement |
+| `points`, `weighting` | the number of answered points and the weights of the run cube, as in `passport_data.json` |
+| `layout` | the layout of the bins: `volume_bounds`, `density_bounds`, `row_bounds`, `density_reference` |
+| `sections` | `P_sync`, `H`, `F`: for every quantity `kind` (`folded`, or `answer_share` for `F`), `design` (the names of the coefficients, the cells of the grid, the bins of the axes and their abscissae, without the rows of the fit), `fit` (the coefficients, their standard errors and full covariance, the variance of the request shift, the law of the spread and its covariance, the notes of the fit) and `support` (the longest text in words; `null` for `F`); for `F` also `bins`, `centers`, `references` and `largest_words` |
+
 ## Your own measurement
 
 To compute a passport of your own points, put them into a directory with the same two data

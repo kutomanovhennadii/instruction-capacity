@@ -88,7 +88,7 @@ def background_cells(
 
 
 @dataclass
-class _Tally:
+class BinTally:
     """An accumulator of a bin: counts, the weights of requests with failures, a weighted centre."""
 
     trials: float = 0.0
@@ -138,7 +138,7 @@ class AnswerShareDesign:
     """The folded matrix of model V-(s/v)-PM and the tallies of its bins by axis."""
 
     design: VariableDesign
-    bins: dict[str, dict[str, _Tally]]
+    bins: dict[str, dict[str, BinTally]]
     centers: dict[str, dict[str, float]]
     references: dict[str, str]
     largest_words: int
@@ -166,7 +166,7 @@ def answer_share_design(
         "P": density_reference,
         "M": "m_bin_1",
     }
-    tallies: dict[str, dict[str, _Tally]] = {letter: defaultdict(_Tally) for letter in "VqPM"}
+    tallies: dict[str, dict[str, BinTally]] = {letter: defaultdict(BinTally) for letter in "VqPM"}
     rows: list[tuple[int, list[str], int, int]] = []
     keys: list[str] = []
     largest = 0

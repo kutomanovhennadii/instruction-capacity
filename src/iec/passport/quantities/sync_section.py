@@ -68,6 +68,7 @@ from iec.passport.quantities.steps.axis_rows import axis_rows
 from iec.passport.quantities.steps.bins_walk import capacity_by_bin_walk
 from iec.passport.quantities.steps.cell_rows import cell_rows
 from iec.passport.quantities.steps.median_check import axis_bins, checked_fit, requests_of
+from iec.passport.quantities.steps.section_fit import SectionFit, light_design
 from iec.passport.quantities.steps.law_capacity import (
     no_slope_row,
     odds_factor_row,
@@ -192,6 +193,36 @@ def _sync_outcome(point: PointTrials) -> tuple[float, float]:
     return float(sum(row[1] for row in point.sync)), float(sum(row[2] for row in point.sync))
 
 
+def sync_fit(
+    points: Sequence[PointTrials], layout: BinLayout, weights: Mapping[str, float]
+) -> SectionFit:
+    """Fit P_sync over the trials of the answered points: the first stage of its section.
+
+    Args:
+        points: The trials of the points.
+        layout: The bin layout of the passport.
+        weights: The request weights by the cube ``V × P × M``.
+    """
+    design = sync_design(points, layout, weights)
+    run_weight = np.array([weights[key] for key in design.point_keys], dtype=float)
+    fit = checked_fit(
+        design,
+        run_weight,
+        request_loads(points, layout),
+        requests_of(points, layout, _sync_outcome),
+        axis_bins(design, ("P", "M")),
+    )
+    return SectionFit(light_design(design), fit, float(max(point.D * point.n for point in points)))
+
+
+def sync_from_fit(
+    section: SectionFit, layout: BinLayout, assignment: LawAssignment
+) -> dict[str, Any]:
+    """Compute the section of P_sync over its first stage: the laws, the level, the capacities."""
+    assert isinstance(section.design, VariableDesign) and section.support is not None
+    return sync_laws(section.design, section.fit, layout, section.support, assignment)
+
+
 def sync_section(
     points: Sequence[PointTrials],
     layout: BinLayout,
@@ -212,18 +243,7 @@ def sync_section(
         only the facts of the fit are given. A fit without the shift (method ``logit``) has
         ``σ² = 0``: its numbers are not comparable with those of other measurements.
     """
-    design = sync_design(points, layout, weights)
-    run_weight = np.array([weights[key] for key in design.point_keys], dtype=float)
-    fit = checked_fit(
-        design,
-        run_weight,
-        request_loads(points, layout),
-        requests_of(points, layout, _sync_outcome),
-        axis_bins(design, ("P", "M")),
-    )
-    return sync_laws(
-        design, fit, layout, float(max(point.D * point.n for point in points)), assignment
-    )
+    return sync_from_fit(sync_fit(points, layout, weights), layout, assignment)
 
 
 def sync_laws(

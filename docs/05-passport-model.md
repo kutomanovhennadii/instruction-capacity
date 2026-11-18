@@ -127,7 +127,8 @@ $\log_2$ of the axis, $a + b\log_2 x$, or the fractional hyperbola $c + A/(1 + x
 The approximations serve the eye. An axis with no more groups
 than the parameters of its form has no approximation. A hyperbola whose $x_0$ stops at the lower bound of its search has
 degenerated into the inverse law $c + A/x$: its $A$ and $x_0$ mean nothing apart, so the section fits the inverse law anew and
-gives it in place of the hyperbola.
+gives it in place of the hyperbola. A hyperbola whose term $A/(1 + x/x_0)$ changes less than a millionth of the law over its
+groups has degenerated into a constant: the section fits the line anew and gives it in place of the hyperbola.
 
 **The check against the median request.** A bin is the logit of the median request of the model, and where the
 variance changes along an axis, the bin can lie on the other side of the reference bin than the requests themselves.
@@ -303,5 +304,7 @@ recomputed from the points against the published one. The composition of the pas
 compared within $10^{-6}$ relative, all the others within $10^{-3}$ relative; every number also has
 an absolute floor of $10^{-9}$. Reordering the summation of the same points moved the passport of the published
 measurement by at most $7.6 \cdot 10^{-9}$ relative in the first group and $9.5 \cdot 10^{-6}$ in the second, so
-the tolerances keep a margin of about 100 times and more. `verify` checks integrity and reproducibility only; it
-does not prove the method right.
+the tolerances keep a margin of about 100 times and more. Of the records of the candidate forms of a law the chosen one is
+compared in full and the others by the name of the form: a fit at the edge of its convergence converges on one machine and
+not on another, while the chosen law stays the same. `verify` checks integrity and reproducibility only; it does not prove
+the method right.

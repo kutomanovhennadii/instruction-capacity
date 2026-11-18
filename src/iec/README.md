@@ -20,7 +20,7 @@ measure a model of their own.
 ## Key entry points
 
 ```python
-iec.__version__                                   # "0.2.1"
+iec.__version__                                   # "0.2.2"
 iec.point_execution.PointExecutor(client, tokenizer, vocab, model_config).execute(conditions)
 iec.answer_validator.align_answer(answer, reference, source_text, rule_table)
 iec.passport.passport_data.measurement_trials(description, records)

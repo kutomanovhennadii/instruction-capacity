@@ -5,8 +5,9 @@ The passport gives the variance of the shift of a request by the groups of every
 the eye. The forms come from the assignment of forms (``config/passport_laws.yaml``): the logarithmic
 law of the collection is published as the line ``a + b·log₂ x``, the fractional hyperbola as
 ``c + A/(1 + x/x₀)``; a hyperbola whose ``x₀`` falls to the lower bound of its search degenerates into
-the inverse law ``c + A/x``. The fit of an approximation goes by the residuals in ``ln σ²``, every
-group weighed by its relative precision.
+the inverse law ``c + A/x``, and a hyperbola that is flat over its groups into a constant, published
+as the line. The fit of an approximation goes by the residuals in ``ln σ²``, every group weighed by
+its relative precision.
 """
 
 from __future__ import annotations
@@ -41,6 +42,9 @@ _SPREAD_PARAMETERS = {
 _SPREAD_X0_FLOOR = 1e-3
 #: The residual of a group at which a law is not positive: far beyond any honest residual.
 _SPREAD_OUTSIDE = 1e6
+#: The largest change of the term ``A/(1 + x/x₀)`` of a hyperbola over its groups, as a share of the
+#: law, at which the hyperbola is flat: a constant whose ``A`` and ``x₀`` the data do not determine.
+_SPREAD_FLAT = 1e-6
 
 
 def spread_forms(assignment: LawAssignment, quantity: str) -> dict[str, str]:
@@ -133,6 +137,12 @@ def _fit_spread_law(form: str, x: np.ndarray, y: np.ndarray, scale: np.ndarray) 
     )
 
 
+def _flat(params: np.ndarray, x: np.ndarray) -> bool:
+    """Return whether a hyperbola changes less than ``_SPREAD_FLAT`` of its value over the groups."""
+    term = params[1] / (1.0 + x / params[2])
+    return float(np.ptp(term)) <= _SPREAD_FLAT * float(np.max(params[0] + term))
+
+
 def spread_laws(spread: Mapping[str, Any], forms: Mapping[str, str]) -> dict[str, Any]:
     """Return the approximations of the variance by the groups of the axes, for the figures.
 
@@ -141,7 +151,10 @@ def spread_laws(spread: Mapping[str, Any], forms: Mapping[str, str]) -> dict[str
     the eye: the threshold of a capacity reads the variance of the groups from the fit. An axis with no
     more groups than the parameters of its form gets no approximation. A hyperbola whose ``x₀`` stops
     at the lower bound of its search has degenerated: then the inverse law ``c + A/x`` is fitted anew
-    and given in its place, because ``A`` and ``x₀`` of such a hyperbola mean nothing apart.
+    and given in its place, because ``A`` and ``x₀`` of such a hyperbola mean nothing apart. A
+    hyperbola that is flat over its groups has degenerated into a constant: then the line is fitted
+    anew and given in its place, for the same reason - its ``A`` and ``x₀`` come out differently on
+    different machines.
 
     Args:
         spread: The summary of the spread, ``law_rows.spread_summary``.
@@ -165,6 +178,9 @@ def spread_laws(spread: Mapping[str, Any], forms: Mapping[str, str]) -> dict[str
         floor = _SPREAD_X0_FLOOR * float(x.min())
         if form == SPREAD_HYPERBOLA and float(found.x[2]) <= 1.01 * floor:
             form, names = SPREAD_INVERSE, _SPREAD_PARAMETERS[SPREAD_INVERSE]
+            found = _fit_spread_law(form, x, y, scale)
+        elif form == SPREAD_HYPERBOLA and _flat(found.x, x):
+            form, names = SPREAD_LINE, _SPREAD_PARAMETERS[SPREAD_LINE]
             found = _fit_spread_law(form, x, y, scale)
         result[letter] = {
             "form": form,

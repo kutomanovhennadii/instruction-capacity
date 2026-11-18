@@ -178,7 +178,7 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 
 | Axis | Approximation | Parameters | χ² |
 |---|---|---|---|
-| text length, words | `c + A/(1 + v/v₀)` | `c = 1.49`, `A = 0.00`, `v₀ = 9783811.97` | 21.8 over 9 groups |
+| text length, words | `a + b·log₂ v` | `a = −1.21`, `b = 0.214` | 4.5 over 9 groups |
 | density | `a + b·log₂ p` | `a = 1.63`, `b = 0.128` | 24.9 over 10 groups |
 | number of rules | `c + A/(1 + m/m₀)` | `c = 0.65`, `A = 1.24`, `m₀ = 7.83` | 10.7 over 10 groups |
 

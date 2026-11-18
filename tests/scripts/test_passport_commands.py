@@ -24,6 +24,13 @@ def test_build_passport_reports_a_missing_measurement(
     assert "MEASUREMENT_FILES_MISSING" in capsys.readouterr().err
 
 
+def test_build_passport_reports_a_missing_saved_fit(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert _main("build_passport")([str(tmp_path), "--from-fits", str(tmp_path / "absent.json")]) == 1
+    assert "PASSPORT_FITS_INVALID" in capsys.readouterr().err
+
+
 def test_verify_reports_a_missing_measurement(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

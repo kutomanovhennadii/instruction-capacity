@@ -75,6 +75,16 @@ def test_a_hyperbola_on_its_bound_degenerates_into_the_inverse_law() -> None:
     assert laws["M"]["chi2"] == pytest.approx(0.0, abs=1e-10)
 
 
+def test_a_flat_hyperbola_degenerates_into_the_line() -> None:
+    # Constant groups: the hyperbola runs flat, its A and x0 are not determined, the line replaces it.
+    centers = [100.0, 200.0, 400.0, 800.0, 1600.0, 3200.0, 6400.0]
+    rows = [{"center": x, "sigma2": 1.5, "half": 0.3} for x in centers]
+    laws = spread_laws({"V": rows}, {"V": SPREAD_HYPERBOLA})
+    assert laws["V"]["form"] == SPREAD_LINE
+    assert laws["V"]["params"]["a"] == pytest.approx(1.5, abs=1e-6)
+    assert laws["V"]["params"]["b"] == pytest.approx(0.0, abs=1e-6)
+
+
 def test_the_forms_of_the_spread_come_from_the_assignment() -> None:
     assignment = build_law_assignment(load_law_assignment_config(CONFIG))
     assert spread_forms(assignment, "P_sync") == {

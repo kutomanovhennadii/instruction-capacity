@@ -6,10 +6,13 @@ no law and no capacity of its own. Every quantity has its own model, laws, level
 with the forms of the laws from the assignment of forms. All answered points enter, with no area of
 analysis, because the alignment gives an outcome at every place of an answer.
 
-The points are aligned independently of each other, and the three sections are fitted independently
-of each other, so a pool of processes (``calculation_pool``) runs both in parallel. The points come
-back in the order of the records, and every section is the same computation in another process: the
-passport is the same to the last digit with the pool and without it.
+The passport goes in two stages: the fits of the three quantities (``passport_fits``) and the laws,
+levels and capacities over them (``passport_from_fits``); the first stage can be saved and the second
+run again from it (``fit_store``). The points are aligned independently of each other, and the three
+quantities are fitted independently of each other, so a pool of processes (``calculation_pool``) runs
+both in parallel; the laws take seconds and run here. The points come back in the order of the
+records, and every fit is the same computation in another process: the passport is the same to the
+last digit with the pool and without it.
 """
 
 from __future__ import annotations
@@ -21,18 +24,20 @@ from contextlib import AbstractContextManager, nullcontext
 from dataclasses import dataclass
 from functools import partial
 from itertools import repeat
-from typing import Any
+from typing import Any, TypeVar
 
 import numpy as np
 
 from iec.answer_validator import align_answer, build_reference
 from iec.contracts import MeasurementDescription, PointRecord, PointStatus, is_empty_answer
 from iec.infrastructure.exceptions import ContractViolationError, PassportError
+from iec.passport.fit_store import PassportFits
 from iec.passport.laws.forms.law_assignment import LawAssignment
 from iec.passport.quantities.background_design import BackgroundCells, background_cells
-from iec.passport.quantities.background_section import background_section
-from iec.passport.quantities.rule_word_section import rule_word_section
-from iec.passport.quantities.sync_section import sync_section
+from iec.passport.quantities.background_section import background_fit, background_from_fit
+from iec.passport.quantities.rule_word_section import rule_word_fit, rule_word_from_fit
+from iec.passport.quantities.steps.section_fit import SectionFit
+from iec.passport.quantities.sync_section import sync_fit, sync_from_fit
 from iec.passport.trials.layout.bin_layout import REFERENCE_TOTAL_WORDS, BinLayout
 from iec.passport.trials.layout.vpm_cube import (
     VpmCube,
@@ -50,14 +55,16 @@ FORMULA = "P_correct = P_sync * [pi * H + (1 - pi) * (1 - F)]"
 #: among the workers, enough to keep the cost of sending a task small.
 ALIGNMENT_CHUNK = 8
 
-SectionBuilder = Callable[[Sequence[Any], BinLayout, Mapping[str, float], LawAssignment], dict[str, Any]]
+FitBuilder = Callable[[Sequence[Any], BinLayout, Mapping[str, float]], SectionFit]
+LawBuilder = Callable[[SectionFit, BinLayout, LawAssignment], dict[str, Any]]
+T = TypeVar("T")
 
-#: The sections of the passport in the order of the dictionary: the quantity, its section and the
-#: trials of ``MeasurementTrials`` that it reads.
-SECTIONS: tuple[tuple[str, SectionBuilder, str], ...] = (
-    ("P_sync", sync_section, "points"),
-    ("H", rule_word_section, "points"),
-    ("F", background_section, "background"),
+#: The sections of the passport in the order of the dictionary: the quantity, the first stage of its
+#: section, the second, and the trials of ``MeasurementTrials`` that the first reads.
+SECTIONS: tuple[tuple[str, FitBuilder, LawBuilder, str], ...] = (
+    ("P_sync", sync_fit, sync_from_fit, "points"),
+    ("H", rule_word_fit, rule_word_from_fit, "points"),
+    ("F", background_fit, background_from_fit, "background"),
 )
 
 
@@ -223,13 +230,80 @@ def _plain(value: Any) -> Any:
     return value
 
 
-def _started(
-    executor: Executor | None, build: SectionBuilder, *arguments: Any
-) -> Callable[[], dict[str, Any]]:
-    """Start a section in the pool, or keep it to run here; return how to take its result."""
+def _started(executor: Executor | None, build: Callable[..., T], *arguments: Any) -> Callable[[], T]:
+    """Start a stage in the pool, or keep it to run here; return how to take its result."""
     if executor is None:
         return partial(build, *arguments)
     return executor.submit(build, *arguments).result
+
+
+def passport_fits(
+    description: MeasurementDescription,
+    records: Sequence[PointRecord],
+    trials: MeasurementTrials,
+    name: str,
+    progress: Callable[[str], None] = _quiet,
+    *,
+    executor: Executor | None = None,
+) -> PassportFits:
+    """Fit the three quantities of a measurement: the first stage of the passport.
+
+    The three fits are independent: with a pool of processes they run at once, each in its worker;
+    without it they run here in the order of ``SECTIONS``.
+
+    Args:
+        description: The description of the measurement.
+        records: The point records: they give the layout and the weights.
+        trials: The trials of the three quantities (:func:`measurement_trials`).
+        name: The name of the measurement.
+        progress: Receives a line after every fit.
+        executor: The pool of processes (:func:`calculation_pool`), or ``None``.
+    """
+    layout, weights, weight_summary = _layout_of(records)
+    started = [
+        (quantity, _started(executor, fit_of, getattr(trials, source), layout, weights))
+        for quantity, fit_of, _, source in SECTIONS
+    ]
+    sections: dict[str, SectionFit] = {}
+    for quantity, result in started:
+        sections[quantity] = result()
+        progress(f"{quantity}: fitted, method {sections[quantity].fit.method}")
+    return PassportFits(
+        description.model.model_id, name, len(trials.points), weight_summary, layout, sections
+    )
+
+
+def passport_from_fits(
+    fits: PassportFits, assignment: LawAssignment, progress: Callable[[str], None] = _quiet
+) -> dict[str, Any]:
+    """Compute the passport over the fits of its three quantities: the second stage.
+
+    Args:
+        fits: The first stage of the passport (:func:`passport_fits` or ``fit_store``).
+        assignment: The forms of the laws of the passport (``config/passport_laws.yaml``).
+        progress: Receives a line after every quantity.
+
+    Returns:
+        The dictionary of ``passport_data.json`` without its format version: ``model``, ``points``,
+        ``formula``, ``weighting``, the sections ``P_sync``, ``H``, ``F``.
+    """
+    sections: dict[str, dict[str, Any]] = {}
+    for quantity, _, from_fit, _ in SECTIONS:
+        section = from_fit(fits.sections[quantity], fits.layout, assignment)
+        sections[quantity] = section
+        progress(
+            f"{quantity}: method {section['fit']['method']}, sigma2 {section['fit']['sigma2']}, "
+            f"{section['status']}"
+        )
+    passport = {
+        "model": {"id": fits.model_id, "experiment_id": fits.name},
+        "points": fits.points,
+        "formula": FORMULA,
+        "weighting": fits.weighting,
+        **sections,
+    }
+    plain: dict[str, Any] = _plain(passport)
+    return plain
 
 
 def build_passport_data(
@@ -242,10 +316,7 @@ def build_passport_data(
     *,
     executor: Executor | None = None,
 ) -> dict[str, Any]:
-    """Compute the passport from the trials of a measurement.
-
-    The three sections are independent: with a pool of processes they run at once, each in its
-    worker; without it they run here in the order of ``SECTIONS``.
+    """Compute the passport from the trials of a measurement: its two stages one after the other.
 
     Args:
         description: The description of the measurement.
@@ -253,32 +324,12 @@ def build_passport_data(
         trials: The trials of the three quantities (:func:`measurement_trials`).
         name: The name of the measurement.
         assignment: The forms of the laws of the passport (``config/passport_laws.yaml``).
-        progress: Receives a line after every quantity.
-        executor: The pool of processes (:func:`calculation_pool`), or ``None``.
+        progress: Receives a line after every fit and every quantity.
+        executor: The pool of processes of the fits (:func:`calculation_pool`), or ``None``.
 
     Returns:
-        The dictionary of ``passport_data.json`` without its format version: ``model``, ``points``,
-        ``formula``, ``weighting``, the sections ``P_sync``, ``H``, ``F``.
+        The dictionary of ``passport_data.json`` without its format version, as
+        :func:`passport_from_fits` gives it.
     """
-    layout, weights, weight_summary = _layout_of(records)
-    started = [
-        (quantity, _started(executor, build, getattr(trials, source), layout, weights, assignment))
-        for quantity, build, source in SECTIONS
-    ]
-    sections: dict[str, dict[str, Any]] = {}
-    for quantity, result in started:
-        section = result()
-        sections[quantity] = section
-        progress(
-            f"{quantity}: method {section['fit']['method']}, sigma2 {section['fit']['sigma2']}, "
-            f"{section['status']}"
-        )
-    passport = {
-        "model": {"id": description.model.model_id, "experiment_id": name},
-        "points": len(trials.points),
-        "formula": FORMULA,
-        "weighting": weight_summary,
-        **sections,
-    }
-    plain: dict[str, Any] = _plain(passport)
-    return plain
+    fits = passport_fits(description, records, trials, name, progress, executor=executor)
+    return passport_from_fits(fits, assignment, progress)

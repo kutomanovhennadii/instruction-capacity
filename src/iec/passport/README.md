@@ -12,7 +12,8 @@ The package computes the passport of a published measurement - the laws and capa
 | `laws/` | the laws through the fitted bins, their forms (`laws/forms/`, assigned by `config/passport_laws.yaml`) and the rows of the passport |
 | `quantities/` | the sections of `P_sync`, `H` and `F`: the model of every quantity, its laws, level and capacities by the laws and by the bins |
 | `document/` | `passport.md` and the figures of every quantity by the plan `config/passport_figures.yaml` |
-| `passport_data` | the whole calculation: from the published records to the passport dictionary |
+| `passport_data` | the whole calculation in two stages: the fits of the three quantities from the published records (`passport_fits`), then the laws, levels and capacities over them (`passport_from_fits`) |
+| `fit_store` | the saved fit of a passport: the first stage of its three quantities as a JSON file, from which the second stage recomputes the passport in seconds, to the last digit the same |
 | `measurement_files` | the files of a measurement directory and of its passport: the points in one file or in numbered parts read in order; `passport_data.json` with its format version |
 | `verify` | the four checks of a published measurement |
 
@@ -34,11 +35,13 @@ The package computes the passport of a published measurement - the laws and capa
 
 ## Speed
 
-The points are aligned independently of each other and the three sections are fitted independently of each other, so the
-commands run both in a pool of processes (`calculation_pool`, `--workers`, by default one per processor). The points come
-back in the order of the records and every section is the same computation in another process: the passport is the same to
-the last digit with the pool and without it. On 8 processors the passport of v55 takes about 140 seconds instead of 213.
-The tests in `tests/speed` guard the reference times of the alignment and of the sections (`-m speed`).
+The points are aligned independently of each other and the three quantities are fitted independently of each other, so the
+commands run both in a pool of processes (`calculation_pool`, `--workers`, by default one per processor); the laws over the fits
+take seconds and run in the main process. The points come back in the order of the records and every fit is the same computation
+in another process: the passport is the same to the last digit with the pool and without it. On 8 processors the passport of v55
+takes about 140 seconds instead of 213. A change of the laws alone does not need the fits again: `build_passport.py --save-fits`
+keeps the first stage, about a megabyte, and `--from-fits` recomputes the passport from it in seconds (`fit_store`). The tests in
+`tests/speed` guard the reference times of the alignment and of the sections (`-m speed`).
 
 ## Models
 
@@ -58,13 +61,17 @@ fits and the weights, and by at most `9.5e-6` relative in everything else. `veri
 1. the composition exactly: keys, list lengths, strings, booleans, `null`, integers;
 2. floats under the keys `fit` and `weighting` within `1e-6` relative;
 3. all other floats within `1e-3` relative;
-4. every float also has the absolute floor `1e-9`: a difference of zeros.
+4. every float also has the absolute floor `1e-9`: a difference of zeros;
+5. of the records of the candidate forms of a law, the chosen one in full and the others by the name of the form.
 
 ## Key signatures
 
     calculation_pool(workers) -> context manager of a ProcessPoolExecutor or None
     measurement_trials(description, records, progress=..., *, executor=None) -> MeasurementTrials
     build_passport_data(description, records, trials, name, assignment, progress=..., *, executor=None) -> dict[str, Any]
+    passport_fits(description, records, trials, name, progress=..., *, executor=None) -> PassportFits
+    passport_from_fits(fits, assignment, progress=...) -> dict[str, Any]
+    write_passport_fits(fits, path) -> Path; read_passport_fits(path) -> PassportFits
     write_passport_data(passport, directory) -> Path; read_passport_data(directory) -> dict[str, Any]
     verify_measurement(directory, vocab_dir, assignment, *, executor=None) -> VerificationReport
     compare_passports(published, recomputed) -> list[str]
@@ -78,6 +85,7 @@ fits and the weights, and by at most `9.5e-6` relative in everything else. `veri
 | `POINT_NOT_OK` | an answered point has no answer (`ContractViolationError`) |
 | `MEASUREMENT_FILES_MISSING` | the measurement directory has no description or points file (`PassportError`) |
 | `PASSPORT_DATA_INVALID` | `passport_data.json` is not a passport of a known format (`ContractViolationError`) |
+| `PASSPORT_FITS_INVALID` | the saved fit is missing or is not JSON (`PassportError`), or is not a JSON object of a valid version (`ContractViolationError`) |
 
 The codes of the folders are listed in their own README files.
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2.2
+
+**Measurements.** The measurement `pilot_gpt4_1_mini_v56` of `gpt-4.1-mini-2025-04-14` with the vocabulary
+`v1_intersection` (6,961 answered points) is published, its points in four numbered parts. The passport of
+`pilot_nemotron3_ultra_550b_a55b_v60` of `nvidia/nemotron-3-ultra-550b-a55b:free` with the vocabulary `v1_nemotron`
+(6,702 answered points) is published in `passports/` without its points: the answers came from the free endpoint that
+NVIDIA serves on OpenRouter, whose NVIDIA API Trial Terms of Service do not allow the generated content to be distributed.
+
+**Commands.** `build_passport.py --save-fits <file>` also writes the saved fit of a passport, the fits of its three
+quantities; `--from-fits <file>` computes the passport from it in seconds, to the last digit that of the full build. The
+passport goes in two stages, the fits and the laws over them ([data format](docs/06-data-format.md#saved-fit)).
+
+**Checks.** `verify` compares the record of a candidate form that a law did not choose by the name of the form alone: a
+fit at the edge of its convergence converged on one machine and not on another, and the check of a published measurement
+failed although the chosen law and its numbers agreed. An approximation of the spread whose hyperbola runs flat over its
+groups is published as the line: the `A` and `x₀` of such a hyperbola are not determined and came out differently on
+different machines. This changes the approximation of the spread of `F` by the text length of
+`pilot_gemini3_5_flash_lite_v58`; no law and no capacity changes.
+
 ## 0.2.1
 
 The passport chooses and fits its laws anew. The points of the published measurements are the same, and their passports are

@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import replace
 from typing import Any
 
 import numpy as np
@@ -67,6 +68,7 @@ from iec.passport.laws.law_rows import (
 )
 from iec.passport.laws.spread_laws import spread_forms, spread_laws
 from iec.passport.quantities.steps.median_check import AxisBins, checked_fit, requests_of
+from iec.passport.quantities.steps.section_fit import SectionFit, light_design
 from iec.passport.quantities.background_design import (
     AnswerShareDesign,
     BackgroundCells,
@@ -275,6 +277,37 @@ def _background_axis_rows(
     return rows
 
 
+def background_fit(
+    points: Sequence[BackgroundCells], layout: BinLayout, weights: Mapping[str, float]
+) -> SectionFit:
+    """Fit F over the trials of the answered points: the first stage of its section.
+
+    Args:
+        points: The trials of F of the points.
+        layout: The bin layout of the passport.
+        weights: The request weights by the cube ``V × P × M``.
+    """
+    built = answer_share_design(points, layout, weights)
+    run_weight = np.array([weights[key] for key in built.design.point_keys], dtype=float)
+    fit = checked_fit(
+        built.design,
+        run_weight,
+        request_loads(points, layout),
+        requests_of(points, layout, _background_outcome),
+        _background_axes(built),
+    )
+    return SectionFit(replace(built, design=light_design(built.design)), fit, None)
+
+
+def background_from_fit(
+    section: SectionFit, layout: BinLayout, assignment: LawAssignment
+) -> dict[str, Any]:
+    """Compute the section of F over its first stage: the laws, the level, the capacities."""
+    del layout
+    assert isinstance(section.design, AnswerShareDesign)
+    return background_laws(section.design, section.fit, assignment)
+
+
 def background_section(
     points: Sequence[BackgroundCells],
     layout: BinLayout,
@@ -293,16 +326,7 @@ def background_section(
         The section: ``model``, ``weights``, ``fit``, ``status``, ``laws``, ``shifts``, ``alpha``,
         ``capacities``, ``bins``. Without a fit ``status`` is ``no_laws``.
     """
-    built = answer_share_design(points, layout, weights)
-    run_weight = np.array([weights[key] for key in built.design.point_keys], dtype=float)
-    fit = checked_fit(
-        built.design,
-        run_weight,
-        request_loads(points, layout),
-        requests_of(points, layout, _background_outcome),
-        _background_axes(built),
-    )
-    return background_laws(built, fit, assignment)
+    return background_from_fit(background_fit(points, layout, weights), layout, assignment)
 
 
 def _background_outcome(point: BackgroundCells) -> tuple[float, float]:

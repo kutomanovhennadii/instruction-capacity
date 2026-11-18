@@ -12,7 +12,9 @@ level of rounding, the same a different machine makes - moved the passport of th
 measurement by at most 7.6e-9 relative in the fits and the weights, and by at most 9.5e-6 relative
 in everything computed from them: the bins restored by the laws, the laws, the levels and the
 capacities. The tolerances below keep a margin of about 100 times and more over these spreads. A
-number near zero is compared by the absolute floor.
+number near zero is compared by the absolute floor. The record of a candidate form that a law did
+not choose is compared by the name of the form alone: a fit at the edge of its convergence converges
+on one machine and not on another, and the chosen law and its numbers stay the same.
 """
 
 from __future__ import annotations
@@ -54,6 +56,8 @@ PASSPORT_CHECK = "passport"
 
 #: The keys whose numbers are the first stage, wherever they stand in the passport.
 _FIRST_STAGE_KEYS = frozenset({"fit", "weighting"})
+#: The key of the records of the candidate forms of a law and the key of its chosen form.
+_CANDIDATES, _LAW_FORM = "candidates", "law_form"
 #: Differences listed per check; the rest is counted.
 _SHOWN = 20
 
@@ -200,6 +204,8 @@ def compare_passports(published: Any, recomputed: Any) -> list[str]:
     The composition is compared exactly: keys, list lengths, strings, booleans, ``null``,
     integers. Floats under the keys ``fit`` and ``weighting`` - within ``FIRST_STAGE_RTOL``, all the
     others - within ``SECOND_STAGE_RTOL``; every float also has the absolute floor ``ABSOLUTE_FLOOR``.
+    Of the records of the candidate forms of a law the chosen one is compared in full, the others by
+    the name of the form.
     """
     differences: list[str] = []
     _compare(published, recomputed, "", False, differences)
@@ -221,6 +227,9 @@ def _compare(
             return
         for key in sorted(published):
             inside = first_stage or key in _FIRST_STAGE_KEYS
+            if key == _CANDIDATES and _LAW_FORM in published:
+                _compare_candidates(published, recomputed, f"{path}.{key}", inside, differences)
+                continue
             _compare(published[key], recomputed[key], f"{path}.{key}", inside, differences)
         return
     if isinstance(published, list):
@@ -240,6 +249,27 @@ def _compare(
         return
     if type(published) is not type(recomputed) or published != recomputed:
         differences.append(f"{path}: {published!r} vs {recomputed!r}")
+
+
+def _compare_candidates(
+    published_law: Mapping[str, Any],
+    recomputed_law: Mapping[str, Any],
+    path: str,
+    first_stage: bool,
+    differences: list[str],
+) -> None:
+    """Compare the records of the candidate forms of a law: the chosen one in full, the others by name."""
+    published, recomputed = published_law[_CANDIDATES], recomputed_law[_CANDIDATES]
+    if not isinstance(recomputed, list) or len(published) != len(recomputed):
+        differences.append(f"{path}: the lengths differ")
+        return
+    chosen = published_law[_LAW_FORM]
+    for index, (left, right) in enumerate(zip(published, recomputed, strict=True)):
+        place = f"{path}[{index}]"
+        if isinstance(left, Mapping) and isinstance(right, Mapping) and left.get("form") != chosen:
+            _compare(left.get("form"), right.get("form"), f"{place}.form", first_stage, differences)
+        else:
+            _compare(left, right, place, first_stage, differences)
 
 
 def _floats_agree(x: float, y: float, first_stage: bool) -> bool:

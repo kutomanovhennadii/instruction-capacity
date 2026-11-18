@@ -1,0 +1,26 @@
+{
+  "format_version": 1,
+  "model": {
+    "model_id": "gpt-4.1-mini-2025-04-14",
+    "provider": "openai",
+    "gen_params": {
+      "temperature": 0.0,
+      "max_tokens": 32768,
+      "top_p": 1.0,
+      "seed": 20260907
+    },
+    "tokenizer_name": "gpt-4.1-mini",
+    "context_window_tokens": 1047576,
+    "response_ceiling_tokens": 32768
+  },
+  "protocol_version": "0.2",
+  "vocab_id": "v1_intersection",
+  "vocab_hash": "sha256:5a91097540bec6584f7ffc94bffb4e5a6a2a9087f28828fa44d7214ccfa75906",
+  "tariff": null,
+  "files": {
+    "points-001.jsonl.gz": "55c720154cc2922331104c9ff5f4cc339c83223ba8ff07c99123f19f72bf17fd",
+    "points-002.jsonl.gz": "8efeeda29be2c9d79c7550e0714d2939224adb7a182908895bcf512810fdd718",
+    "points-003.jsonl.gz": "8abcb53b9b9ceef0b24cd7c05d20a04c1220a873d8064df50bbe896fc7f6b95e",
+    "points-004.jsonl.gz": "f7dbe1868da968e1f8aa9be4b802fa007b2cd3661b6b9e7706800bc8e4b50cbc"
+  }
+}

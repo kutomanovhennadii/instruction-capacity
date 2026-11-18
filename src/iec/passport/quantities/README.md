@@ -22,15 +22,23 @@ the assignment of forms gives it (`config/passport_laws.yaml`) by the smallest `
 the capacities by the laws and by the bins; the rows of the bins. The errors of every law are carried by the full covariance of
 the fit, through the sensitivity of its parameters to the coefficients.
 
+Every section has two stages: the fit (`sync_fit`, `rule_word_fit`, `background_fit`) gives the design of the quantity without
+the rows of its fit, the fit and the longest text (`steps/section_fit.SectionFit`); the laws over it (`sync_from_fit`,
+`rule_word_from_fit`, `background_from_fit`) give the section. The section of a quantity is the second stage of the first, and
+the first stage alone can be saved and the second run again from it (`passport.fit_store`).
+
 ## Key signatures
 
     sync_section(points, layout, weights, assignment) -> dict
+    sync_fit(points, layout, weights) -> SectionFit; sync_from_fit(section, layout, assignment) -> dict
     sync_laws(design, fit, layout, support, assignment) -> dict
     rule_word_section(points, layout, weights, assignment) -> dict
+    rule_word_fit(points, layout, weights) -> SectionFit; rule_word_from_fit(section, layout, assignment) -> dict
     rule_word_laws(design, fit, support_words, assignment) -> dict
     background_cells(key, D, n, m, aligned, source_text, rule_table) -> BackgroundCells
     answer_share_design(points, layout, weights) -> AnswerShareDesign
     background_section(points, layout, weights, assignment) -> dict
+    background_fit(points, layout, weights) -> SectionFit; background_from_fit(section, layout, assignment) -> dict
     background_laws(built, fit, assignment) -> dict
 
 ## Boundaries
