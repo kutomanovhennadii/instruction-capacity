@@ -1,6 +1,6 @@
 [project]
 name = "iec"
-version = "0.2.3"
+version = "0.2.4"
 description = "Instruction capacity of language models: one measurement point and the passport of a measurement."
 readme = "README.md"
 requires-python = ">=3.11"

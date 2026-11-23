@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.4
+
+**Passport.** The standard stress test replaces the measure of the density. The task has the density 0.5 and one rule per 50
+words of the text and grows, text and rules together, until the combined error of the last word of the text, `1 − P_sync·H`
+(the rule word lost its place or was replaced wrong), reaches one half for the median request. The section `stress_test` gives
+that task in words and rules; the structure of the errors of the last word per 100 combined errors, synchronization and
+replacements, and the misfires on background words over them; for every kind of error its share over the text and the
+influence of length, density and rules; and the combined error over the text, every number with its 95% interval by the delta
+method ([stress test](docs/08-stress-test.md)). The capacity rows `density_odds_factor` and the field `density_loss_at_one` are
+removed.
+
+**Passport data.** `format_version` 3: every section with laws publishes `law_covariance`, the parameters of its laws and their
+covariance, and the passport has the section `stress_test`. The laws, the levels and the capacities of the published passports
+are those of 0.2.3.
+
+**Document.** `passport.md` opens with the capacities of the three quantities and the standard stress test, before the sections
+of the quantities. The seven published passports are rebuilt; their laws and numbers are unchanged.
+
 ## 0.2.3
 
 **Measurements.** The points of `pilot_nemotron3_5_lightning_v43` and `pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45` are

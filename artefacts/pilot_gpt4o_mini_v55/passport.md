@@ -2,11 +2,56 @@
 
 Measurement `pilot_gpt4o_mini_v55`, 5,172 answered points. The method is described in `docs/05-passport-model.md` of the repository.
 
-## The formula
+## The capacities
 
-`P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`. The formula is the way to combine the three quantities: it has no law and no capacity of its own. `π = m/D` is the replacement density. The zero point of a capacity is a text of 20 words, the start of the answer, the density at the maximum of its law and one rule; every other axis of the capacity is set by its definition.
+The zero point of a capacity is a text of 20 words, the start of the answer, the density at the maximum of its law and one rule; every other axis of the capacity is set by its definition.
 
 The capacities are taken at the level 0.5. At it the share of successes over all requests and the success of the median request reach one half at the same logit, zero, whatever the variance of the request shift: a capacity is the load at which the laws bring the logit of the median request to zero, and it does not depend on that variance.
+
+### P_sync: the answer word stands against its reference word
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | none: the law gives no root | at least 256, reserve left 36.57 |
+| fatigue capacity, words | 0.5 | 13,515 (10,993–16,617), continuation of the law | - |
+
+The instruction capacity is the number of rules at which the law of the number of rules brings the logit to zero, and next to it the walk along the bins of that axis; by the law it is none when the fall of that law over its bins does not differ from zero. The fatigue capacity is the word at which the full law of the grid at the density going to zero and one rule reaches zero, on a text of the same length: by the curve of the law, as for `H`.
+
+### H: a rule word on its place is replaced correctly
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | 36.4 (32.8–40.4) | 35.3 |
+| fatigue capacity, words | 0.5 | 18,382 (13,967–24,193), continuation of the law | - |
+
+### F: a misfire on a background word on its place
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | 4.3·10⁷ (1.0·10⁷–1.8·10⁸), continuation of the law | at least 256, reserve left 9.84 |
+| fatigue capacity, words | 0.5 | 4.7·10⁶ (1.9·10⁶–1.2·10⁷), continuation of the law | - |
+
+The instruction capacity is the number of rules at the zero point. The fatigue capacity is the number of the last word of a text of the same length at the zero point.
+
+## The standard stress test
+
+The standard stress test describes how a model behaves as the complexity of a task with fixed proportions of the load increases step by step. The complexity increases until the probability of an error on the last word of the text reaches 50%. The density of replacements in the test is `p = 0.5`, and the text has one rule per 50 words: with `m` rules the text has `T = 50·m` words and `D = 2m` distinct words, each of them repeated 25 times. The length of the text and the number of rules increase together, keeping these proportions.
+
+The point of 50% is set by the combined error of the last word of the median request, `E = 1 − P_sync·H = 0.5`, where `P_sync` is the probability that the word keeps its place in the text, and `H` is the conditional probability that the replacement is made correctly on a kept place. False replacements of background words do not enter the definition of the point, but they are measured at the point found.
+
+The influence of each load is set by its price in the logit of the probability of the correct outcome of the last word. The influence keeps its sign: a negative value means that the load lowers the probability of an error of that kind. The three shares of the influence sum to 100; when the total price of the loads is zero or less, the influence is not defined. The mean share of errors over the text is computed over all its words for the median request. Every number has a 95% confidence interval by the delta method; the parameters of the three quantities are taken independent, since the passport has no covariances between its sections.
+
+1. The point of 50%: T = 910 ± 41 words, 18.2 ± 0.8 rules.
+2. The combined error at the point: 50%.
+3. The structure of the error at the point, per 100 errors: synchronization 95.7 ± 0.8, replacements 4.3 ± 0.8; background over them, per the same 100: 0.8 ± 0.1.
+4. Synchronization: errors over the text for the median request 11.0 ± 0.3%; influence per 100 errors of synchronization at the point: length 63.2 ± 3.0, density 36.1 ± 2.8, rules 0.7 ± 0.8.
+5. Replacements: errors over the text for the median request 1.7 ± 0.3%; influence per 100 errors of replacements at the point: length 83.6 ± 3.3, density 3.7 ± 3.5, rules 12.7 ± 2.0.
+6. Background: errors over the text for the median request 0.5 ± 0.1%; influence per 100 errors of background at the point: length 56.6 ± 2.5, density 17.1 ± 1.7, rules 26.2 ± 2.6.
+7. The combined error over the text for the median request: 12.4 ± 0.4%.
+
+## The formula
+
+`P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`. The formula is the way to combine the three quantities: it has no law and no capacity of its own. `π = m/D` is the replacement density.
 
 ## P_sync: the answer word stands against its reference word
 
@@ -21,14 +66,6 @@ The law of the density is a binary exponential, `μ − A·2^(γ·log₂(p/2⁻�
 The law of the number of rules is a line, `a + b·log₂ m`: `a = 0.08 ± 0.64`, `b = −0.06 ± 0.07`; `χ² = 6.0` over 8 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The level `α = δ_VS + δ_P + δ_M = 37.20 ± 2.49` is the logit at the density going to zero and one rule, and that density is itself a continuation of the law.
-
-| Capacity | q | By the law | By the bins |
-|---|---|---|---|
-| instruction capacity, rules | 0.5 | none: the law gives no root | at least 256, reserve left 36.57 |
-| fatigue capacity, words | 0.5 | 13,515 (10,993–16,617), continuation of the law | - |
-| how many times full density multiplies the odds of an error | - | 1.6·10⁸ (6.1·10⁷–4.4·10⁸) | - |
-
-The instruction capacity is the number of rules at which the law of the number of rules brings the logit to zero, and next to it the walk along the bins of that axis; by the law it is none when the fall of that law over its bins does not differ from zero. The fatigue capacity is the word at which the full law of the grid at the density going to zero and one rule reaches zero, on a text of the same length: by the curve of the law, as for `H`. Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − δ_P` the change of the law of the density from the density going to zero to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
 
 ![P_sync: S before correction](figures/P_sync/S-before-correction.png)
 
@@ -98,15 +135,7 @@ The law of the number of rules is a line, `a + b·log₂ m`: `a = −0.75 ± 0.4
 
 The law of the rule number is a slanted hyperbola, `μ + (κ/2)·[(log₂ r − log₂ r*) + √((log₂ r − log₂ r*)² + ω²)]`: `mu = 0.08 ± 0.22`, `kappa = −0.51 ± 0.04`, `corner = 3.29 ± 0.23`, `omega = 0.56 ± 0.66`; `χ² = 4.5` over 8 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The level `α = μ₀ + μ_P + λ_M + λ_R = 19.01 ± 1.76`. The loss of the density at `p = 1` is 1.71 logits.
-
-| Capacity | q | By the law | By the bins |
-|---|---|---|---|
-| instruction capacity, rules | 0.5 | 36.4 (32.8–40.4) | 35.3 |
-| fatigue capacity, words | 0.5 | 18,382 (13,967–24,193), continuation of the law | - |
-| how many times full density multiplies the odds of an error | - | 5.6 (3.0–10.3) | - |
-
-Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − μ_P` the change of the law of the density from its zero point, `p = 2⁻¹⁰` for the two-slope hyperbola, to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
+The level `α = μ₀ + μ_P + λ_M + λ_R = 19.01 ± 1.76`.
 
 ![H: S before correction](figures/H/S-before-correction.png)
 
@@ -185,14 +214,6 @@ The law of the density is a logarithm plus a line, `a + b·log₂(p/2⁻¹⁰) +
 The law of the number of rules is a line, `a + b·log₂ m`: `a = −0.02 ± 0.29`, `b = −0.52 ± 0.03`; `χ² = 7.0` over 8 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The level `α_F = V(20) + q(0) + δ_P + M(1) = 13.25 ± 0.71`, where `δ_P` is the maximum of the law of the density, at `p = 0.0116`; `V(20)` = 11.48 ± 0.63, `q(0)` = 0.89 ± 0.10, `δ_P` = 0.90 ± 0.14, `M(1)` = −0.02 ± 0.29. The edge of the measured area: 256 rules and 10,240 words.
-
-| Capacity | q | By the law | By the bins |
-|---|---|---|---|
-| instruction capacity, rules | 0.5 | 4.3·10⁷ (1.0·10⁷–1.8·10⁸), continuation of the law | at least 256, reserve left 9.84 |
-| fatigue capacity, words | 0.5 | 4.7·10⁶ (1.9·10⁶–1.2·10⁷), continuation of the law | - |
-| how many times full density multiplies the odds of an error | - | 19.0 (13.2–27.3), conditional: a continuation of the law of the density | - |
-
-The instruction capacity is the number of rules at the zero point. The fatigue capacity is the number of the last word of a text of the same length at the zero point. Full density multiplies the odds of a misfire by `e^(−P̂(1))`, `P̂(1) = P(1) − P(p → 0)`; a factor below one would mean that full density lowers them. It is a conditional quantity: a text has no background words at `p = 1`, so it always continues the law of the density, and it allows comparing the effect of the density on `P_sync`, `H` and `F`.
 
 ![F: V before correction](figures/F/V-before-correction.png)
 

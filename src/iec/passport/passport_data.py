@@ -38,6 +38,7 @@ from iec.passport.quantities.background_section import background_fit, backgroun
 from iec.passport.quantities.rule_word_section import rule_word_fit, rule_word_from_fit
 from iec.passport.quantities.steps.section_fit import SectionFit
 from iec.passport.quantities.sync_section import sync_fit, sync_from_fit
+from iec.passport.stress_test import stress_test_section
 from iec.passport.trials.layout.bin_layout import REFERENCE_TOTAL_WORDS, BinLayout
 from iec.passport.trials.layout.vpm_cube import (
     VpmCube,
@@ -285,7 +286,8 @@ def passport_from_fits(
 
     Returns:
         The dictionary of ``passport_data.json`` without its format version: ``model``, ``points``,
-        ``formula``, ``weighting``, the sections ``P_sync``, ``H``, ``F``.
+        ``formula``, ``weighting``, the sections ``P_sync``, ``H``, ``F`` and ``stress_test``, the
+        standard stress test (``iec.passport.stress_test``).
     """
     sections: dict[str, dict[str, Any]] = {}
     for quantity, _, from_fit, _ in SECTIONS:
@@ -301,6 +303,7 @@ def passport_from_fits(
         "formula": FORMULA,
         "weighting": fits.weighting,
         **sections,
+        "stress_test": stress_test_section(sections, assignment),
     }
     plain: dict[str, Any] = _plain(passport)
     return plain

@@ -11,12 +11,12 @@ The answer is aligned with the reference by places, and three quantities are cou
 replaced correctly; `F`, a background word on its place gets the replacement of a rule. Every
 place is a Bernoulli trial. From many trials a statistical model recovers the laws by which each
 quantity depends on each kind of load. The laws and the parameters derived from them with
-uncertainties — the instruction capacity (the IEC), the fatigue capacity and the measure of the
-density, how many times the full density multiplies the odds of an error — form the **passport**
-of the model under measurement, together with the way the spread of difficulty between requests
-depends on the load.
+uncertainties — the instruction capacity (the IEC), the fatigue capacity and the standard stress
+test, the size of a task of typical proportions at which the last word fails in half of the cases
+and what its errors consist of — form the **passport** of the model under measurement, together
+with the way the spread of difficulty between requests depends on the load.
 
-This repository is the public part of the instrument, version 0.2.3. With it you can
+This repository is the public part of the instrument, version 0.2.4. With it you can
 
 - recompute the passports of the published measurements from their points and check that the
   published files are intact and reproducible;
@@ -30,13 +30,21 @@ neither its design nor its rules for choosing points are published. A passport d
 on it: it is computed from the published points alone, whoever chose them, so every number of a
 published passport can be checked without the closed part.
 
-## Version 0.2.3
+## Version 0.2.4
 
-This is the second version of the instrument, release 0.2.3. The first, 0.1.0, is the version the
+This is the second version of the instrument, release 0.2.4. The first, 0.1.0, is the version the
 article describes; the tag `v0.1.0` of this repository holds it and reproduces the numbers of the
-article. Release 0.2.3 removes the points of Nemotron 3.5 Lightning and Nemotron 3 Nano Omni 30B A3B
-Reasoning, whose answers the terms of their endpoints do not allow to distribute, and keeps their
-passports in `passports/`. Release 0.2.2 published the measurement of GPT-4.1 mini and the passport of
+article. Release 0.2.4 replaces the measure of the density by the standard stress test
+([stress test](docs/08-stress-test.md)): at the density 0.5 and one rule per 50 words of the text the
+task grows until the combined error of the last word, a lost place or a wrong replacement of a rule
+word, reaches one half for the median request, and the passport gives the size of that task, the
+structure of its errors and the influence of the loads on every kind of them, with 95% intervals.
+Every section of a quantity publishes the covariance of the parameters of its laws, from which the
+stress test takes its intervals, and the document of a passport opens with the capacities of the
+three quantities and the stress test, before the sections of the quantities; the laws, levels and
+capacities of the passports are those of 0.2.3. Release 0.2.3 removed the points of Nemotron 3.5
+Lightning and Nemotron 3 Nano Omni 30B A3B Reasoning, whose answers the terms of their endpoints do
+not allow to distribute, and kept their passports in `passports/`. Release 0.2.2 published the measurement of GPT-4.1 mini and the passport of
 Nemotron 3 Ultra 550B A55B without its points, keeps the fits of a passport in a file so that a change of the laws
 recomputes it in seconds, and checks a published measurement so that a fit at the edge of its
 convergence does not decide the check. Release 0.2.1 corrected how the passport of 0.2.0 chooses and fits its laws: every law takes
@@ -62,10 +70,11 @@ is read and what the passport describes:
   version 0.2 the model is a GLMM with heterogeneous random-intercept variance: the variance depends on
   the load of the request, its text length, density and number of rules, and its groups are a part
   of the passport.
-- **Capacities.** The measure of the density, `e^(−P̂(1))`, replaces the guaranteed capacities. All
-  three quantities have the instruction and the fatigue capacities and the measure of the density.
-  All capacities are taken at the level 0.5, where they do not depend on the spread of request
-  difficulty.
+- **Capacities.** All three quantities have the instruction and the fatigue capacities, taken at
+  the level 0.5, where they do not depend on the spread of request difficulty; the guaranteed
+  capacities of 0.1.0 are gone. The standard stress test describes how the model fails a task of
+  typical proportions: the size of the task at which the last word fails in half of the cases and
+  the structure of the errors there.
 - **One standard of the passport.** Every law goes through every bin with a coefficient, each bin
   weighing `1/(σᵢ² + τ²)`; a bin leaves a law only as an outlier beyond three standard deviations of
   the residuals (the procedure of astropy). Every law takes the form with the smallest
@@ -89,7 +98,7 @@ Controlled Load.* arXiv:2610.36095, 2026. [arXiv page](https://arxiv.org/abs/261
 [PDF](articles/instruction-capacity.pdf)
 
 The article describes version 0.1.0 of the instrument; the tag `v0.1.0` of this repository
-reproduces its numbers, and [Version 0.2.3](#version-023) above says what this version changes.
+reproduces its numbers, and [Version 0.2.4](#version-024) above says what this version changes.
 
 ## Quick start: recompute a published passport
 

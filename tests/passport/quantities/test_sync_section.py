@@ -187,7 +187,6 @@ def test_laws_level_and_capacities_on_known_laws() -> None:
     assert set(by_key) == {
         ("instruction_capacity", 0.5),
         ("fatigue_capacity_words", 0.5),
-        ("density_odds_factor", None),
     }
     # At the level 0.5 the threshold of the logit of the median request is zero at any variance.
     threshold = 0.0
@@ -202,14 +201,29 @@ def test_laws_level_and_capacities_on_known_laws() -> None:
     value = vs_curve(AsymptoticHyperbolicForm(), slices, HYPERBOLA, plateau_params, point)[0]
     assert value + mu_p + lambda_m == pytest.approx(threshold, abs=1e-6)
     assert by_key[("fatigue_capacity_words", 0.5)]["interval"][0] < fatigue
-    # Full density multiplies the odds of an error by e^(−(P(1) − δ_P)): the factor keeps the sign.
-    odds = by_key[("density_odds_factor", None)]
-    change = section["laws"]["density"]["at_one"] - mu_p
-    assert odds["value"] == pytest.approx(math.exp(-change))
-    assert odds["change"] == pytest.approx(change)
-    assert odds["interval"] == pytest.approx(
-        [math.exp(-change - odds["change_half"]), math.exp(-change + odds["change_half"])]
+
+
+def test_the_law_covariance_follows_the_published_laws() -> None:
+    design, fit = _known_fit()
+    section = sync_laws(design, fit, LAYOUT, 10240.0, ASSIGNMENT)
+    laws = section["laws"]
+    published = {
+        "slices": laws["grid"],
+        "plateau": laws["grid_plateau"],
+        "density": laws["density"],
+        "table": laws["table_size"],
+    }
+    entry = section["law_covariance"]
+    assert [part["part"] for part in entry["parts"]] == ["slices", "plateau", "density", "table"]
+    names = [(part["part"], name) for part in entry["parts"] for name in part["names"]]
+    assert entry["vector"] == pytest.approx(
+        [published[key]["params"][name] for key, name in names]
     )
+    matrix = np.asarray(entry["matrix"])
+    assert np.allclose(matrix, matrix.T)
+    # The diagonal of R·J·Rᵀ gives the published half-widths: 1.96 standard errors of every parameter.
+    halves = [published[key]["half"][name] for key, name in names]
+    assert 1.96 * np.sqrt(np.diag(matrix)) == pytest.approx(halves, rel=1e-6, abs=1e-12)
 
 
 def test_rows_keep_the_reference_bin_with_an_own_error_and_every_bin_on_the_law() -> None:
@@ -278,7 +292,7 @@ def test_the_capacities_of_p_sync_do_not_depend_on_the_spread() -> None:
     plain = sync_laws(design, fit, LAYOUT, 10240.0, ASSIGNMENT)
     spread = sync_laws(design, _with_rules_spread(fit), LAYOUT, 10240.0, ASSIGNMENT)
     assert spread["capacities"] == plain["capacities"]
-    assert {row["level"] for row in spread["capacities"] if row["key"] != "density_odds_factor"} == {0.5}
+    assert {row["level"] for row in spread["capacities"]} == {0.5}
     assert all("sigma2" not in row and "threshold" not in row for row in spread["capacities"])
     assert "thresholds" not in spread
 

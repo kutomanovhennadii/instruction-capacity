@@ -60,12 +60,13 @@ The top keys of `passport_data.json`:
 
 | Key | Meaning |
 |---|---|
-| `format_version` | the version of the format of the passport; `2`, where the law of the slices of a grid is a law with its chosen form. A file of version 1 is a passport of version 0.2.0, a file without the field is of version 1, and a newer version is refused |
+| `format_version` | the version of the format of the passport; `3`, where every section with laws publishes `law_covariance` and the passport has `stress_test`. A file of version 2 is a passport of versions 0.2.1 to 0.2.3, a file of version 1 is a passport of version 0.2.0, a file without the field is of version 1, and a newer version is refused |
 | `model` | `id`, the model id; `experiment_id`, the name of the measurement |
 | `points` | the number of answered points |
 | `formula` | the formula that combines the three quantities |
 | `weighting` | the weights of the run cube: `cells`, `runs`, `max_occupancy`, `n_eff`, `min_weight`, `max_weight` |
 | `P_sync`, `H`, `F` | the sections of the three quantities |
+| `stress_test` | the standard stress test, below |
 
 A section of a quantity:
 
@@ -79,7 +80,7 @@ A section of a quantity:
 | `laws` | the parameters of the laws, with `half` for the half-widths of their 95% intervals and `held` for the parameters on a bound of their range; a law of a block has `law_form` (its form), `established_form` (the form of the block it replaced or kept), `c_hat` (the overdispersion of the criterion of the choice), `candidates` (every form with `converged`, `chi2`, `free` and `criterion`, the QAIC), `outliers` (the bins clipped from the law) and `n_points` (the bins it goes through). The law of the slices of a grid, `grid`, has the same keys without `outliers`: its `params` are the parameters of the curve shared by the slices, `n_points` the cells and `n_parameters` the shared parameters with the levels of the slices, which stand in `bins.slices` as `mu_v` |
 | `shifts`, `alpha` | the shifts of the blocks and the level, each with `value` and `half` |
 | `capacities` | the capacity rows |
-| `density_loss_at_one` | for `H`: the loss of the density at `p = 1` |
+| `law_covariance` | `parts` (the parts of the laws in their order, each with `part`, its name, and `names`, the names of its parameters), `vector` (the parameters in that order) and `matrix` (their covariance), from which a quantity derived from the laws takes its error by the delta method |
 | `edge_rules`, `edge_words` | for `F`: the edge of the measured area |
 
 A row of an axis has `name`, `center` (the centre of mass of the bin), `raw` (the coefficient of the fit),
@@ -99,6 +100,16 @@ in $\ln\sigma^2$) and `n_points` (the groups). An axis with no more groups than 
 A capacity row has `key`, `level` (0.5 for every capacity), `method` (`law` or `bins`), `value`, `status`, and
 for a capacity by the law `interval` and `plus_minus`, for a capacity by the bins beyond the measured area
 `lower_bound` and `reserve_left`. The meaning of every quantity: [passport model](05-passport-model.md).
+
+`stress_test` has `protocol` (`density` 0.5, `words_per_rule` 50, `point_error` 0.5) and `status`: with a point `measured`
+or `extrapolated`, by whether the point lies inside `support`, the longest text and the largest number of rules of the bins
+of `H`; without one `below_one_rule`, `beyond_range` or `no_laws`. With a point it has also `support`, `words`, `rules`,
+`combined_error_at_point` (50), `structure` (`synchronization`, `replacements` and `background` per 100 combined errors of
+the last word), the kinds `synchronization`, `replacements` and `background`, each with `text_errors` (the percent of its
+errors over the text for the median request) and `influence` (`length`, `density` and `rules` per 100 errors of the kind at
+the last word, negative when the load lowers them, `null` when the loads do not raise them at all), and
+`combined_text_errors`. Every number has `value` and `half`, the half-width of its 95% interval; a number that a
+floating-point number does not hold is `null`. The meaning: [stress test](08-stress-test.md).
 
 ## Saved fit
 

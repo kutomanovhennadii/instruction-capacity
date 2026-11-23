@@ -284,9 +284,10 @@ capacities only through the laws, which it keeps unbiased.
 | `P_sync` | fatigue | the word at which the full law of the grid at $p \to 0$ reaches zero, $v = s$: the root of the same curve as the other capacities of the grid, not its slanted asymptote; none when the law stays above zero up to $2^{40}$ words, as when the plateau rises with the length faster than the slices fall | words |
 | `F` | instruction | $-\kappa_M\log_2 m = \alpha$; a background word has no rule number | rules |
 | `F` | fatigue | the number of the last word of a text of the same length: the root of $\alpha - [Q(0) - Q(1)] + [V(s) - V(20)] = 0$ | words |
-| every quantity | measure of the density | $e^{-\hat P(1)}$, where $\hat P(1)$ is the change of the law of the density from its zero point to $p = 1$: how many times the full density multiplies the odds of an error, written as the factor with its interval. A factor below one means that the full density lowers the odds of an error, as the rising law of the density of `H` can give. For `F` a conditional quantity: a text has no background words at $p = 1$, so it continues the law of the density | times |
 
 By the law, `P_sync` has an instruction capacity only when its law of the number of rules falls beyond its errors: when the 95% interval of $\kappa_M$ reaches zero, the data do not bound the capacity from above, and the passport gives none.
+
+The passport has also the standard stress test: the size of a task of typical proportions at which the combined error of the last word reaches one half for the median request, the structure of its errors and the influence of the loads ([stress test](08-stress-test.md)).
 
 **Intervals and the measured area.** The intervals of a capacity are computed by the delta method on the
 scale of its logarithm, so they are not symmetric. A capacity that lies beyond the measured rules or words

@@ -13,7 +13,7 @@ its section (`../quantities/`).
 | `spread_laws` | the approximations of the variance of the request shift by the groups of an axis, with the forms from the assignment |
 | `grid_slices` | the law of the length slices of a grid: a form of the collection whose level `μ` every slice owns while the other parameters are shared (`SlicedForm`), the choice of that form by the smallest `QAIC` and its entry in the passport |
 | `plateau_grid` | the law of the length × word-number grid of `P_sync`: the law of the slices by `grid_slices`, then the law of the plateau through the levels of the slices chosen by `block_choice` |
-| `block_choice` | the law of a block: the form with the smallest `QAIC` among the candidates of the block, the outliers clipped, the weights `1/(σᵢ² + τ²)`; the shift of a block, the rows of a law over the coefficients (`BlockLaw`, `LawStack`) and its entry in the passport |
+| `block_choice` | the law of a block: the form with the smallest `QAIC` among the candidates of the block, the outliers clipped, the weights `1/(σᵢ² + τ²)`; the shift of a block, the rows of a law over the coefficients (`BlockLaw`, `LawStack`) and its entry in the passport, and the covariance of the parameters of the laws for the passport (`LawStack.covariance_entry`) |
 | `point_weights` | the weighting of any subset of the bins of a law: the own variances or none (`Weigh`); the scatter `τ²` of the points beyond their own variances by DerSimonian and Laird |
 | `sigma_clipping` | the outlier clipping of a law by the algorithm of astropy: one scale for all the bins, three scales from the median of the residuals, refit until the number of the clipped bins stops changing |
 | `form_threshold` | the choice among the forms of a block: the smallest `QAIC = χ²/ĉ + 2k` wins (Burnham and Anderson 2002), the established form takes a tie, an alternative with a parameter held on a bound does not replace it |
@@ -36,6 +36,7 @@ its section (`../quantities/`).
     choose_scattered_law(forms, x, values, variances, *, starts=None) -> BlockChoice | reason
     block_law(choice, point_rows, bins, x, at_infinity) -> BlockLaw   # .kept_bins, .outliers, .shift()
     law_entry(law, joint, symbol) -> dict   # law_form, established_form, c_hat, outliers, n_points, ...
+    LawStack.covariance_entry(names, joint) -> dict   # parts, vector, matrix
     variance_weights(variances) | plain_weights() -> Weigh
     dersimonian_laird(jacobian, chi2, variances) -> float
     clipped_fit(form, x, values, weigh, *, starts=None) -> ClippedFit | None

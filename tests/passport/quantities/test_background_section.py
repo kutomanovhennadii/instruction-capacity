@@ -214,30 +214,31 @@ def test_three_capacities_follow_the_formulas() -> None:
         ("instruction_capacity", "law"),
         ("instruction_capacity", "bins"),
         ("fatigue_capacity_words", "law"),
-        ("density_odds_factor", "law"),
     }
-    assert all(
-        row["level"] == 0.5 for row in section["capacities"] if row["key"] != "density_odds_factor"
-    )
+    assert all(row["level"] == 0.5 for row in section["capacities"])
     assert rows[("instruction_capacity", "law")]["value"] == pytest.approx(
         2.0 ** (reserve / -KAPPA_M)
     )
     fatigue = 20.0 * 2.0 ** ((reserve - Q_AT_0 + Q_AT_1) / -KAPPA_V)
     assert rows[("fatigue_capacity_words", "law")]["value"] == pytest.approx(fatigue, rel=1e-5)
-    # The change of the law of the density from p → 0 (the law at 2⁻¹⁰, no asymptote) to p = 1.
-    change = _density(1.0) - _density(P_ZERO)
-    odds = rows[("density_odds_factor", "law")]
-    assert odds["value"] == pytest.approx(math.exp(-change), rel=1e-6)
 
 
-def test_the_measure_of_the_density_of_f_is_always_conditional() -> None:
-    # At p = 1 a text has no background words: the measure continues the law of the density.
-    built, fit, _ = _known_fit(at_20=AT_20 - 5.0)
+def test_the_law_covariance_follows_the_published_laws() -> None:
+    built, fit, _ = _known_fit()
     section = background_laws(built, fit, ASSIGNMENT)
-    rows = {(row["key"], row["method"]): row for row in section["capacities"]}
-    odds = rows[("density_odds_factor", "law")]
-    assert odds["status"] == "conditional"
-    assert odds["interval"][0] < odds["value"] < odds["interval"][1]
+    laws = section["laws"]
+    published = {letter: laws[letter] for letter in "VqPM"}
+    entry = section["law_covariance"]
+    assert [part["part"] for part in entry["parts"]] == ["V", "q", "P", "M"]
+    names = [(part["part"], name) for part in entry["parts"] for name in part["names"]]
+    assert entry["vector"] == pytest.approx(
+        [published[key]["params"][name] for key, name in names]
+    )
+    matrix = np.asarray(entry["matrix"])
+    assert np.allclose(matrix, matrix.T)
+    # The diagonal of R·J·Rᵀ gives the published half-widths: 1.96 standard errors of every parameter.
+    halves = [published[key]["half"][name] for key, name in names]
+    assert 1.96 * np.sqrt(np.diag(matrix)) == pytest.approx(halves, rel=1e-6, abs=1e-12)
 
 
 def test_capacity_by_the_bins_interpolates_inside_the_bins_of_m() -> None:

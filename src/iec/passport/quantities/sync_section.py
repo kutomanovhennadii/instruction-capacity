@@ -23,9 +23,9 @@ law it is none when the fall of the law over its bins does not reach below zero 
 interval, so the data do not bound it from above; the fatigue capacity - the word at which the full
 law of the grid at ``p → 0`` and one rule reaches zero, at the shortest text holding that word,
 ``v = s``, by the curve of the law as for H (decision 6 of the passport standard; the first article
-took it by the slanted asymptote). Instead of the guaranteed fatigue capacity the section gives how
-many times full density multiplies the odds of an error, ``e^(−P̂(1))``, ``P̂(1) = P(1) − δ_P``
-(decision 7). Errors are by the delta method over the coefficients of the fit.
+took it by the slanted asymptote). The section publishes the parameters of its laws with their
+covariance, ``law_covariance``, from which the standard stress test of the passport takes its errors
+(``iec.passport.stress_test``). Errors are by the delta method over the coefficients of the fit.
 """
 
 from __future__ import annotations
@@ -71,7 +71,6 @@ from iec.passport.quantities.steps.median_check import axis_bins, checked_fit, r
 from iec.passport.quantities.steps.section_fit import SectionFit, light_design
 from iec.passport.quantities.steps.law_capacity import (
     no_slope_row,
-    odds_factor_row,
     root_capacity_row,
 )
 from iec.passport.trials.design.folded_design import VariableDesign, build_design
@@ -316,6 +315,10 @@ def sync_laws(
             **{key: (law.params, law.rows) for key, law in laws.items()},
         }
     )
+    part_names = {
+        "slices": slice_law.shared_names,
+        **{key: law.form.parameters for key, law in laws.items()},
+    }
 
     def shift_of(key: str) -> Callable[[np.ndarray], float]:
         """Return the shift of a block as a function of a vector of the stack."""
@@ -347,10 +350,6 @@ def sync_laws(
     def fatigue(vector: np.ndarray) -> float:
         """Return ``log₂`` of the word at which the full law at ``p → 0`` reaches the threshold."""
         return _log_word_root(lambda x: word_logit(vector, x, None), LEVEL_THRESHOLD)
-
-    def density_change(vector: np.ndarray) -> float:
-        """Return ``P̂(1)``: the change of the density law from ``p → 0`` to ``p = 1``."""
-        return density_value(vector, 1.0) - density_value(vector, None)
 
     def instruction(vector: np.ndarray) -> float:
         """Return ``log₂`` of the instruction capacity by the law of the number of rules."""
@@ -395,7 +394,6 @@ def sync_laws(
             **capacity_by_bin_walk(m_rows, table.shift(), alpha - LEVEL_THRESHOLD),
         },
         root_capacity_row("fatigue_capacity_words", fatigue, stack, joint, support),
-        odds_factor_row(density_change, stack, joint),
     ]
     section.update(
         {
@@ -421,6 +419,7 @@ def sync_laws(
                 "delta_M": {"value": table.shift(), "half": half_width(shift_rows["table"], joint)},
             },
             "alpha": {"value": alpha, "half": half_width(stack.gradient(level), joint)},
+            "law_covariance": stack.covariance_entry(part_names, joint),
             "capacities": capacities,
             "bins": {
                 "grid": cell_rows(

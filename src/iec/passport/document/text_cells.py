@@ -14,13 +14,12 @@ from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from iec.passport.document.law_drawings import SPREAD_SYMBOLS, spread_drawing
-from iec.passport.document.number_text import number, size
+from iec.passport.document.number_text import number, parameter, size
 from iec.passport.measurement_files import FIGURES_DIRNAME
 
 #: The names of the capacities in the table.
 CAPACITY_NAMES = {
     "fatigue_capacity_words": "fatigue capacity, words",
-    "density_odds_factor": "how many times full density multiplies the odds of an error",
     "instruction_capacity": "instruction capacity, rules",
 }
 #: The methods of a fit in the sentence about it.
@@ -56,7 +55,6 @@ SPREAD_AXES = (("V", "text length, words"), ("P", "density"), ("M", "number of r
 #: The mark of a capacity by a law by its status; a status without a mark is written plain.
 LAW_MARKS = {
     "extrapolated": ", continuation of the law",
-    "conditional": ", conditional: a continuation of the law of the density",
 }
 #: A number of a capacity by the law past the largest floating-point number, about ``1.8·10³⁰⁸``.
 PAST_FLOAT = "more than 10³⁰⁸"
@@ -96,7 +94,7 @@ def law_sentence(title: str, law: Mapping[str, Any]) -> str:
         law: The published law of the block (``laws.block_choice.law_entry``).
     """
     params = ", ".join(
-        f"`{name} = {number(float(value))} ± {number(float(law['half'][name]))}`"
+        f"`{name} = {parameter(float(value))} ± {parameter(float(law['half'][name]))}`"
         for name, value in law["params"].items()
     )
     held = ", ".join(law["held"])
@@ -118,7 +116,7 @@ def slice_sentence(law: Mapping[str, Any]) -> str:
         law: The published law of the slices (``laws.grid_slices.slice_entry``).
     """
     params = ", ".join(
-        f"`{name} = {number(float(value), 3)} ± {number(float(law['half'][name]), 3)}`"
+        f"`{name} = {parameter(float(value), 3)} ± {parameter(float(law['half'][name]), 3)}`"
         for name, value in law["params"].items()
     )
     form = FORM_NAMES.get(law["law_form"], law["law_form"])

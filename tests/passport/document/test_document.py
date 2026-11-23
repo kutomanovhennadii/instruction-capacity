@@ -81,19 +81,6 @@ def _row(key: str, level: float, value: float, status: str = "measured") -> dict
     }
 
 
-def _odds(value: float, status: str = "measured") -> dict[str, Any]:
-    return {
-        "key": "density_odds_factor",
-        "level": None,
-        "method": "law",
-        "value": value,
-        "interval": [value / 2.0, value * 2.0],
-        "status": status,
-        "change": -1.0,
-        "change_half": 0.5,
-    }
-
-
 def _fit(sigma2: float | None = 2.0, method: str = "glmm") -> dict[str, Any]:
     return {
         "method": method,
@@ -168,7 +155,6 @@ def _sync() -> dict[str, Any]:
         "alpha": {"value": 35.0, "half": 2.0},
         "capacities": [
             _row("fatigue_capacity_words", 0.5, 14000.0, "extrapolated"),
-            _odds(4.9e10),
         ],
         "bins": {
             "grid": _grid(),
@@ -210,7 +196,6 @@ def _rule_word() -> dict[str, Any]:
             "lambda_R": {"value": -0.4, "half": 0.7},
         },
         "alpha": {"value": 15.0, "half": 1.4},
-        "density_loss_at_one": 6.0,
         "capacities": [
             _row("instruction_capacity", 0.5, 32.0),
             {
@@ -227,7 +212,6 @@ def _rule_word() -> dict[str, Any]:
                 "value": None,
                 "status": "no_root",
             },
-            _odds(23.0),
         ],
         "bins": {
             "grid": _grid(),
@@ -289,7 +273,6 @@ def _background() -> dict[str, Any]:
                 "reserve_left": 2.2,
             },
             _row("fatigue_capacity_words", 0.5, 5.2e5, "extrapolated"),
-            _odds(12.0, "conditional"),
         ],
         "bins": {"V": _axis(40.0), "q": _axis(0.05), "P": _axis(0.25), "M": _axis()},
     }
@@ -341,8 +324,7 @@ def test_document_marks_a_continuation_and_the_bins() -> None:
     assert "none: the law gives no root" in text
     assert "`P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`" in text
     assert "figures/F/answer-share-before-correction.png" in text
-    assert "how many times full density multiplies the odds of an error" in text
-    assert "conditional: a continuation of the law of the density" in text
+    assert "odds of an error" not in text
     assert "The capacities are taken at the level 0.5." in text
     assert "Threshold at σ²" not in text
     assert "the reserve `Δ" not in text
@@ -368,6 +350,7 @@ def test_document_says_when_a_quantity_has_no_laws() -> None:
     text = render_passport(passport, PLAN)
     assert "There are no laws" in text
     assert "the fit did not converge" in text
+    assert "There are no capacities: the quantity has no laws." in text
 
 
 def test_document_warns_about_a_fit_without_the_shift() -> None:
@@ -414,8 +397,86 @@ def test_document_names_the_maximum_of_the_density() -> None:
     assert "`δ_P` = 1.10 ± 0.50" in text
 
 
-def test_document_says_the_guaranteed_fatigue_of_f_is_conditional() -> None:
-    assert "It is a conditional quantity" in render_passport(_passport(), PLAN)
+def _stress() -> dict[str, Any]:
+    def row(value: float, half: float) -> dict[str, float]:
+        return {"value": value, "half": half}
+
+    def kind(errors: float, length: float, density: float, rules: float) -> dict[str, Any]:
+        return {
+            "text_errors": row(errors, 0.4),
+            "influence": {
+                "length": row(length, 2.0),
+                "density": row(density, 1.5),
+                "rules": row(rules, 0.3),
+            },
+        }
+
+    return {
+        "protocol": {"density": 0.5, "words_per_rule": 50, "point_error": 0.5},
+        "status": "measured",
+        "support": {"words": 10240.0, "rules": 256.0},
+        "words": row(910.0, 40.0),
+        "rules": row(18.2, 0.8),
+        "combined_error_at_point": 50.0,
+        "structure": {
+            "synchronization": row(95.7, 1.1),
+            "replacements": row(4.3, 1.1),
+            "background": row(0.8, 0.2),
+        },
+        "synchronization": kind(11.0, 63.2, 36.1, 0.7),
+        "replacements": kind(1.7, 83.6, 3.7, 12.7),
+        "background": kind(0.5, 56.6, 17.1, 26.2),
+        "combined_text_errors": row(12.4, 0.9),
+    }
+
+
+def test_document_writes_the_stress_test() -> None:
+    text = render_passport({**_passport(), "stress_test": _stress()}, PLAN)
+    assert "## The standard stress test" in text
+    assert (
+        "The standard stress test describes how a model behaves as the complexity of a task with fixed "
+        "proportions of the load increases step by step." in text
+    )
+    assert (
+        "with `m` rules the text has `T = 50·m` words and `D = 2m` distinct words, each of them "
+        "repeated 25 times." in text
+    )
+    assert "1. The point of 50%: T = 910 ± 40 words, 18.2 ± 0.8 rules." in text
+    assert "2. The combined error at the point: 50%." in text
+    assert (
+        "3. The structure of the error at the point, per 100 errors: synchronization 95.7 ± 1.1, "
+        "replacements 4.3 ± 1.1; background over them, per the same 100: 0.8 ± 0.2." in text
+    )
+    assert (
+        "5. Replacements: errors over the text for the median request 1.7 ± 0.4%; influence per 100 "
+        "errors of replacements at the point: length 83.6 ± 2.0, density 3.7 ± 1.5, rules 12.7 ± 0.3."
+        in text
+    )
+    assert "7. The combined error over the text for the median request: 12.4 ± 0.9%." in text
+
+
+def test_document_puts_the_capacities_and_the_stress_test_before_the_quantities() -> None:
+    text = render_passport({**_passport(), "stress_test": _stress()}, PLAN)
+    assert text.index("## The capacities") < text.index("## The standard stress test")
+    assert text.index("## The standard stress test") < text.index("## The formula")
+    assert text.index("## The formula") < text.index("\n## P_sync")
+    assert "| Capacity | q |" not in text[text.index("## The formula") :]
+
+
+def test_document_says_when_the_stress_test_has_no_point() -> None:
+    stress = {"protocol": _stress()["protocol"], "status": "below_one_rule"}
+    text = render_passport({**_passport(), "stress_test": stress}, PLAN)
+    assert (
+        "There is no point: the combined error of the last word reaches one half already at one rule."
+        in text
+    )
+
+
+def test_document_writes_an_influence_that_is_not_defined() -> None:
+    stress = _stress()
+    stress["background"]["influence"]["length"] = {"value": None, "half": None}
+    text = render_passport({**_passport(), "stress_test": stress}, PLAN)
+    assert "length not defined" in text
 
 
 def _spread() -> dict[str, Any]:
@@ -544,7 +605,7 @@ def test_p_sync_shows_its_instruction_capacity() -> None:
         *passport["P_sync"]["capacities"],
     ]
     text = render_passport(passport, PLAN)
-    sync = text[text.index("## P_sync") : text.index("## H")]
+    sync = text[text.index("### P_sync") : text.index("### H")]
     assert (
         "| instruction capacity, rules | 0.5 | none: the law gives no root | "
         "at least 128, reserve left 35.00 |"

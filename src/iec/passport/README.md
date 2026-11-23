@@ -1,7 +1,8 @@
 # passport — the passport of a measurement from its published points
 
 The package computes the passport of a published measurement - the laws and capacities of the three quantities `P_sync`, `H` and
-`F` and everything they are computed from - writes its document and figures, and verifies a published measurement.
+`F`, the standard stress test and everything they are computed from - writes its document and figures, and verifies a published
+measurement.
 
 ## What is here
 
@@ -11,8 +12,9 @@ The package computes the passport of a published measurement - the laws and capa
 | `fitting/` | the fits of the bins: the plain logit, the GLMM with the shift of a request, the spread of the shift by the load and the chain that tries them in order |
 | `laws/` | the laws through the fitted bins, their forms (`laws/forms/`, assigned by `config/passport_laws.yaml`) and the rows of the passport |
 | `quantities/` | the sections of `P_sync`, `H` and `F`: the model of every quantity, its laws, level and capacities by the laws and by the bins |
+| `stress_test/` | the standard stress test: the task at which the last word fails in half of the cases, from the three published sections |
 | `document/` | `passport.md` and the figures of every quantity by the plan `config/passport_figures.yaml` |
-| `passport_data` | the whole calculation in two stages: the fits of the three quantities from the published records (`passport_fits`), then the laws, levels and capacities over them (`passport_from_fits`) |
+| `passport_data` | the whole calculation in two stages: the fits of the three quantities from the published records (`passport_fits`), then the laws, levels, capacities and the stress test over them (`passport_from_fits`) |
 | `fit_store` | the saved fit of a passport: the first stage of its three quantities as a JSON file, from which the second stage recomputes the passport in seconds, to the last digit the same |
 | `measurement_files` | the files of a measurement directory and of its passport: the points in one file or in numbered parts read in order; `passport_data.json` with its format version |
 | `verify` | the four checks of a published measurement |
@@ -28,8 +30,10 @@ The package computes the passport of a published measurement - the laws and capa
    GLMM with heterogeneous random-intercept variance (`glmm_heterogeneous`), or the GLMM with one variance (`glmm`), or the plain
    logit (`logit`), or no laws (`none`).
 4. **Laws, level, capacities.** Every quantity draws its laws through its bins with the forms of `config/passport_laws.yaml`, sums
-   the shifts of the blocks into its level and reads the capacities at the level 0.5.
-5. **Documents.** `passport_data.json`, `passport.md` and the figures in `figures/P_sync/`, `figures/H/`, `figures/F/` by the plan
+   the shifts of the blocks into its level and reads the capacities at the level 0.5; every section publishes the covariance of
+   the parameters of its laws.
+5. **Stress test.** The standard stress test is computed from the three sections and their `law_covariance`.
+6. **Documents.** `passport_data.json`, `passport.md` and the figures in `figures/P_sync/`, `figures/H/`, `figures/F/` by the plan
    `config/passport_figures.yaml`: 24, and three more for every quantity with the spread by the load. Every file is written through
    a temporary file and a rename.
 

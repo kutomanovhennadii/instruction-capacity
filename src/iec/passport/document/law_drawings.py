@@ -16,7 +16,7 @@ from typing import Any
 import numpy as np
 
 from iec.infrastructure.exceptions import ContractViolationError
-from iec.passport.document.number_text import number
+from iec.passport.document.number_text import parameter
 from iec.passport.laws.forms.hyperbolic_forms import FractionalHyperbolicForm, HyperbolicForm
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.forms.linear_forms import LogarithmicForm
@@ -73,7 +73,7 @@ class SpreadDrawing:
             symbol: The symbol of the axis.
         """
         return ", ".join(
-            f"`{label.format(symbol=symbol)} = {number(float(law['params'][name]), digits)}`"
+            f"`{label.format(symbol=symbol)} = {parameter(float(law['params'][name]), digits)}`"
             for name, label, digits in zip(self.parameters, self.labels, self.digits, strict=True)
         )
 

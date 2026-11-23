@@ -31,6 +31,7 @@ from typing import Any
 
 import numpy as np
 
+from iec.infrastructure.exceptions import ContractViolationError
 from iec.passport.laws.form_threshold import Contender, pick, quasi_criterion
 from iec.passport.laws.forms.law_fit import LawFit, fit_law, variance_weighting
 from iec.passport.laws.forms.law_form import LawForm
@@ -45,6 +46,8 @@ REASON_FEW_POINTS = "few_points"
 REASON_NOT_CONVERGED = "not_converged"
 #: The fewest bins of a law: a line goes through two.
 MIN_POINTS = 2
+#: Error code: the names of the law covariance do not follow the parts of the stack.
+LAW_COVARIANCE_MISMATCH = "LAW_COVARIANCE_MISMATCH"
 _LINE = LinearForm()
 
 
@@ -403,6 +406,45 @@ class LawStack:
             )
         result: np.ndarray = by_parameter @ self.rows
         return result
+
+    def covariance_entry(
+        self, names: Mapping[str, Sequence[str]], joint: np.ndarray
+    ) -> dict[str, Any]:
+        """Return the parameters of the laws and their covariance for the passport.
+
+        The matrix is ``R·J·Rᵀ``: ``R`` - the rows of the parameters over the coefficients of the fit,
+        ``J`` - the covariance of the coefficients without the variance of the shift. A quantity
+        derived from the published laws carries its error by the delta method over this matrix
+        (``iec.passport.stress_test``).
+
+        Args:
+            names: The names of the parameters of every part, the parts in the order of the stack.
+            joint: The joint covariance of the coefficients and of the variance of the shift.
+
+        Returns:
+            ``parts`` - the parts in the order of the stack, each with its ``part`` and the
+            ``names`` of its parameters (a list: the file of the passport sorts the keys of a
+            dictionary), ``vector`` - the parameters in the order of the stack, ``matrix`` - their
+            covariance.
+
+        Raises:
+            ContractViolationError: ``LAW_COVARIANCE_MISMATCH`` - the names do not follow the parts
+                of the stack.
+        """
+        if list(names) != list(self._slices) or any(
+            len(names[key]) != part.stop - part.start for key, part in self._slices.items()
+        ):
+            raise ContractViolationError(
+                "the names of the law covariance do not follow the parts of the stack",
+                error_code=LAW_COVARIANCE_MISMATCH,
+            )
+        size = self.rows.shape[1]
+        matrix = self.rows @ np.asarray(joint, dtype=float)[:size, :size] @ self.rows.T
+        return {
+            "parts": [{"part": key, "names": list(value)} for key, value in names.items()],
+            "vector": [float(value) for value in self.vector],
+            "matrix": [[float(value) for value in row] for row in (matrix + matrix.T) / 2.0],
+        }
 
 
 def law_entry(law: BlockLaw, joint: np.ndarray, symbol: str) -> dict[str, Any]:

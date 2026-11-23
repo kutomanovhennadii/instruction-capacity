@@ -2,11 +2,56 @@
 
 Measurement `pilot_nemotron3_5_lightning_v43`, 4,753 answered points. The method is described in `docs/05-passport-model.md` of the repository.
 
-## The formula
+## The capacities
 
-`P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`. The formula is the way to combine the three quantities: it has no law and no capacity of its own. `π = m/D` is the replacement density. The zero point of a capacity is a text of 20 words, the start of the answer, the density at the maximum of its law and one rule; every other axis of the capacity is set by its definition.
+The zero point of a capacity is a text of 20 words, the start of the answer, the density at the maximum of its law and one rule; every other axis of the capacity is set by its definition.
 
 The capacities are taken at the level 0.5. At it the share of successes over all requests and the success of the median request reach one half at the same logit, zero, whatever the variance of the request shift: a capacity is the load at which the laws bring the logit of the median request to zero, and it does not depend on that variance.
+
+### P_sync: the answer word stands against its reference word
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | none: the law gives no root | at least 32, reserve left 9.65 |
+| fatigue capacity, words | 0.5 | 8,758 (6,532–11,743) | - |
+
+The instruction capacity is the number of rules at which the law of the number of rules brings the logit to zero, and next to it the walk along the bins of that axis; by the law it is none when the fall of that law over its bins does not differ from zero. The fatigue capacity is the word at which the full law of the grid at the density going to zero and one rule reaches zero, on a text of the same length: by the curve of the law, as for `H`.
+
+### H: a rule word on its place is replaced correctly
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | 10.0 (8.0–12.6) | 7.2 |
+| fatigue capacity, words | 0.5 | 197 (145–266) | - |
+
+### F: a misfire on a background word on its place
+
+| Capacity | q | By the law | By the bins |
+|---|---|---|---|
+| instruction capacity, rules | 0.5 | none: the law gives no root | at least 32, reserve left 8.24 |
+| fatigue capacity, words | 0.5 | none: the law gives no root | - |
+
+The instruction capacity is the number of rules at the zero point. The fatigue capacity is the number of the last word of a text of the same length at the zero point.
+
+## The standard stress test
+
+The standard stress test describes how a model behaves as the complexity of a task with fixed proportions of the load increases step by step. The complexity increases until the probability of an error on the last word of the text reaches 50%. The density of replacements in the test is `p = 0.5`, and the text has one rule per 50 words: with `m` rules the text has `T = 50·m` words and `D = 2m` distinct words, each of them repeated 25 times. The length of the text and the number of rules increase together, keeping these proportions.
+
+The point of 50% is set by the combined error of the last word of the median request, `E = 1 − P_sync·H = 0.5`, where `P_sync` is the probability that the word keeps its place in the text, and `H` is the conditional probability that the replacement is made correctly on a kept place. False replacements of background words do not enter the definition of the point, but they are measured at the point found.
+
+The influence of each load is set by its price in the logit of the probability of the correct outcome of the last word. The influence keeps its sign: a negative value means that the load lowers the probability of an error of that kind. The three shares of the influence sum to 100; when the total price of the loads is zero or less, the influence is not defined. The mean share of errors over the text is computed over all its words for the median request. Every number has a 95% confidence interval by the delta method; the parameters of the three quantities are taken independent, since the passport has no covariances between its sections.
+
+1. The point of 50%: T = 145 ± 19 words, 2.9 ± 0.4 rules.
+2. The combined error at the point: 50%.
+3. The structure of the error at the point, per 100 errors: synchronization 50.4 ± 9.4, replacements 49.6 ± 9.4; background over them, per the same 100: 8.2 ± 1.8.
+4. Synchronization: errors over the text for the median request 15.1 ± 3.1%; influence per 100 errors of synchronization at the point: length 24.4 ± 4.8, density 78.5 ± 5.4, rules −2.8 ± 1.6.
+5. Replacements: errors over the text for the median request 23.0 ± 2.8%; influence per 100 errors of replacements at the point: length 110.1 ± 15.3, density −17.5 ± 16.8, rules 7.5 ± 4.0.
+6. Background: errors over the text for the median request 4.5 ± 0.9%; influence per 100 errors of background at the point: length 7.7 ± 2.6, density 99.6 ± 3.4, rules −7.3 ± 2.2.
+7. The combined error over the text for the median request: 34.2 ± 1.1%.
+
+## The formula
+
+`P_correct = P_sync · [π · H + (1 − π) · (1 − F)]`. The formula is the way to combine the three quantities: it has no law and no capacity of its own. `π = m/D` is the replacement density.
 
 ## P_sync: the answer word stands against its reference word
 
@@ -55,21 +100,13 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 
 The law of the grid: a length slice is a two-asymptote hyperbola, `[(κ·ℓ + λ) + μ − √((κ·ℓ + λ − μ)² + κ²·ω²)]/2` over `ℓ = log₂ s`, with an own level `μ` in every slice and the other parameters shared, in the coding of the fit: `kappa = −1.669 ± 0.169`, `lambda = 16.553 ± 2.133`, `omega = 2.850 ± 0.708`; `χ² = 67.2` over 77 cells; chosen by the smallest `QAIC` among 3 forms. The law of the plateau runs through the levels of the slices.
 
-The law of the plateau is a slanted hyperbola, `μ + (κ/2)·[(log₂(v/20) − log₂(v/20)*) + √((log₂(v/20) − log₂(v/20)*)² + ω²)]`: `mu = 4.39 ± 0.68`, `kappa = −5.28 ± 2.09`, `corner = 8.18 ± 0.49`, `omega = 0.00 ± 0.00`; `χ² = 7.9` over 11 bins; on the bound of the search: omega; chosen by the smallest `QAIC` among 3 forms.
+The law of the plateau is a slanted hyperbola, `μ + (κ/2)·[(log₂(v/20) − log₂(v/20)*) + √((log₂(v/20) − log₂(v/20)*)² + ω²)]`: `mu = 4.39 ± 0.68`, `kappa = −5.28 ± 2.09`, `corner = 8.18 ± 0.49`, `omega = 0.0010 ± 0.00`; `χ² = 7.9` over 11 bins; on the bound of the search: omega; chosen by the smallest `QAIC` among 3 forms.
 
 The law of the density is a slanted hyperbola, `μ + (κ/2)·[(log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*) + √((log₂(p/2⁻¹⁰) − log₂(p/2⁻¹⁰)*)² + ω²)]`: `mu = 5.26 ± 1.13`, `kappa = −2.61 ± 0.71`, `corner = 6.57 ± 0.90`, `omega = 2.09 ± 1.10`; `χ² = 6.1` over 10 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The law of the number of rules is a line, `a + b·log₂ m`: `a = 0.82 ± 0.43`, `b = 0.18 ± 0.11`; `χ² = 2.9` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The level `α = δ_VS + δ_P + δ_M = 10.48 ± 1.26` is the logit at the density going to zero and one rule, and that density is itself a continuation of the law.
-
-| Capacity | q | By the law | By the bins |
-|---|---|---|---|
-| instruction capacity, rules | 0.5 | none: the law gives no root | at least 32, reserve left 9.65 |
-| fatigue capacity, words | 0.5 | 8,758 (6,532–11,743) | - |
-| how many times full density multiplies the odds of an error | - | 16,861 (4,181–67,997) | - |
-
-The instruction capacity is the number of rules at which the law of the number of rules brings the logit to zero, and next to it the walk along the bins of that axis; by the law it is none when the fall of that law over its bins does not differ from zero. The fatigue capacity is the word at which the full law of the grid at the density going to zero and one rule reaches zero, on a text of the same length: by the curve of the law, as for `H`. Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − δ_P` the change of the law of the density from the density going to zero to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
 
 ![P_sync: S before correction](figures/P_sync/S-before-correction.png)
 
@@ -105,15 +142,7 @@ The law of the number of rules is a line, `a + b·log₂ m`: `a = −1.26 ± 0.2
 
 The law of the rule number is a binary exponential, `μ − A·2^(γ·log₂ r)`: `mu = 0.46 ± 1.16`, `A = 0.54 ± 0.99`, `gamma = 0.33 ± 0.35`; `χ² = 0.2` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
 
-The level `α = μ₀ + μ_P + λ_M + λ_R = 3.67 ± 0.61`. The loss of the density at `p = 1` is 0.02 logits.
-
-| Capacity | q | By the law | By the bins |
-|---|---|---|---|
-| instruction capacity, rules | 0.5 | 10.0 (8.0–12.6) | 7.2 |
-| fatigue capacity, words | 0.5 | 197 (145–266) | - |
-| how many times full density multiplies the odds of an error | - | 1.0 (0.7–1.6) | - |
-
-Full density multiplies the odds of an error by `e^(−P̂(1))`, `P̂(1) = P(1) − μ_P` the change of the law of the density from its zero point, `p = 2⁻¹⁰` for the two-slope hyperbola, to `p = 1`; a factor below one means that full density lowers the odds of an error. The interval is `e^(−P̂(1) ∓ h)`, `h` the half-width of `P̂(1)`.
+The level `α = μ₀ + μ_P + λ_M + λ_R = 3.67 ± 0.61`.
 
 ![H: S before correction](figures/H/S-before-correction.png)
 
@@ -172,13 +201,13 @@ The approximations through the groups, by the residuals in `ln σ²`, serve the 
 
 | Axis | Approximation | Parameters | χ² |
 |---|---|---|---|
-| text length, words | `c + A/v` | `c = 2.48`, `A = 0.00` | 105.6 over 10 groups |
+| text length, words | `c + A/v` | `c = 2.48`, `A = 6.3·10⁻¹⁶` | 105.6 over 10 groups |
 | density | `a + b·log₂ p` | `a = 4.56`, `b = 0.422` | 13.5 over 10 groups |
 | number of rules | `c + A/(1 + m/m₀)` | `c = 0.81`, `A = 11.14`, `m₀ = 0.67` | 10.0 over 6 groups |
 
 The laws run through the bins without the poorly determined ones; a bin weighs `1/(σᵢ² + τ²)`, its own variance and the scatter of the bins around the law, and the errors are carried by the full covariance of the bins.
 
-The law of the length is a binary exponential, `μ − A·2^(γ·log₂(v/20))`: `mu = 3.25 ± 0.33`, `A = −0.00 ± 0.00`, `gamma = 1.23 ± 0.37`; `χ² = 10.9` over 10 bins; chosen by the smallest `QAIC` among 3 forms.
+The law of the length is a binary exponential, `μ − A·2^(γ·log₂(v/20))`: `mu = 3.25 ± 0.33`, `A = −0.00081 ± 0.0020`, `gamma = 1.23 ± 0.37`; `χ² = 10.9` over 10 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The law of the share of the answer is a line, `a + b·q`: `a = 0.52 ± 0.12`, `b = −0.44 ± 0.16`; `χ² = 10.4` over 9 bins; chosen by the smallest `QAIC` among 2 forms. A fall of 0.44 over the whole answer.
 
@@ -187,14 +216,6 @@ The law of the density is a logarithm plus a line, `a + b·log₂(p/2⁻¹⁰) +
 The law of the number of rules is a line, `a + b·log₂ m`: `a = 0.19 ± 0.32`, `b = 0.27 ± 0.07`; `χ² = 2.6` over 5 bins; chosen by the smallest `QAIC` among 3 forms.
 
 The level `α_F = V(20) + q(0) + δ_P + M(1) = 8.44 ± 0.50`, where `δ_P` is the maximum of the law of the density, at `p = 0.0010`; `V(20)` = 3.25 ± 0.33, `q(0)` = 0.52 ± 0.12, `δ_P` = 4.47 ± 0.51, `M(1)` = 0.19 ± 0.32. The edge of the measured area: 32 rules and 20,480 words.
-
-| Capacity | q | By the law | By the bins |
-|---|---|---|---|
-| instruction capacity, rules | 0.5 | none: the law gives no root | at least 32, reserve left 8.24 |
-| fatigue capacity, words | 0.5 | none: the law gives no root | - |
-| how many times full density multiplies the odds of an error | - | 1,933 (1,022–3,657), conditional: a continuation of the law of the density | - |
-
-The instruction capacity is the number of rules at the zero point. The fatigue capacity is the number of the last word of a text of the same length at the zero point. Full density multiplies the odds of a misfire by `e^(−P̂(1))`, `P̂(1) = P(1) − P(p → 0)`; a factor below one would mean that full density lowers them. It is a conditional quantity: a text has no background words at `p = 1`, so it always continues the law of the density, and it allows comparing the effect of the density on `P_sync`, `H` and `F`.
 
 ![F: V before correction](figures/F/V-before-correction.png)
 

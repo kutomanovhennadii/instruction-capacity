@@ -16,15 +16,10 @@ from typing import Any
 import numpy as np
 
 from iec.passport.laws.block_choice import LawStack
-from iec.passport.laws.gls_tools import STATUS_MEASURED
-from iec.passport.laws.law_rows import LEVEL, capacity_row, exponential, half_width
+from iec.passport.laws.law_rows import LEVEL, capacity_row, half_width
 
 #: A capacity whose law does not fall: no root.
 STATUS_NO_SLOPE = "no_slope"
-#: The measure of the density: how many times full density multiplies the odds of an error.
-DENSITY_ODDS_FACTOR = "density_odds_factor"
-#: A measure past the measured zone of its law: a continuation of the law.
-STATUS_CONDITIONAL = "conditional"
 
 
 def no_slope_row(key: str) -> dict[str, Any]:
@@ -71,47 +66,3 @@ def root_capacity_row(
     if not math.isfinite(half) or x + half > ceiling:
         return no_slope_row(key)
     return capacity_row(key, LEVEL, x, half, support, scale=scale)
-
-
-def odds_factor_row(
-    change: Callable[[np.ndarray], float],
-    stack: LawStack,
-    joint: np.ndarray,
-    *,
-    conditional: bool = False,
-) -> dict[str, Any]:
-    """Return how many times full density multiplies the odds of an error: ``e^(−P̂(1))``.
-
-    ``P̂(1)`` is the change of the logit of a success by the law of the density from its zero point
-    to ``p = 1``; the odds of an error are the ratio of its probability to the probability of a
-    success, and while errors are rare it is almost the factor of the probability of an error
-    itself. The factor keeps the sign of the change: below one, full density lowers the odds of an
-    error, as the rising law of the density of H does. The error goes as a factor:
-    ``e^(−P̂ ∓ h)``, ``h`` the half-width of ``P̂(1)`` by the delta method (decision 7 of the passport
-    standard: the measure stands instead of the guaranteed fatigue capacity; written as the factor
-    with its interval since 12.11).
-
-    Args:
-        change: ``P̂(1)`` from a vector of the parameters of the laws.
-        stack: The parameters of the laws and their rows over the coefficients.
-        joint: The joint covariance of the coefficients and of the variance of the shift.
-        conditional: The measure continues the law of the density past its measured zone: at
-            ``p = 1`` a text of F has no background words.
-
-    Returns:
-        The row ``density_odds_factor`` with ``value``, ``interval``, ``status`` and the change of
-        the logit itself, ``change`` and ``change_half``; a factor or a bound that a floating-point
-        number does not hold is ``None``.
-    """
-    value = change(stack.vector)
-    half = half_width(stack.gradient(change), joint)
-    return {
-        "key": DENSITY_ODDS_FACTOR,
-        "level": None,
-        "method": "law",
-        "value": exponential(-value),
-        "interval": [exponential(-value - half), exponential(-value + half)],
-        "status": STATUS_CONDITIONAL if conditional else STATUS_MEASURED,
-        "change": value,
-        "change_half": half,
-    }

@@ -88,9 +88,10 @@ acceptable. The passport reads every capacity at $q = 0.5$, the point where half
 fail: there the share of successes over all requests does not depend on the spread of request
 difficulty. It is computed at fixed reference conditions, the start of the answer to a short text with
 sparse replacements, so that the capacities of different models are read at the same place. The
-**instruction capacity** counts rules, the **fatigue capacity** counts words of the answer, and
-the **measure of the density** tells how many times the full density $p = 1$ multiplies the odds
-of an error; a factor below one means that the full density lowers them ([passport model](05-passport-model.md)).
+**instruction capacity** counts rules and the **fatigue capacity** counts words of the answer
+([passport model](05-passport-model.md)). Next to them the **standard stress test** gives the size of a
+task of typical proportions, the density 0.5 and one rule per 50 words, at which the last word fails in
+half of the cases, and what its errors consist of ([stress test](08-stress-test.md)).
 
 ## Why this measures instruction load
 

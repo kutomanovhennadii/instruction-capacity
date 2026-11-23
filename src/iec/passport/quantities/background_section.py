@@ -23,11 +23,9 @@ level 0.5, where the threshold of the logit of the median request is zero at any
 shift, so the reserve is the level itself: the instruction capacity, the number of rules at which
 ``α + [M(m) − M(1)]`` reaches zero, also by the bins (the article, section 5.5.1); the fatigue
 capacity - the word number at the last word of a text of the same length, ``q = 1``, at which
-``α − [q(0) − q(1)] + [V(s) − V(20)]`` reaches zero. Instead of the guaranteed fatigue capacity the
-section gives how many times full density multiplies the odds of an error, ``e^(−P̂(1))``,
-``P̂(1) = P(1) − P(p → 0)`` (decision 7 of the passport standard). There are no background words at
-``p = 1``, so this measure is conditional: it always continues the law of the density, and it allows
-comparing the effect of the density on P_sync, H and F.
+``α − [q(0) − q(1)] + [V(s) − V(20)]`` reaches zero. The section publishes the parameters of its laws
+with their covariance, ``law_covariance``, from which the standard stress test of the passport takes
+its errors (``iec.passport.stress_test``).
 """
 
 from __future__ import annotations
@@ -49,7 +47,6 @@ from iec.passport.laws.block_choice import (
     BlockLaw,
     LawStack,
     block_law,
-    block_shift,
     choose_scattered_law,
     law_entry,
     unit_rows,
@@ -75,7 +72,7 @@ from iec.passport.quantities.background_design import (
     answer_share_design,
 )
 from iec.passport.quantities.steps.bins_walk import capacity_by_bin_walk
-from iec.passport.quantities.steps.law_capacity import odds_factor_row, root_capacity_row
+from iec.passport.quantities.steps.law_capacity import root_capacity_row
 from iec.passport.trials.layout.bin_layout import REFERENCE_TOTAL_WORDS, BinLayout
 
 #: The zero of the logarithm of the density: the smallest density measured on the models.
@@ -396,6 +393,7 @@ def background_laws(
         letter: law for letter, law in chosen.items() if isinstance(law, BlockLaw)
     }
     stack = LawStack({letter: (law.params, law.rows) for letter, law in laws.items()})
+    part_names = {letter: law.form.parameters for letter, law in laws.items()}
     top = _density_top(laws["P"])
 
     def part(vector: np.ndarray, letter: str) -> np.ndarray:
@@ -434,12 +432,6 @@ def background_laws(
         """Return ``log₂(s/20)`` of the fatigue capacity."""
         return length_root(vector, fatigue_level(vector))
 
-    def density_change(vector: np.ndarray) -> float:
-        """Return ``P̂(1)``: the change of the density law from ``p → 0`` to ``p = 1``."""
-        params = part(vector, "P")
-        zero = block_shift(laws["P"].form, params, True)
-        return at(vector, "P", _U_AT_ONE) - zero
-
     shift_rows = {letter: stack.gradient(shift_of(letter)) for letter in laws}
     shifts = {letter: shift_of(letter)(stack.vector) for letter in laws}
     alpha = level(stack.vector)
@@ -469,8 +461,6 @@ def background_laws(
             float(built.largest_words),
             scale=words,
         ),
-        # At p = 1 there are no background words: the measure continues the law of the density.
-        odds_factor_row(density_change, stack, joint, conditional=True),
     ]
     q_law, p_law = laws["q"], laws["P"]
     section.update(
@@ -501,6 +491,7 @@ def background_laws(
                 "M(1)": {"value": shifts["M"], "half": half_width(shift_rows["M"], joint)},
             },
             "alpha": {"value": alpha, "half": half_width(stack.gradient(level), joint)},
+            "law_covariance": stack.covariance_entry(part_names, joint),
             "edge_rules": edge_rules,
             "edge_words": built.largest_words,
             "capacities": capacities,

@@ -60,8 +60,8 @@ $$P(p) = \mu_P - A \cdot 2^{\gamma x}, \qquad x = \log_2\tfrac{p}{2^{-10}}.$$
 The profile stays nearly level at rare replacements and falls ever faster towards full density: the data
 chose the binary exponential over the slanted hyperbola. `mu_P` = 10.40 ± 0.91, `A` = 0.60 ± 0.25,
 `gamma` = 0.50 ± 0.06; `χ² = 7.0` over 10 bins. The loss against rare replacements at full density is
-18.91 logits: full density multiplies the odds of losing the place by `e^18.91`, about 1.6·10⁸. For the
-execution of the rules it is 1.71 logits: the density acts first of all on the synchronization.
+18.91 logits; for the execution of the rules it is 1.71 logits: the density acts first of all on the
+synchronization.
 
 The dependence agrees with the copying mechanism proposed in the article: the replacement words do not occur in
 the source text, so each of them interrupts the match of the end of the written answer with a fragment of the
@@ -137,17 +137,18 @@ request difficulty, so the reserve of a quantity is its whole level: 37.20 ± 2.
 |---|---|---|---|---|
 | `H` | instruction, rules | 0.5 | 36.4 (32.8–40.4) | 35.3 |
 | `H` | fatigue, words | 0.5 | 18,382* (13,967–24,193) | |
-| `H` | measure of the density, times | — | 5.6 (3.0–10.3) | |
 | `P_sync` | fatigue, words | 0.5 | 13,515* (10,993–16,617) | |
-| `P_sync` | measure of the density, times | — | 1.6·10⁸ (6.1·10⁷–4.4·10⁸) | |
 | `F` | instruction, rules | 0.5 | 4.3·10⁷* (1.0·10⁷–1.8·10⁸) | at least 256 |
 | `F` | fatigue, words | 0.5 | 4.7·10⁶* (1.9·10⁶–1.2·10⁷) | |
-| `F` | measure of the density, times | — | 19.0 (13.2–27.3) | |
 
-The measure of the density is how many times the full density multiplies the odds of an error against the rarest
-replacements, `e^(−P̂(1))`; a factor below one would mean that the full density lowers them. For `F` it is a conditional
-quantity: a text has no background words at `p = 1`, so the number continues
-the law of the density and has no real meaning of its own.
+The standard stress test ([stress test](08-stress-test.md)): at the density 0.5 and one rule per 50 words the last word
+of the text fails in half of the cases for the median request at T = 910 ± 41 words and 18.2 ± 0.8 rules. Per 100
+combined errors of the last word there, 95.7 ± 0.8 are a lost place and 4.3 ± 0.8 a wrong replacement, and over them
+0.8 ± 0.1 are misfires on background words. The errors of the synchronization over the text are 11.0 ± 0.3%, and per
+100 of them at the point the length gives 63.2 ± 3.0, the density 36.1 ± 2.8 and the rules 0.7 ± 0.8; the replacements
+1.7 ± 0.3%, with 83.6 ± 3.3, 3.7 ± 3.5 and 12.7 ± 2.0; the background 0.5 ± 0.1%, with 56.6 ± 2.5, 17.1 ± 1.7 and
+26.2 ± 2.6. The combined error over the text is 12.4 ± 0.4%. At this point GPT-4o mini fails first of all by losing the
+place in the text, and the place is lost more to the length of the text than to the density.
 
 ## How to read these laws
 

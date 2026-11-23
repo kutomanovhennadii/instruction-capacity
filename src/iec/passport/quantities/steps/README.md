@@ -9,7 +9,7 @@ The steps the sections of the three quantities share; a section composes them wi
 | `axis_rows` | the rows of the bins of an axis of `P_sync` and `H`: raw, minus the shift, own errors, the law, the counts; the status `law`, `outlier` (clipped from the law), `reference` or `excluded` |
 | `cell_rows` | the rows of the cells of the grid of `P_sync` and `H`: raw, minus the shift of the grid, the law the section gives |
 | `bins_walk` | the instruction capacity by the bins of the number of rules for `P_sync` and `F`: the walk that spends the reserve |
-| `law_capacity` | the capacity by the root of laws of any form, with the status `no_slope` for laws without a root; the measure of the density `density_odds_factor = e^\|P̂(1)\|`; a factor or a bound past the largest floating-point number is `None` |
+| `law_capacity` | the capacity by the root of laws of any form, with the status `no_slope` for laws without a root |
 | `section_fit` | the first stage of a section, `SectionFit`: the design of a quantity without the rows of its fit (`light_design`), the fit and the longest text of the measurement |
 | `median_check` | the fit of a quantity with the variance by the load, checked against the median request of the data on the axes constant within a request; a bin turned to the other side of the reference bin beyond the error of the comparison sends the quantity to one variance with the note `SPREAD_AGAINST_DATA` |
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
+from iec.infrastructure.exceptions import ContractViolationError
 from iec.passport.laws.block_choice import (
     REASON_FEW_POINTS,
     BlockChoice,
@@ -125,3 +126,31 @@ def test_the_rows_of_a_law_carry_its_sensitivity_to_the_coefficients() -> None:
     assert set(entry["params"]) == {"a", "b"}
     assert entry["half"]["a"] > 0.0
     assert entry["n_points"] == 10 and entry["outliers"] == []
+
+
+def test_the_law_covariance_carries_the_coefficients_through_the_rows() -> None:
+    stack = LawStack(
+        {
+            "first": (np.array([1.0, 2.0]), np.array([[1.0, 0.0], [0.0, 2.0]])),
+            "second": (np.array([3.0]), np.array([[1.0, 1.0]])),
+        }
+    )
+    entry = stack.covariance_entry(
+        {"first": ("a", "b"), "second": ("c",)}, np.diag([0.04, 0.01, 9.0])
+    )
+    rows = np.array([[1.0, 0.0], [0.0, 2.0], [1.0, 1.0]])
+    # The variance of the shift, the last row and column of the joint covariance, stays out.
+    assert entry["parts"] == [
+        {"part": "first", "names": ["a", "b"]},
+        {"part": "second", "names": ["c"]},
+    ]
+    assert entry["vector"] == [1.0, 2.0, 3.0]
+    assert np.allclose(entry["matrix"], rows @ np.diag([0.04, 0.01]) @ rows.T)
+
+
+def test_the_law_covariance_refuses_names_out_of_the_order_of_the_stack() -> None:
+    stack = LawStack(
+        {"first": (np.array([1.0]), np.eye(1)), "second": (np.array([2.0]), np.eye(1))}
+    )
+    with pytest.raises(ContractViolationError):
+        stack.covariance_entry({"second": ("b",), "first": ("a",)}, np.eye(2))

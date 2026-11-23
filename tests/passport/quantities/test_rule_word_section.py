@@ -258,19 +258,34 @@ def test_laws_level_and_capacities_on_known_laws() -> None:
     assert logit == pytest.approx(threshold, abs=1e-3)
 
 
-def test_full_density_multiplies_the_odds_of_an_error_by_the_loss_of_its_law() -> None:
+def test_the_law_covariance_follows_the_published_laws() -> None:
     design, fit = _known_fit()
     section = rule_word_laws(design, fit, 10240.0, ASSIGNMENT)
-    odds = next(row for row in section["capacities"] if row["key"] == "density_odds_factor")
-    loss = section["density_loss_at_one"]
-    # The loss goes from the shift of the density, the asymptote μ of its slanted hyperbola at
-    # p → 0, to the law at p = 1.
-    expected = _hyperbola(P_LAW, 10.0) - P_LAW[0]
-    assert -loss == pytest.approx(expected, abs=1e-3)
-    # The factor keeps the sign: e^(−P̂(1)) with P̂(1) = −loss.
-    assert odds["value"] == pytest.approx(math.exp(loss))
-    assert odds["status"] == "measured"
-    assert odds["interval"][0] < odds["value"] < odds["interval"][1]
+    laws = section["laws"]
+    published = {
+        "slices": laws["grid"],
+        "plateau": laws["grid_plateau"],
+        "table": laws["table_size"],
+        "density": laws["density"],
+        "rule": laws["rule_position"],
+    }
+    entry = section["law_covariance"]
+    assert [part["part"] for part in entry["parts"]] == [
+        "slices",
+        "plateau",
+        "table",
+        "density",
+        "rule",
+    ]
+    names = [(part["part"], name) for part in entry["parts"] for name in part["names"]]
+    assert entry["vector"] == pytest.approx(
+        [published[key]["params"][name] for key, name in names]
+    )
+    matrix = np.asarray(entry["matrix"])
+    assert np.allclose(matrix, matrix.T)
+    # The diagonal of R·J·Rᵀ gives the published half-widths: 1.96 standard errors of every parameter.
+    halves = [published[key]["half"][name] for key, name in names]
+    assert 1.96 * np.sqrt(np.diag(matrix)) == pytest.approx(halves, rel=1e-6, abs=1e-12)
 
 
 def test_rows_keep_the_reference_bins_and_the_slices() -> None:
@@ -295,7 +310,6 @@ def test_the_composition_of_the_capacities() -> None:
         ("instruction_capacity", 0.5, "law"),
         ("instruction_capacity", 0.5, "bins"),
         ("fatigue_capacity_words", 0.5, "law"),
-        ("density_odds_factor", None, "law"),
     }
 
 

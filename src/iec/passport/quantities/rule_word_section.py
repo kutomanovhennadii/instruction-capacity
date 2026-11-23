@@ -22,10 +22,9 @@ article, sections 4.5 and 5.5, at the level 0.5, where the threshold of the logi
 request is zero at any variance of the shift: the instruction capacity is the root of the cumulative
 price of the table ``C(m) = [M(1) − M(m)] + ∫₁^m [R(1) − R(r)] dr`` at the reserve ``α``, also by the
 bins. The slices have no common asymptote, so the fatigue capacity is by the full law of the grid at
-the shortest text holding the word, ``v = s``. Instead of the guaranteed fatigue capacity the section
-gives how many times full density multiplies the odds of an error, ``e^(−P̂(1))``,
-``P̂(1) = P(1) − μ_P``, below one when full density lowers them (decision 7 of the passport standard).
-Errors are by the delta method over the coefficients of the fit.
+the shortest text holding the word, ``v = s``. The section publishes the parameters of its laws with
+their covariance, ``law_covariance``, from which the standard stress test of the passport takes its
+errors (``iec.passport.stress_test``). Errors are by the delta method over the coefficients of the fit.
 """
 
 from __future__ import annotations
@@ -69,7 +68,6 @@ from iec.passport.laws.spread_laws import spread_forms, spread_laws
 from iec.passport.quantities.steps.axis_rows import axis_rows
 from iec.passport.quantities.steps.bins_walk import STATUS_BELOW_ONE_RULE, STATUS_BEYOND_SUPPORT
 from iec.passport.quantities.steps.cell_rows import cell_rows
-from iec.passport.quantities.steps.law_capacity import odds_factor_row
 from iec.passport.quantities.steps.median_check import axis_bins, checked_fit, requests_of
 from iec.passport.quantities.steps.section_fit import SectionFit, light_design
 from iec.passport.trials.design.folded_design import AxisBin, GridCell, VariableDesign, build_design
@@ -451,7 +449,6 @@ def _capacities(
     laws: Mapping[str, BlockLaw],
     slice_form: LawForm,
     level: Callable[[np.ndarray], float],
-    density_loss: Callable[[np.ndarray], float],
     joint: np.ndarray,
     theta: Mapping[str, float],
     m_items: Sequence[AxisBin],
@@ -469,7 +466,6 @@ def _capacities(
         laws: The chosen laws by their parts of the stack.
         slice_form: The form of the slices of the grid.
         level: The level ``α`` from a vector of the stack.
-        density_loss: The loss of the density law from ``p → 0`` to ``p = 1`` from a vector.
         joint: The joint covariance of the coefficients and of the variance of the shift.
         theta: The coefficients by name.
         m_items: The bins of the law of the number of rules.
@@ -477,8 +473,7 @@ def _capacities(
         support_words: The longest text of the measurement, in words.
 
     Returns:
-        The instruction capacity by the law and by the bins, the fatigue capacity and how many times
-        full density multiplies the odds of an error.
+        The instruction capacity by the law and by the bins and the fatigue capacity.
     """
     table, rule, plateau = laws["table"], laws["rule"], laws["plateau"]
 
@@ -545,7 +540,6 @@ def _capacities(
             ),
         },
         words_row("fatigue_capacity_words", fatigue),
-        odds_factor_row(lambda vector: -density_loss(vector), stack, joint),
     ]
 
 
@@ -710,6 +704,10 @@ def rule_word_laws(
             **{key: (law.params, law.rows) for key, law in laws.items()},
         }
     )
+    part_names = {
+        "slices": grid.law.shared_names,
+        **{key: law.form.parameters for key, law in laws.items()},
+    }
 
     def shift_of(key: str) -> Callable[[np.ndarray], float]:
         """Return the shift of a block as a function of a vector of the stack."""
@@ -728,7 +726,7 @@ def rule_word_laws(
     alpha = level(stack.vector)
     loss = density_loss(stack.vector)
     capacities = _capacities(
-        stack, laws, grid.law.form, level, density_loss, joint, theta, m_items, r_items, support_words
+        stack, laws, grid.law.form, level, joint, theta, m_items, r_items, support_words
     )
     section.update(
         {
@@ -750,7 +748,7 @@ def rule_word_laws(
                 "lambda_R": {"value": rule.shift(), "half": half_width(shift_rows["rule"], joint)},
             },
             "alpha": {"value": alpha, "half": half_width(stack.gradient(level), joint)},
-            "density_loss_at_one": loss,
+            "law_covariance": stack.covariance_entry(part_names, joint),
             "capacities": capacities,
             "bins": {
                 "grid": cell_rows(

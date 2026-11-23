@@ -109,9 +109,7 @@ def print_summary(
         )
         for row in section.get("capacities", ()):
             if row["method"] == "law":
-                # The measure of the density has no level of quality.
-                level = "" if row["level"] is None else f" q={row['level']:g}"
-                print(f"    {row['key']}{level}: {row['value']} ({row['status']})")
+                print(f"    {row['key']} q={row['level']:g}: {row['value']} ({row['status']})")
     print(f"  written: {data_path}, {passport_md}")
     print(f"  figures: {len(figures)}")
 

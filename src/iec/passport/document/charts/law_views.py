@@ -18,7 +18,7 @@ from typing import Any, TypeVar
 import numpy as np
 
 from iec.infrastructure.exceptions import ContractViolationError
-from iec.passport.document.number_text import number
+from iec.passport.document.number_text import number, parameter
 from iec.passport.laws.block_choice import form_parameters
 from iec.passport.laws.forms.law_form import LawForm
 from iec.passport.laws.forms.linear_forms import LinearForm
@@ -103,7 +103,7 @@ def chosen_form(law: Mapping[str, Any], forms: Sequence[LawForm]) -> tuple[LawFo
 
 def law_label(law: Mapping[str, Any], form: LawForm) -> str:
     """Return the label of a law: its form, its parameters and its ``χ²``."""
-    params = ", ".join(f"{name} = {number(float(law['params'][name]))}" for name in form.parameters)
+    params = ", ".join(f"{name} = {parameter(float(law['params'][name]))}" for name in form.parameters)
     return f"{FORM_LABELS.get(form.name, form.name)}: {params}; χ² = {number(float(law['chi2']), digits=1)}"
 
 
@@ -251,7 +251,7 @@ def _slices(
         """Return the curve of a slice of a level."""
         return lambda s: slice_value(form, shared, level, np.log2(s))
 
-    params = ", ".join(f"{name} = {number(float(value), digits=3)}" for name, value in law["params"].items())
+    params = ", ".join(f"{name} = {parameter(float(value), digits=3)}" for name, value in law["params"].items())
     return SliceView(
         slices={int(row["v_bin"]): slice_curve(level_of(row)) for row in rows},
         label=f"{FORM_LABELS.get(form.name, form.name)} of a slice: {params}, every slice its own level μ",

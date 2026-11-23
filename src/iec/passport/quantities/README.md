@@ -7,11 +7,14 @@ the common steps in `steps/`.
 
 | Module | Role |
 |---|---|
-| `sync_section` | the section of `P_sync`: model VS-PM, the grid with a plateau, the density and the number of rules, three capacities by the laws and the instruction capacity by the bins |
+| `sync_section` | the section of `P_sync`: model VS-PM, the grid with a plateau, the density and the number of rules, two capacities by the laws and the instruction capacity by the bins |
 | `rule_word_section` | the section of `H`: model VS-PMR, the grid with the levels of its slices, the density, the number of rules and the rule number, the capacities by the laws and by the bins |
 | `background_design` | the trials of `F` by the share of the answer and the folded matrix of model V-(s/v)-PM |
-| `background_section` | the section of `F`: model V-(s/v)-PM, four laws through the well determined bins, three capacities by the laws and the instruction capacity by the bins |
+| `background_section` | the section of `F`: model V-(s/v)-PM, four laws through the well determined bins, two capacities by the laws and the instruction capacity by the bins |
 | `steps/` | the common steps of a section |
+
+Every section with laws publishes `law_covariance`, the parameters of its laws and their covariance, from which the standard
+stress test of the passport takes its errors (`passport.stress_test`).
 
 ## The steps of a section
 
