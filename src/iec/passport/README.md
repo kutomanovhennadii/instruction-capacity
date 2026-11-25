@@ -66,7 +66,8 @@ fits and the weights, and by at most `9.5e-6` relative in everything else. `veri
 2. floats under the keys `fit` and `weighting` within `1e-6` relative;
 3. all other floats within `1e-3` relative;
 4. every float also has the absolute floor `1e-9`: a difference of zeros;
-5. of the records of the candidate forms of a law, the chosen one in full and the others by the name of the form.
+5. of the records of the candidate forms of a law, the chosen one in full and the others by the name of the form;
+6. the number of steps of a fit is not compared: a fit near its stopping rule takes a step more or less on another machine.
 
 ## Key signatures
 

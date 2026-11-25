@@ -27,6 +27,10 @@ same loops run as plain Python with the same result, slower, and a warning advis
 **Passports.** The seven published passports are rebuilt. The numbers of `P_sync` change for every model; those of `H` and `F`
 change a little where the model rewrote the text. The format of the passport data is that of 0.2.4.
 
+**Checks.** `verify` does not compare the number of steps of a fit: it is the path of the optimizer, not its result, and a fit
+near its stopping rule takes a step more or less on another machine with the same numbers. The check of GPT-4.1 mini on the
+Linux runner stopped the fit of `P_sync` one step later than the published passport.
+
 ## 0.2.4
 
 **Passport.** The standard stress test replaces the measure of the density. The task has the density 0.5 and one rule per 50

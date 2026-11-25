@@ -14,7 +14,9 @@ in everything computed from them: the bins restored by the laws, the laws, the l
 capacities. The tolerances below keep a margin of about 100 times and more over these spreads. A
 number near zero is compared by the absolute floor. The record of a candidate form that a law did
 not choose is compared by the name of the form alone: a fit at the edge of its convergence converges
-on one machine and not on another, and the chosen law and its numbers stay the same.
+on one machine and not on another, and the chosen law and its numbers stay the same. For the same
+reason the number of steps of a fit is not compared: it is the path of the optimizer, not its result,
+and a fit near its stopping rule takes a step more or less on another machine with the same numbers.
 """
 
 from __future__ import annotations
@@ -58,6 +60,8 @@ PASSPORT_CHECK = "passport"
 _FIRST_STAGE_KEYS = frozenset({"fit", "weighting"})
 #: The key of the records of the candidate forms of a law and the key of its chosen form.
 _CANDIDATES, _LAW_FORM = "candidates", "law_form"
+#: The key of the number of steps of a fit: the path of the optimizer, not compared under ``fit``.
+_STEPS = "steps"
 #: Differences listed per check; the rest is counted.
 _SHOWN = 20
 
@@ -152,7 +156,9 @@ def _check_vocabulary(
         vocab = VocabStore(vocab_dir).load(description.vocab_id)
         verdict = VocabVerifier(vocab_dir).verify(description.vocab_id, check_provenance=False)
     except IECError as error:
-        return CheckResult(VOCABULARY_CHECK, False, (f"[{error.error_code}] {error.message}",)), None
+        return CheckResult(
+            VOCABULARY_CHECK, False, (f"[{error.error_code}] {error.message}",)
+        ), None
     differences = list(verdict.mismatches)
     if vocab.hash != description.vocab_hash:
         differences.append(
@@ -205,7 +211,7 @@ def compare_passports(published: Any, recomputed: Any) -> list[str]:
     integers. Floats under the keys ``fit`` and ``weighting`` - within ``FIRST_STAGE_RTOL``, all the
     others - within ``SECOND_STAGE_RTOL``; every float also has the absolute floor ``ABSOLUTE_FLOOR``.
     Of the records of the candidate forms of a law the chosen one is compared in full, the others by
-    the name of the form.
+    the name of the form. The number of steps of a fit is not compared when both passports give one.
     """
     differences: list[str] = []
     _compare(published, recomputed, "", False, differences)
@@ -229,6 +235,13 @@ def _compare(
             inside = first_stage or key in _FIRST_STAGE_KEYS
             if key == _CANDIDATES and _LAW_FORM in published:
                 _compare_candidates(published, recomputed, f"{path}.{key}", inside, differences)
+                continue
+            if (
+                key == _STEPS
+                and inside
+                and _is_number(published[key])
+                and _is_number(recomputed[key])
+            ):
                 continue
             _compare(published[key], recomputed[key], f"{path}.{key}", inside, differences)
         return

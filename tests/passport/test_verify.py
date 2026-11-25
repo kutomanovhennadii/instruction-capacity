@@ -26,7 +26,9 @@ from iec.passport.verify import (
 
 #: The forms of the laws of the new folder.
 ASSIGNMENT = build_law_assignment(
-    load_law_assignment_config(Path(__file__).resolve().parents[2] / "config" / "passport_laws.yaml")
+    load_law_assignment_config(
+        Path(__file__).resolve().parents[2] / "config" / "passport_laws.yaml"
+    )
 )
 
 
@@ -71,7 +73,10 @@ def test_a_number_computed_from_the_fit_has_the_wide_tolerance() -> None:
 
 def test_a_number_near_zero_is_compared_by_the_floor() -> None:
     assert compare_passports({"thresholds": {"q": 1e-16}}, {"thresholds": {"q": -1e-16}}) == []
-    assert compare_passports({"thresholds": {"q": 0.0}}, {"thresholds": {"q": 2 * ABSOLUTE_FLOOR}}) != []
+    assert (
+        compare_passports({"thresholds": {"q": 0.0}}, {"thresholds": {"q": 2 * ABSOLUTE_FLOOR}})
+        != []
+    )
 
 
 def test_a_candidate_the_law_did_not_choose_is_compared_by_its_name() -> None:
@@ -87,10 +92,25 @@ def test_a_candidate_the_law_did_not_choose_is_compared_by_its_name() -> None:
     assert compare_passports(law(6.5, unconverged), law(6.5, {"form": "binary_exponential"})) != []
 
 
+def test_the_number_of_steps_of_a_fit_is_not_compared() -> None:
+    # A fit near its stopping rule takes a step more on another machine with the same numbers.
+    assert (
+        compare_passports({"P_sync": {"fit": {"steps": 33}}}, {"P_sync": {"fit": {"steps": 34}}})
+        == []
+    )
+    assert (
+        compare_passports({"P_sync": {"fit": {"steps": 33}}}, {"P_sync": {"fit": {"steps": None}}})
+        != []
+    )
+    assert compare_passports({"P_sync": {"steps": 33}}, {"P_sync": {"steps": 34}}) != []
+
+
 def test_a_file_with_another_checksum_stops_the_checks(tmp_path: Path) -> None:
     (tmp_path / POINTS_FILENAME).write_bytes(b"points")
     description = _description({POINTS_FILENAME: "0" * 64})
-    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    (tmp_path / MEASUREMENT_FILENAME).write_text(
+        json.dumps(description.as_dict()), encoding="utf-8"
+    )
     report = verify_measurement(tmp_path, tmp_path, ASSIGNMENT)
     assert not report.passed
     assert report.checks[0].name == FILES_CHECK
@@ -100,7 +120,9 @@ def test_a_file_with_another_checksum_stops_the_checks(tmp_path: Path) -> None:
 
 def test_a_listed_file_that_does_not_exist_is_reported(tmp_path: Path) -> None:
     description = _description({POINTS_FILENAME: "0" * 64})
-    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    (tmp_path / MEASUREMENT_FILENAME).write_text(
+        json.dumps(description.as_dict()), encoding="utf-8"
+    )
     report = verify_measurement(tmp_path, tmp_path, ASSIGNMENT)
     assert "the file does not exist" in report.checks[0].details[0]
 
@@ -111,7 +133,9 @@ def test_every_numbered_part_of_the_points_must_be_listed(tmp_path: Path) -> Non
         with gzip.open(part, "wb"):
             pass
     description = _description({first.name: sha256_of(first)})
-    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    (tmp_path / MEASUREMENT_FILENAME).write_text(
+        json.dumps(description.as_dict()), encoding="utf-8"
+    )
     report = verify_measurement(tmp_path, tmp_path, ASSIGNMENT)
     assert report.checks[0].details == ("points-002.jsonl.gz is not listed in the description",)
 
@@ -122,7 +146,9 @@ def test_listed_numbered_parts_pass_the_files_check(tmp_path: Path) -> None:
         with gzip.open(part, "wb"):
             pass
     description = _description({part.name: sha256_of(part) for part in parts})
-    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    (tmp_path / MEASUREMENT_FILENAME).write_text(
+        json.dumps(description.as_dict()), encoding="utf-8"
+    )
     report = verify_measurement(
         tmp_path, Path(__file__).resolve().parents[2] / "assets" / "vocab", ASSIGNMENT
     )
@@ -135,7 +161,9 @@ def test_a_measurement_without_a_passport_fails_the_passport_check(tmp_path: Pat
     with gzip.open(points, "wb"):
         pass
     description = _description({POINTS_FILENAME: sha256_of(points)})
-    (tmp_path / MEASUREMENT_FILENAME).write_text(json.dumps(description.as_dict()), encoding="utf-8")
+    (tmp_path / MEASUREMENT_FILENAME).write_text(
+        json.dumps(description.as_dict()), encoding="utf-8"
+    )
     report = verify_measurement(
         tmp_path, Path(__file__).resolve().parents[2] / "assets" / "vocab", ASSIGNMENT
     )

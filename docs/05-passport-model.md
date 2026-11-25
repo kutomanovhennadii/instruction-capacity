@@ -309,5 +309,7 @@ an absolute floor of $10^{-9}$. Reordering the summation of the same points move
 measurement by at most $7.6 \cdot 10^{-9}$ relative in the first group and $9.5 \cdot 10^{-6}$ in the second, so
 the tolerances keep a margin of about 100 times and more. Of the records of the candidate forms of a law the chosen one is
 compared in full and the others by the name of the form: a fit at the edge of its convergence converges on one machine and
-not on another, while the chosen law stays the same. `verify` checks integrity and reproducibility only; it does not prove
+not on another, while the chosen law stays the same. For the same reason the number of steps of a fit is not compared: a
+fit near its stopping rule takes a step more or less on another machine with the same numbers. `verify` checks integrity
+and reproducibility only; it does not prove
 the method right.
