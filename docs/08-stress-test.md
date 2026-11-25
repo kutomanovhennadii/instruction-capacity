@@ -71,23 +71,23 @@ Without a point the status gives the reason:
 - `beyond_range` — the error does not reach 50% up to $2^{20}$ rules;
 - `no_laws` — one of the three quantities has no laws.
 
-Example: GPT-4o mini, passport 0.2.4 (`artefacts/pilot_gpt4o_mini_v55`). The point of 50% lies at $T = 910 \pm 41$
-words and $m = 18.2 \pm 0.8$ rules. Per 100 combined errors there are $95.7 \pm 0.8$ lost places and $4.3 \pm 0.8$
-wrong replacements, and over the same 100 errors $0.8 \pm 0.1$ false replacements of background words.
+Example: GPT-4o mini, passport 0.2.5 (`artefacts/pilot_gpt4o_mini_v55`). The point of 50% lies at $T = 1187 \pm 53$
+words and $m = 23.7 \pm 1.1$ rules. Per 100 combined errors there are $90.4 \pm 1.8$ lost places and $9.6 \pm 1.8$
+wrong replacements, and over the same 100 errors $1.3 \pm 0.2$ false replacements of background words.
 
-- Synchronization: the mean share of errors over the text is $11.0 \pm 0.3$%; the influence of length, density and
-  rules is $63.2 \pm 3.0$, $36.1 \pm 2.8$ and $0.7 \pm 0.8$ per 100 errors.
-- Replacements: $1.7 \pm 0.3$%; the influence of the three loads in the same order is $83.6 \pm 3.3$, $3.7 \pm 3.5$ and
-  $12.7 \pm 2.0$.
-- Background: $0.5 \pm 0.1$%; the influence is $56.6 \pm 2.5$, $17.1 \pm 1.7$ and $26.2 \pm 2.6$.
+- Synchronization: the mean share of errors over the text is $12.7 \pm 0.5$%; the influence of length, density and
+  rules is $65.3 \pm 2.7$, $34.0 \pm 2.6$ and $0.8 \pm 0.8$ per 100 errors.
+- Replacements: $3.8 \pm 0.6$%; the influence of the three loads in the same order is $83.0 \pm 3.1$, $3.5 \pm 3.3$ and
+  $13.5 \pm 2.0$.
+- Background: $0.9 \pm 0.1$%; the influence is $57.0 \pm 2.5$, $16.3 \pm 1.7$ and $26.7 \pm 2.6$.
 
-The combined error over the text is $12.4 \pm 0.4$%.
+The combined error over the text is $15.7 \pm 0.5$%.
 
 ## Reading the test
 
 The usual case is a point of 50% inside the measured area. The structure of the error there shows which mechanism of
-degradation chiefly limits the task: for GPT-4o mini about 96 of 100 combined errors come from a lost place and only
-about four from wrong replacements.
+degradation chiefly limits the task: for GPT-4o mini about 90 of 100 combined errors come from a lost place and only
+about ten from wrong replacements.
 
 A negative influence of a load is not by itself a fault of the calculation: for some models the quality grows with a
 load. For example, for Gemini 3.5 Flash Lite the synchronization improves with the length of the text.

@@ -56,10 +56,17 @@ it is rewritten text with errors. The answer without the wrapper lines is the **
 
 **Anchors.** Lines are compared in the **canonical form**: the right-hand word of every rule is
 replaced by its left-hand word. A right replacement and an unreplaced word then look the same, and
-a line rewritten with any such outcomes equals the line of the source text. Exactly equal lines are
-**anchors**: the longest common subsequence of lines, and of equal ones the one where earlier answer
-lines stand against the reference. When the model goes back, the first pass stays on its place and
-the repeat becomes an insertion.
+a wrong replacement or a misfire leaves the left-hand word of a rule on the place. A **background
+word** is a word of the text that is no left-hand word of a rule; the **skeleton** of a line masks
+the left-hand words of the rules. An answer line can stand on a text line equal to it; otherwise on
+a text line with the same skeleton where more than half of the places agree; otherwise on a text
+line of the same length that keeps every background word of the answer line on its place, with more
+than half of the places agreeing. Of all such pairs the **anchors** are the longest chain that goes
+forward both in the text and in the answer: the longest common subsequence of lines (Hunt, McIlroy
+1976), with the equality of lines judged by these rules; of equal chains, the one where earlier
+answer lines stand against the reference. A line from a far place of the text cannot carry the
+anchors away, and when the model goes back, the first pass stays on its place and the repeat falls
+into a gap.
 
 **Gaps.** Between two neighbouring anchors lies a gap. A line of a gap that exactly copies a
 reference line is an insertion: the anchors have already put the line it repeats on its place. The
@@ -77,7 +84,7 @@ they are aligned with the fewest edits.
 
 | Quantity | Trial | Success | Failure |
 |---|---|---|---|
-| `P_sync` | a place | the place is matched | a deletion or an insertion |
+| `P_sync` | a word of the reference | the word stands on its place | the word is deleted |
 | `H` | a rule word on a matched place | the right replacement | the word left as it was, the right-hand word of another rule, any other word |
 | `F` | a background word on a matched place | no misfire | a misfire: the right-hand word of a rule on the place of the word |
 
@@ -85,9 +92,8 @@ A deleted rule word or background word is not a trial of `H` or `F`: its failure
 `P_sync`. A choice of a wrong rule is a failure of `H`, not a quantity of its own. A background word
 changed to a word that is no right-hand word of a rule is counted, but it is not the event of `F`.
 
-The **word number** `s` of a trial is counted by the reference, from one. An insertion has the number
-of the reference word that follows the last matched word standing in the answer before it, and not
-past the end of the text.
+The **word number** `s` of a trial is counted by the reference, from one. An inserted word has no
+place in the reference and is no trial of any quantity: it is counted in `inserted`.
 
 ## What is counted for an answer
 
@@ -108,6 +114,7 @@ trials of every answered point with their conditions ([passport model](05-passpo
 - The alignment reads the order of the words, not the intention of the model. A line rewritten with
   many wrong words falls under the copy threshold and is counted as a deleted line and an inserted
   line.
-- An error in a word that a rule does not cover breaks the anchor of its line: the line is then
-  aligned as a gap, and its words are still counted on their places.
+- A line with an error in a word that a rule does not cover stands on its text line only while its
+  background words keep their places and more than half of its words agree; otherwise it is aligned
+  in a gap, and its words are still counted on their places.
 - The instrument does not tell a repeat from a return: both are insertions.

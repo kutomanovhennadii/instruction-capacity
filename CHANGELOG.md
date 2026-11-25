@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.2.5
+
+**Alignment.** The anchors - pairs of an answer line and a text line taken for one and the same line - are found by the
+background words of the lines. Lines are compared in the canonical form. An answer line is recognized by the strongest evidence
+that exists: a text line equal to it; otherwise a text line with the same skeleton - the line with the left-hand words of the
+rules masked - where more than half of the places agree, as after a wrong replacement; otherwise a text line of the same length
+that keeps every background word of the answer line on its place, with more than half of the places agreeing, as after a
+misfire. Of all recognized pairs the anchors are the longest chain that goes forward both in the text and in the answer - the
+longest common subsequence of the standard comparison of texts, with the equality of lines judged by these rules; of equal
+chains, the one with the earlier answer lines. Before, only exactly equal lines were anchors, so a line with one wrong
+replacement lost its anchor, and an answer that rewrote the text several times could be matched by a later, cleaner pass. The
+gaps between anchors are decided as before.
+
+**Trials.** A trial of `P_sync` is a word of the text: a word standing on its place is a success, a word without a place is a
+failure on its own word number. A word the model wrote beyond the text is no trial of any quantity. Before, every such word was
+a failure of `P_sync` numbered by the next word of the text, so an answer that rewrote the text many times put thousands of
+failures into one cell of the grid, where an ordinary answer puts ten or twenty. Now `P_sync = (n₊ + n₋)/(n₊ + n₋ + n_del)`,
+and a point has as many trials of `P_sync` as its text has words.
+
+**Speed.** The alignment of the 5172 answers of GPT-4o mini takes 39.2 s on one process instead of 68.7 s, and the trials of `F`
+are counted on the arrays of the alignment, about twenty times faster. The hot loops of the validator are compiled by numba
+when it is installed - the exact versions of `requirements.txt` include it, or `pip install "iec[numba]"`; without numba the
+same loops run as plain Python with the same result, slower, and a warning advises to install it.
+
+**Passports.** The seven published passports are rebuilt. The numbers of `P_sync` change for every model; those of `H` and `F`
+change a little where the model rewrote the text. The format of the passport data is that of 0.2.4.
+
 ## 0.2.4
 
 **Passport.** The standard stress test replaces the measure of the density. The task has the density 0.5 and one rule per 50

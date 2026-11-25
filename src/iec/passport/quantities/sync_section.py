@@ -1,7 +1,7 @@
 """The section of P_sync in the passport: model VS-PM, laws, level, capacities.
 
-A trial is a place of the alignment, a success - the answer word stands against its reference
-word. The model is ``η = VS(v, s) + P(p) + M(m) + b``, the same as the predictor model of the
+A trial is a word of the reference, a success - the word stands on its place in the answer. The
+model is ``η = VS(v, s) + P(p) + M(m) + b``, the same as the predictor model of the
 purchase, and the weights of the requests equalise the cells of the cube ``V × P × M``, as for the
 other quantities. The law of the grid is the law of the passport: the cells of a length slice lie
 on the curve of a form chosen among the candidates of the slices with an own plateau ``μ_v``

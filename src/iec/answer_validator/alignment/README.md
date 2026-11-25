@@ -7,10 +7,11 @@ goes in steps, and every step is a module of its own.
 
 | Module or folder | Role |
 |---|---|
-| `line_alignment.py` | `align_answer`: the steps of the alignment |
+| `line_alignment.py` | `AnswerAligner`, `DEFAULT_ALIGNER` and `align_answer`: the steps of the alignment; the strategies of anchors and gaps come through the constructor |
 | `aligned_answer.py` | the result: the kinds and origins of places, `Place` and `AlignedAnswer` with its arrays |
 | `answer_text.py` | `normalize_output` and `split_lines`: the text forms of an answer |
-| `line_anchors.py` | `anchor_lines` and `wrapper_lines`: the anchors of lines and the wrapper lines at the edges |
+| `wrapper_lines.py` | `wrapper_lines`: the wrapper lines at the edges of an answer |
+| `anchors/` | the anchors of lines by their background words: the recognizers and the longest chain behind one interface |
 | `place_builder.py` | `PlaceBuilder`: the anchors and the gap decisions turned into the arrays of places |
 | `edit_alignment.py` | `edit_alignment`: the words of a pair of lines aligned with the fewest edits |
 | `conservation_check.py` | `check_conservation` and `check_positions`: every reference word and every core word in exactly one place |
@@ -20,7 +21,8 @@ goes in steps, and every step is a module of its own.
 
 1. The lines of the reference, of the source and of the answer; the answer lines get their canonical form, in which the
    right-hand word of every rule is replaced by its left-hand word.
-2. The anchors: the longest common subsequence of lines of equal canonical form; of equal ones, the first pass of the answer.
+2. The anchors: an answer line is recognized by an equal text line, the same skeleton or the same background words; of all
+   recognized pairs, the longest chain going forward in both texts.
 3. The wrapper lines: lines without a single task word at the edges of the answer; they are not places.
 4. The gaps between anchors, each decided by a strategy of `gaps/`; the anchors and the decisions go into the accumulator of
    places in the order of the lines. In a pair of lines of equal length the words stand by positions, as in the article,

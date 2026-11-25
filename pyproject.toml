@@ -1,6 +1,6 @@
 [project]
 name = "iec"
-version = "0.2.4"
+version = "0.2.5"
 description = "Instruction capacity of language models: one measurement point and the passport of a measurement."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,6 +22,8 @@ dependencies = [
 [project.optional-dependencies]
 # The OpenTelemetry sink of telemetry: pip install "iec[opentelemetry]".
 opentelemetry = ["opentelemetry-api>=1.20,<2.0"]
+# The compiled loops of the validator: pip install "iec[numba]"; without it they run slower, same result.
+numba = ["numba>=0.61,<1.0"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
@@ -73,4 +75,9 @@ ignore_missing_imports = true
 # squares and the root search of the continuous IEC).
 [[tool.mypy.overrides]]
 module = ["scipy.*"]
+ignore_missing_imports = true
+
+# numba ships no type information; it compiles the loops of iec.infrastructure.acceleration.
+[[tool.mypy.overrides]]
+module = ["numba", "numba.*"]
 ignore_missing_imports = true

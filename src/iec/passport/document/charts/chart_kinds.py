@@ -44,7 +44,7 @@ from iec.passport.laws.forms.law_assignment import LawAssignment  # noqa: E402
 STATES = ((False, "before"), (True, "after"))
 #: The titles of the quantities.
 TITLES = {
-    "P_sync": "P_sync: the answer word stands against its reference word",
+    "P_sync": "P_sync: a word of the text stands on its place",
     "H": "H: a rule word on its place is replaced correctly",
     "F": "F: no misfire on a background word",
 }

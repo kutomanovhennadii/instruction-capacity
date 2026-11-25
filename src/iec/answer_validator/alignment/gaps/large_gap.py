@@ -7,6 +7,7 @@ of order, counts the rest together and fills every row of the table at once.
 
 from __future__ import annotations
 
+from bisect import bisect_left
 from collections.abc import Sequence
 from dataclasses import dataclass
 
@@ -29,9 +30,13 @@ LONGEST_MASKED_LINE = 32
 
 @dataclass(frozen=True, slots=True)
 class PairCounts:
-    """The pairings that passed the threshold: for a row of the table - columns and counts."""
+    """The pairings that passed the threshold: for a row of the table - columns and counts.
+
+    ``rows`` keeps them as arrays for filling the table, ``lists`` as lists for looking up one cell.
+    """
 
     rows: dict[int, tuple[np.ndarray, np.ndarray]]
+    lists: dict[int, tuple[list[int], list[int]]]
 
     @classmethod
     def of(cls, rows: np.ndarray, columns: np.ndarray, counts: np.ndarray) -> PairCounts:
@@ -39,28 +44,34 @@ class PairCounts:
         order = np.lexsort((columns, rows))
         rows, columns, counts = rows[order], columns[order], counts[order]
         borders = np.flatnonzero(np.diff(rows)) + 1
+        grouped = {
+            int(part_rows[0]): (part_columns, part_counts)
+            for part_rows, part_columns, part_counts in zip(
+                np.split(rows, borders),
+                np.split(columns, borders),
+                np.split(counts, borders),
+                strict=True,
+            )
+            if len(part_rows)
+        }
         return cls(
+            grouped,
             {
-                int(part_rows[0]): (part_columns, part_counts)
-                for part_rows, part_columns, part_counts in zip(
-                    np.split(rows, borders),
-                    np.split(columns, borders),
-                    np.split(counts, borders),
-                    strict=True,
-                )
-                if len(part_rows)
-            }
+                row: (part_columns.tolist(), part_counts.tolist())
+                for row, (part_columns, part_counts) in grouped.items()
+            },
         )
 
     def count(self, row: int, column: int) -> int | None:
         """Return the matched words of a pairing, ``None`` if it did not pass the threshold."""
-        found = self.rows.get(row)
+        found = self.lists.get(row)
         if found is None:
             return None
-        place = int(np.searchsorted(found[0], column))
-        if place == len(found[0]) or found[0][place] != column:
+        columns, counts = found
+        place = bisect_left(columns, column)
+        if place == len(columns) or columns[place] != column:
             return None
-        return int(found[1][place])
+        return counts[place]
 
 
 class LargeGapResolver:

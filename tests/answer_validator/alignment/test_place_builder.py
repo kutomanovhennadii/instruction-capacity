@@ -31,6 +31,14 @@ def test_consecutive_anchors_join_into_one_run() -> None:
     assert builder.unmatched == 0
 
 
+def test_a_run_of_anchors_gives_the_places_of_its_single_anchors() -> None:
+    single, run = _builder(), _builder()
+    single.add_anchor(0, 0)
+    single.add_anchor(1, 1)
+    run.add_anchor_run(0, 0, 2)
+    assert all(a.tolist() == b.tolist() for a, b in zip(single.arrays(), run.arrays(), strict=True))
+
+
 def test_an_inserted_line_counts_its_words_as_unmatched() -> None:
     builder = _builder()
     builder.add_group(Group(GROUP_INSERTED, (), (1,)))

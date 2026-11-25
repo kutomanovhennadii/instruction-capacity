@@ -4,8 +4,8 @@ The logit of a success by the bins of the axes with the shift of a request insid
 likelihood - the same path as the passport: the plain logit as the start, then the GLMM with
 request weights and the cluster sandwich by requests, then the GLMM with heterogeneous
 random-intercept variance when the loads of the requests are given. A bin where all trials gave
-one outcome is removed with its trials. The sign is that of the passport: a success is the answer
-word against its reference word (P_sync), the right replacement (H), no misfire (F); the more
+one outcome is removed with its trials. The sign is that of the passport: a success is a word of
+the text on its place (P_sync), the right replacement (H), no misfire (F); the more
 negative a coefficient, the more likely an error.
 
 ``VariableFitter`` is the chain of these fits: its paths (``chain.fit_paths``) go in order, and a

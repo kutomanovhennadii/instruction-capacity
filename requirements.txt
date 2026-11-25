@@ -25,8 +25,10 @@ huggingface_hub==0.36.2
 idna==3.20
 joblib==1.6.0
 kiwisolver==1.5.1
+llvmlite==0.50.0
 matplotlib==3.11.2
 nltk==3.10.3
+numba==0.68.1
 numpy==2.4.6
 packaging==26.3
 pillow==12.3.0

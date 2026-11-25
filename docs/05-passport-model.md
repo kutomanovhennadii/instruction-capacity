@@ -8,10 +8,12 @@ every step; `scripts/build_passport.py` recomputes a published passport, and
 
 The validator ([answer validation](04-answer-validation.md)) aligns the answer of every point with
 the status `ok` with its reference and gives the trials of the three quantities: `P_sync` on the
-places of the alignment, `H` on the rule words standing on their places, `F` on the background
-words standing on their places. All answered points enter the fit: the alignment gives an outcome
-at every place of an answer, so no point is taken out of the analysis because it lost its text. The
-trials of a point with the same conditions are folded into one row with summed counts.
+words of the reference, a word on its place being a success and a lost word a failure, `H` on the
+rule words standing on their places, `F` on the background words standing on their places. A word
+the model wrote beyond the text is no trial. All answered points enter the fit: the alignment gives
+an outcome for every word of the reference, so no point is taken out of the analysis because it
+lost its text. The trials of a point with the same conditions are folded into one row with summed
+counts.
 
 ## 2. Bins
 

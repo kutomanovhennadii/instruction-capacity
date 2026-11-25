@@ -18,4 +18,4 @@ def split_lines(text: str) -> tuple[tuple[str, ...], ...]:
     An empty line is kept as a line without words: otherwise an inserted line break would vanish
     without a trace.
     """
-    return tuple(tuple(line.split()) for line in text.split("\n"))
+    return tuple(map(tuple, map(str.split, text.split("\n"))))

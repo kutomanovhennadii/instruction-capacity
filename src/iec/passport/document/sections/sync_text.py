@@ -18,7 +18,7 @@ from iec.passport.document.text_cells import (
 )
 
 #: The title of the quantity in the document.
-TITLE = "P_sync: the answer word stands against its reference word"
+TITLE = "P_sync: a word of the text stands on its place"
 
 
 def sync_lines(section: Mapping[str, Any], figures: Sequence[str]) -> list[str]:

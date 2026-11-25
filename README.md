@@ -6,17 +6,17 @@ word B*. A task gives the model a list of such rules and a text without meaning,
 from a fixed vocabulary; the model rewrites the text. Each kind of load is set separately: the
 text length, the word position in the answer, the replacement density (the share of words in
 the text that must be replaced), the number of rules and the position of a rule in the list.
-The answer is aligned with the reference by places, and three quantities are counted on them:
-`P_sync`, the answer word stands against its reference word; `H`, a rule word on its place is
-replaced correctly; `F`, a background word on its place gets the replacement of a rule. Every
-place is a Bernoulli trial. From many trials a statistical model recovers the laws by which each
+The answer is aligned with the reference by places, and three quantities are counted on the words
+of the text: `P_sync`, a word of the text stands on its place in the answer; `H`, a rule word on
+its place is replaced correctly; `F`, a background word on its place gets the replacement of a
+rule. Every such word is a Bernoulli trial. From many trials a statistical model recovers the laws by which each
 quantity depends on each kind of load. The laws and the parameters derived from them with
 uncertainties — the instruction capacity (the IEC), the fatigue capacity and the standard stress
 test, the size of a task of typical proportions at which the last word fails in half of the cases
 and what its errors consist of — form the **passport** of the model under measurement, together
 with the way the spread of difficulty between requests depends on the load.
 
-This repository is the public part of the instrument, version 0.2.4. With it you can
+This repository is the public part of the instrument, version 0.2.5. With it you can
 
 - recompute the passports of the published measurements from their points and check that the
   published files are intact and reproducible;
@@ -30,11 +30,17 @@ neither its design nor its rules for choosing points are published. A passport d
 on it: it is computed from the published points alone, whoever chose them, so every number of a
 published passport can be checked without the closed part.
 
-## Version 0.2.4
+## Version 0.2.5
 
-This is the second version of the instrument, release 0.2.4. The first, 0.1.0, is the version the
+This is the second version of the instrument, release 0.2.5. The first, 0.1.0, is the version the
 article describes; the tag `v0.1.0` of this repository holds it and reproduces the numbers of the
-article. Release 0.2.4 replaces the measure of the density by the standard stress test
+article. Release 0.2.5 changes how the anchors of lines are found and how `P_sync` is counted. An
+answer line now stands on a text line by its background words, and of all such pairs the anchors
+are the longest chain going forward in both texts ([answer validation](docs/04-answer-validation.md));
+a trial of `P_sync` is a word of the text, and a word the model wrote beyond the text is no trial.
+Before, an answer that rewrote the text many times put thousands of failures into one cell of the
+grid. The alignment is faster, and the seven passports are rebuilt ([changelog](CHANGELOG.md)).
+Release 0.2.4 replaced the measure of the density by the standard stress test
 ([stress test](docs/08-stress-test.md)): at the density 0.5 and one rule per 50 words of the text the
 task grows until the combined error of the last word, a lost place or a wrong replacement of a rule
 word, reaches one half for the median request, and the passport gives the size of that task, the
@@ -98,7 +104,7 @@ Controlled Load.* arXiv:2610.36095, 2026. [arXiv page](https://arxiv.org/abs/261
 [PDF](articles/instruction-capacity.pdf)
 
 The article describes version 0.1.0 of the instrument; the tag `v0.1.0` of this repository
-reproduces its numbers, and [Version 0.2.4](#version-024) above says what this version changes.
+reproduces its numbers, and [Version 0.2.5](#version-025) above says what this version changes.
 
 ## Quick start: recompute a published passport
 
@@ -113,6 +119,9 @@ pip install --no-deps .
 python scripts/build_passport.py artefacts/pilot_gpt4o_mini_v55 --out-dir my_passport
 python scripts/verify.py artefacts/pilot_gpt4o_mini_v55
 ```
+
+The exact versions include numba, which compiles the hot loops of the validator; without it the validator runs slower with
+the same result.
 
 `requirements.txt` pins every library to the version in which the published passports were
 recomputed; `pyproject.toml` gives the ranges the code is written against. With other versions
@@ -141,10 +150,10 @@ the capacities and the document from it in seconds, for instance after a change 
 
 | Measurement | Model | Points | Trials of `P_sync` · `H` · `F` | Instruction capacity of `H` at q = 0.5, rules: by law · binned |
 |---|---|---|---|---|
-| [`pilot_gpt4o_mini_v55`](artefacts/pilot_gpt4o_mini_v55/passport.md) | `gpt-4o-mini-2024-07-18` | 5,172 | 22,598,814 · 1,155,179 · 10,213,582 | 36.4 (32.8–40.4) · 35.3 |
-| [`pilot_gemini3_5_flash_lite_v58`](artefacts/pilot_gemini3_5_flash_lite_v58/passport.md) | `gemini-3.5-flash-lite` | 3,788 | 48,842,597 · 7,817,448 · 24,081,763 | 14.6 (13.4–15.9) · 13.1 |
-| [`pilot_gemini3_1_flash_lite_v57`](artefacts/pilot_gemini3_1_flash_lite_v57/passport.md) | `gemini-3.1-flash-lite` | 5,336 | 112,208,407 · 4,318,887 · 25,706,292 | 18.8 (15.3–23.2) · 14.8 |
-| [`pilot_gpt4_1_mini_v56`](artefacts/pilot_gpt4_1_mini_v56/passport.md) | `gpt-4.1-mini-2025-04-14` | 6,961 | 85,962,046 · 3,805,051 · 36,982,696 | 23.5 (20.9–26.4) · 20.5 |
+| [`pilot_gpt4o_mini_v55`](artefacts/pilot_gpt4o_mini_v55/passport.md) | `gpt-4o-mini-2024-07-18` | 5,172 | 15,078,260 · 1,152,598 · 10,212,207 | 36.6 (33.0–40.7) · 35.5 |
+| [`pilot_gemini3_5_flash_lite_v58`](artefacts/pilot_gemini3_5_flash_lite_v58/passport.md) | `gemini-3.5-flash-lite` | 3,788 | 37,963,300 · 7,895,143 · 24,229,266 | 14.3 (13.1–15.6) · 12.7 |
+| [`pilot_gemini3_1_flash_lite_v57`](artefacts/pilot_gemini3_1_flash_lite_v57/passport.md) | `gemini-3.1-flash-lite` | 5,336 | 49,493,180 · 4,320,726 · 25,717,845 | 20.2 (16.6–24.5) · 16.4 |
+| [`pilot_gpt4_1_mini_v56`](artefacts/pilot_gpt4_1_mini_v56/passport.md) | `gpt-4.1-mini-2025-04-14` | 6,961 | 48,872,410 · 3,834,716 · 37,034,621 | 24.8 (22.8–27.0) · 22.0 |
 
 Intervals are 95%. The measurement of `gpt-4o-mini-2024-07-18` is the evidence base of the
 [empirical laws](docs/07-empirical-laws.md). The directory of every measurement holds the points, the description,
@@ -156,9 +165,9 @@ do not allow the generated content to be distributed, so these passports cannot 
 
 | Passport | Model | Points | Trials of `P_sync` · `H` · `F` | Instruction capacity of `H` at q = 0.5, rules: by law · binned |
 |---|---|---|---|---|
-| [`pilot_nemotron3_5_lightning_v43`](passports/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 48,574,151 · 590,039 · 8,872,340 | 10.0 (8.0–12.6) · 7.2 |
-| [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](passports/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 43,142,085 · 829,043 · 7,689,136 | 34.3 (29.8–39.4) · 35.0 |
-| [`pilot_nemotron3_ultra_550b_a55b_v60`](passports/pilot_nemotron3_ultra_550b_a55b_v60/passport.md) | `nvidia/nemotron-3-ultra-550b-a55b:free` | 6,702 | 108,717,543 · 3,583,234 · 41,854,373 | 17.0 (15.8–18.1) · 16.4 |
+| [`pilot_nemotron3_5_lightning_v43`](passports/pilot_nemotron3_5_lightning_v43/passport.md) | `nvidia/nemotron-3.5-lightning:free` | 4,753 | 15,128,220 · 590,450 · 8,874,561 | 10.0 (7.9–12.6) · 7.1 |
+| [`pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45`](passports/pilot_nemotron3_nano_omni_30b_a3b_reasoning_v45/passport.md) | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` | 3,695 | 14,277,800 · 829,924 · 7,690,262 | 34.3 (29.7–39.5) · 34.9 |
+| [`pilot_nemotron3_ultra_550b_a55b_v60`](passports/pilot_nemotron3_ultra_550b_a55b_v60/passport.md) | `nvidia/nemotron-3-ultra-550b-a55b:free` | 6,702 | 58,000,300 · 3,591,444 · 41,866,494 | 17.1 (16.0–18.3) · 16.6 |
 
 ## Measure your own model
 

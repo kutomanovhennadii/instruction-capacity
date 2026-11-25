@@ -14,6 +14,7 @@ no measurement logic here.
 | `configuration/` | loading of a YAML file into a Pydantic model or a plain mapping, with one rule for its errors |
 | `observability/` | the observability configuration, the registry of sink kinds and the builder of the hub |
 | `files/` | reliable writing of files: a whole file through a temporary file and a rename, a journal by whole appended lines |
+| `acceleration/` | compiled loops: `compiled` compiles a loop by numba when it is installed and leaves it plain Python otherwise, with the same result |
 
 ## Key signatures
 
@@ -30,6 +31,7 @@ load_observability_config(path: Path) -> ObservabilityConfig
 build_observability(config, *, known_blocks=OPEN_PART_BLOCKS, registry=None) -> TelemetryHub
 write_text_atomically(path: Path, text: str) -> None
 append_line(path: Path, line: str) -> None
+compiled(function) -> function; plain(function) -> function; COMPILED: bool
 ```
 
 ## Boundaries

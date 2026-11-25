@@ -63,6 +63,26 @@ class PlaceBuilder:
             GROUP_CODES[GROUP_ANCHOR],
         )
 
+    def add_anchor_run(self, reference_index: int, answer_index: int, count: int) -> None:
+        """Anchors in a row: ``count`` lines of the reference and of the answer from the given ones.
+
+        The places are those of ``count`` calls of :meth:`add_anchor`, which the accumulator would join
+        into one run: the lines of an anchor have equal length, and the lines follow each other.
+        """
+        last = answer_index + count - 1
+        size = (
+            self._answer_start[last]
+            + len(self._answer_lines[last])
+            - self._answer_start[answer_index]
+        )
+        self._add(
+            KIND_MATCHED,
+            self._reference_start[reference_index],
+            self._answer_start[answer_index],
+            size,
+            GROUP_CODES[GROUP_ANCHOR],
+        )
+
     def add_group(self, group: Group) -> None:
         """A gap decision: by positions in a pair of lines of equal length, otherwise by edits."""
         code = GROUP_CODES[group.kind]

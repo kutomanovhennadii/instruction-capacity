@@ -8,7 +8,7 @@ measurement.
 
 | Module or folder | Role |
 |---|---|
-| `trials/` | the layout of the bins, the run cube and the weights of the points, the trials of the three quantities by the places of the alignment, the folded designs |
+| `trials/` | the layout of the bins, the run cube and the weights of the points, the trials of the three quantities, `P_sync` on the words of the reference and `H` and `F` on the words standing on their places, the folded designs |
 | `fitting/` | the fits of the bins: the plain logit, the GLMM with the shift of a request, the spread of the shift by the load and the chain that tries them in order |
 | `laws/` | the laws through the fitted bins, their forms (`laws/forms/`, assigned by `config/passport_laws.yaml`) and the rows of the passport |
 | `quantities/` | the sections of `P_sync`, `H` and `F`: the model of every quantity, its laws, level and capacities by the laws and by the bins |

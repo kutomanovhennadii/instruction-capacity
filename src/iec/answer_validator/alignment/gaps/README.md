@@ -30,4 +30,6 @@ lines, where a pairing is worth `2·matched` half words and three less for a glu
 small one counts it line by line. The large one drops most pairs of lines at once by the number of common words regardless of
 order, counts the longest common subsequence of the rest bit by bit and fills every row at once. A gap of at most 16 pairs of
 lines, or a gap with a reference line longer than 32 words, goes the small way: a glue of two lines must fit the 64 bits of a
-machine word. A new strategy is a new class with the method `resolve`; the alignment does not change.
+machine word. A new strategy is a new class with the method `resolve`; the alignment does not change. The counts of the common
+words and of the subsequences are compiled loops of `iec.infrastructure.acceleration`; without numba they run by numpy steps
+with the same result.

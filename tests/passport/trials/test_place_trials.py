@@ -1,4 +1,4 @@
-"""Trials of P_sync, H and F by places: outcomes, the word number of an insertion, deletions."""
+"""Trials of P_sync, H and F by places: outcomes, an inserted word that is no trial, deletions."""
 
 from __future__ import annotations
 
@@ -95,11 +95,11 @@ def test_outcomes_of_rule_and_background_words() -> None:
     assert background[3] == (16, 1)
 
 
-def test_inserted_repeat_stands_before_the_next_reference_word() -> None:
+def test_an_inserted_repeat_is_no_trial_of_p_sync() -> None:
     trials = _trials(_lines(0, 1, 2, 3, 1, 2, 3, 4, 5, 6, 7))
 
-    # The repeat of lines 2-4 stands before word 41 (line 5, bin 4): 40 places and 30 insertions.
-    assert _sync(trials) == [(1, 10, 0), (2, 10, 0), (3, 20, 0), (4, 70, 30)]
+    # The repeat of lines 2-4 is inserted: 30 inserted words, and every bin keeps the words of the text.
+    assert _sync(trials) == [(1, 10, 0), (2, 10, 0), (3, 20, 0), (4, 40, 0)]
     assert trials.totals["inserted"] == 30
 
 

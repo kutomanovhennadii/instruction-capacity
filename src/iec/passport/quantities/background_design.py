@@ -18,7 +18,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from iec.answer_validator import PLACE_DELETED, AlignedAnswer
+from iec.answer_validator import KIND_MATCHED, AlignedAnswer
 from iec.contracts import RuleTable, SourceText
 from iec.infrastructure.exceptions import ContractViolationError
 from iec.passport.trials.design.folded_design import VariableDesign
@@ -64,25 +64,30 @@ def background_cells(
         source_text: The source text of the task.
         rule_table: The rule table.
     """
-    marked = frozenset(source_text.replacement_positions)
     targets = frozenset(rule_table.targets)
     total = len(source_text.words)
-    cells: dict[int, list[int]] = defaultdict(lambda: [0, 0])
-    for place in aligned.places:
-        position = place.reference_position
-        if position is None or place.kind == PLACE_DELETED or position in marked:
-            continue
-        share = (position + 1) / total
-        share_bin = min(SHARE_BINS, int(share * SHARE_BINS) + 1)
-        cells[share_bin][0] += 1
-        cells[share_bin][1] += int(place.word in targets)
+    # A background word on its place is a matched place whose reference word no rule covers; it is
+    # counted on the numeric arrays of the alignment, without building a place object per word.
+    matched = aligned.kinds == KIND_MATCHED
+    reference = aligned.reference_positions[matched]
+    answer = aligned.answer_positions[matched]
+    keep = ~np.isin(reference, np.asarray(source_text.replacement_positions, dtype=np.int64))
+    reference, answer = reference[keep], answer[keep]
+    share_bins = np.minimum(SHARE_BINS, ((reference + 1) / total * SHARE_BINS).astype(np.int64) + 1)
+    words = aligned.core_words
+    misfires = np.fromiter(
+        (words[place] in targets for place in answer.tolist()), dtype=bool, count=len(answer)
+    )
+    trials = np.bincount(share_bins, minlength=SHARE_BINS + 1)
+    failures = np.bincount(share_bins, weights=misfires, minlength=SHARE_BINS + 1)
     return BackgroundCells(
         key=key,
         D=D,
         n=n,
         m=m,
         cells=tuple(
-            (share_bin, trials, misfires) for share_bin, (trials, misfires) in sorted(cells.items())
+            (int(share_bin), int(trials[share_bin]), int(failures[share_bin]))
+            for share_bin in np.flatnonzero(trials)
         ),
     )
 

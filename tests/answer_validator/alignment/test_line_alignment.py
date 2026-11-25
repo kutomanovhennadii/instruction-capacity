@@ -7,6 +7,8 @@ from collections import Counter
 from iec.answer_validator import build_reference
 from iec.answer_validator.alignment.aligned_answer import (
     GROUP_ANCHOR,
+    GROUP_CODES,
+    KIND_MATCHED,
     PAIRING_GLUE,
     PAIRING_ONE,
     PAIRING_SPLIT,
@@ -16,7 +18,8 @@ from iec.answer_validator.alignment.aligned_answer import (
     AlignedAnswer,
     Place,
 )
-from iec.answer_validator.alignment.line_alignment import align_answer
+from iec.answer_validator.alignment.gaps.gap_resolver import DEFAULT_GAP_RESOLVER
+from iec.answer_validator.alignment.line_alignment import AnswerAligner, align_answer
 from iec.contracts import Reference, Rule, RuleTable, SourceText
 from iec.prompt_generator.text_generator import WORDS_PER_LINE
 
@@ -117,7 +120,7 @@ def test_misfire_wrong_rule_and_unreplaced_stay_on_their_places() -> None:
     assert _kinds(aligned) == Counter({PLACE_MATCHED: 80})
     words = _words(aligned)
     assert (words[21], words[55], words[33]) == ("fish", "fish", "lake")
-    assert aligned.pairings == ((PAIRING_ONE, 0.9), (PAIRING_ONE, 0.9))
+    assert aligned.pairings == ()  # a line with one wrong word of ten is an anchor
     assert aligned.episodes == 0
 
 
@@ -282,3 +285,27 @@ def test_places_are_plain_values_in_the_order_of_the_arrays() -> None:
     deleted = next(place for place in places if place.kind == PLACE_DELETED)
     assert (deleted.answer_position, deleted.word) == (None, None)
     assert type(deleted.reference_position) is int
+
+
+def test_a_custom_anchor_finder_is_used_by_the_aligner() -> None:
+    """Substitution (specification §2.9): the aligner takes any strategy of anchors."""
+
+    class NoAnchors:
+        def find(self, reference_signatures, answer_signatures, sources):  # type: ignore[no-untyped-def]
+            return []
+
+    table, text, reference = _task()
+    answer = "\n".join(" ".join(line) for line in _lines(*range(8)))
+    aligned = AnswerAligner(NoAnchors(), DEFAULT_GAP_RESOLVER).align(answer, reference, text, table)
+    assert GROUP_CODES[GROUP_ANCHOR] not in aligned.groups.tolist()
+    assert int((aligned.kinds == KIND_MATCHED).sum()) == 0
+
+
+def test_a_stray_line_from_far_ahead_leaves_the_rest_on_its_places() -> None:
+    aligned = _align(_lines(0, 1, 2, 6, 3, 4, 5, 6, 7))
+    assert _kinds(aligned) == Counter({PLACE_MATCHED: 80, PLACE_INSERTED: 10})
+
+
+def test_a_skip_with_fragments_keeps_the_long_run_on_its_places() -> None:
+    aligned = _align(_lines(0, 1, 7, 6, 4, 5, 6, 7))
+    assert _kinds(aligned) == Counter({PLACE_MATCHED: 60, PLACE_DELETED: 20, PLACE_INSERTED: 20})

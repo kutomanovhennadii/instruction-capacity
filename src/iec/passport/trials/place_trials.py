@@ -1,17 +1,15 @@
-"""Trials of the three quantities of the formula by the places of the alignment.
+"""Trials of the three quantities of the formula by the words of the reference.
 
-``P_correct = P_sync · [π · H + (1 − π) · (1 − F)]``. A trial of P_sync is a place of the
-alignment: a success - the answer word stands against its reference word, a failure - a deletion
-or an insertion. A trial of H is a rule word standing on its place: a success - the right
-replacement; the choice of the rule is absorbed by H. A trial of F is a background word standing
-on its place: the event is a misfire, the right-hand word of a rule on the place of a background
-word.
+``P_correct = P_sync · [π · H + (1 − π) · (1 − F)]``. A trial of P_sync is a word of the
+reference: a success - the word stands on its place in the answer, a failure - it is deleted. A
+word the model inserted has no place in the reference and is no trial. A trial of H is a rule word
+standing on its place: a success - the right replacement; the choice of the rule is absorbed by H.
+A trial of F is a background word standing on its place: the event is a misfire, the right-hand
+word of a rule on the place of a background word.
 
-The word number s is counted by the reference, as in the passport: for a reference word - its
-number from one; for an insertion - the number of the reference word that follows the last
-matched word standing in the answer before it (1 before the first matched word), but not past
-the end of the text. The word-number bin is the doubling of the line number
-``doub_bin(⌈s/10⌉)``, as in the passport.
+The word number s is counted by the reference, as in the passport: the number of the word from
+one. The word-number bin is the doubling of the line number ``doub_bin(⌈s/10⌉)``, as in the
+passport.
 
 The places are counted by whole arrays. The doubling bins of the lines and the logarithms of the
 word numbers are read from the tables of the measurement (``trial_tables``), built once at its
@@ -64,10 +62,11 @@ TOTALS: tuple[str, ...] = (
 class PointTrials:
     """The trials of one point by word-number bins.
 
-    ``sync`` - ``(s bin, places, failures, sum of log₂ s)``; ``rule`` - ``(s bin, rule number,
-    trials, failures, sum of log₂ s)``; ``background`` - ``(s bin, trials, misfires, sum of
-    log₂ s)``. A failure of H is any word but the right replacement; the event of F is a
-    misfire. ``totals`` - the counts of the point by :data:`TOTALS`.
+    ``sync`` - ``(s bin, words of the reference, deleted words, sum of log₂ s)``, a word the
+    model inserted being no trial; ``rule`` - ``(s bin, rule number, trials, failures, sum of
+    log₂ s)``; ``background`` - ``(s bin, trials, misfires, sum of log₂ s)``. A failure of H is
+    any word but the right replacement; the event of F is a misfire. ``totals`` - the counts of
+    the point by :data:`TOTALS`.
     """
 
     key: str
@@ -102,7 +101,9 @@ def point_trials(
     *,
     tables: TrialTables,
 ) -> PointTrials:
-    """Split the places of a point into trials of P_sync, H and F by word-number bins.
+    """Split the places of a point into trials of P_sync, H and F by word-number bins: a trial of
+    P_sync is a word of the reference, a success on its place and a failure when deleted; an
+    inserted word is no trial.
 
     Args:
         key: The key of the point.
@@ -129,18 +130,8 @@ def point_trials(
     positions = aligned.reference_positions
     answers = aligned.answer_positions
 
-    numbers = positions + 1
-    inserted = positions < 0
-    if inserted.any():
-        matched_places = np.flatnonzero(kinds == KIND_MATCHED)
-        order = np.argsort(answers[matched_places])
-        answer_sorted = answers[matched_places][order]
-        reference_sorted = positions[matched_places][order]
-        slots = np.searchsorted(answer_sorted, answers[inserted]) - 1
-        following = np.ones(len(slots), dtype=np.int64)
-        known = slots >= 0
-        following[known] = reference_sorted[slots[known]] + 2
-        numbers[inserted] = np.minimum(following, size)
+    on_text = positions >= 0
+    numbers = np.where(on_text, positions + 1, 1)
     tables.require(int(numbers.max(initial=0)))
     lines = (numbers - 1) // width + 1
     s_bins = tables.line_bins[lines]
@@ -157,7 +148,7 @@ def point_trials(
     totals[PLACE_INSERTED] = totals["places"] - totals[PLACE_MATCHED] - totals[PLACE_DELETED]
 
     sync_bins, sync_places, sync_failures, sync_sums = _fold_trials(
-        s_bins, kinds != KIND_MATCHED, logarithms
+        s_bins[on_text], kinds[on_text] != KIND_MATCHED, logarithms[on_text]
     )
 
     targets = tuple(rule_table.targets)

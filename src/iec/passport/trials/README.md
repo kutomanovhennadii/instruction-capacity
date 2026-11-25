@@ -1,8 +1,9 @@
 # trials — the trials of the passport and their layout
 
-The trials of the three quantities are counted from the places of the alignment of every point and folded into matrices in
-the layout of the bins of the passport. A trial of P_sync is a place of the alignment, a trial of H a rule word on its
-place, a trial of F a background word on its place; the word-number bin of a trial is the doubling of its line number.
+The trials of the three quantities are counted from the alignment of every point and folded into matrices in the layout of
+the bins of the passport. A trial of P_sync is a word of the reference, a success on its place and a failure when deleted; a
+word inserted by the model is no trial. A trial of H is a rule word on its place, a trial of F a background word on its
+place; the word-number bin of a trial is the doubling of its line number.
 
 ## What is here
 

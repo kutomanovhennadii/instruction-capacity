@@ -50,7 +50,7 @@ answer word gets one place, and each kind of failure is a Bernoulli trial of its
 
 | Quantity | Trial | Success |
 |---|---|---|
-| `P_sync` | a place of the alignment | the answer word stands against its reference word, not a word lost and not a word inserted |
+| `P_sync` | a word of the text | the word stands on its place in the answer; a word the model wrote beyond the text is no trial |
 | `H` | a rule word standing on its place | the right replacement |
 | `F` | a background word standing on its place | the event is a misfire: the right-hand word of a rule stands on the place of the word |
 
