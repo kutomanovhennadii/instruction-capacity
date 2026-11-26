@@ -1,0 +1,22 @@
+name: ChatGPT Lean smoke test
+on:
+  push:
+    branches: [chatgpt-connection-test-20261126]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'research/lean-connection-test/**'
+      - '.github/workflows/chatgpt-lean-smoke.yml'
+permissions:
+  contents: read
+jobs:
+  lean-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lean
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain leanprover/lean4:v4.19.0
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Verify theorem
+        run: lean research/lean-connection-test/Smoke.lean
